@@ -69,6 +69,7 @@ set(RENDERIT_HEADERS
     ${CMAKE_SOURCE_DIR}/External/imgui/backends
     ${CMAKE_SOURCE_DIR}/External/glm
     ${CMAKE_SOURCE_DIR}/External/assimp/include
+    ${CMAKE_SOURCE_DIR}/External/termcolor/include
     ${CMAKE_SOURCE_DIR}/Base
 )
 
@@ -79,7 +80,7 @@ set(RENDERIT_LIBS
     ImGui
     OpenGL::GL
     Threads::Threads
-    Base
+    RenderItLib
 )
 
 if(RENDERIT_EXAMPLES)

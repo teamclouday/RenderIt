@@ -1,17 +1,18 @@
-file(GLOB BASE_SRC *.cpp *.hpp)
+file(GLOB RENDERIT_SRC *.cpp *.hpp)
 
-add_library(Base ${BASE_SRC})
+add_library(RenderItLib ${RENDERIT_SRC})
 
-target_include_directories(Base PRIVATE
+target_include_directories(RenderItLib PRIVATE
     ${CMAKE_SOURCE_DIR}/External/glew-cmake/include
     ${CMAKE_SOURCE_DIR}/External/glfw/include
     ${CMAKE_SOURCE_DIR}/External/imgui
     ${CMAKE_SOURCE_DIR}/External/imgui/backends
     ${CMAKE_SOURCE_DIR}/External/glm
     ${CMAKE_SOURCE_DIR}/External/assimp/include
+    ${CMAKE_SOURCE_DIR}/External/termcolor/include
 )
 
-target_link_libraries(Base PRIVATE
+target_link_libraries(RenderItLib PRIVATE
     libglew_static
     glfw
     assimp
