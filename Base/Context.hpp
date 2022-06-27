@@ -29,9 +29,8 @@ class AppContext
 
     void UI();
 
-    const std::string NAME = "AppContext";
-
   public:
+    const std::string NAME = "AppContext";
     bool displayUI;
 
   private:

@@ -40,6 +40,9 @@ class Camera
   private:
     void update();
 
+  public:
+    const std::string NAME = "Camera";
+
   private:
     glm::vec4 _clearColor;
 
