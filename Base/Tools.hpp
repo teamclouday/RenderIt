@@ -21,4 +21,6 @@ template <typename... T> inline void println(T &&...args)
 
 void display_message(const std::string &title, const std::string &message, MessageType type);
 
+std::string read_file_content(const std::string &path);
+
 } // namespace RenderIt

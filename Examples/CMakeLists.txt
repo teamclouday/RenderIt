@@ -2,7 +2,7 @@
 function(buildExample EXAMPLE_NAME)
     set(EXAMPLE_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME})
     message(STATUS "Generating project file for ${EXAMPLE_NAME}")
-    file(GLOB SRC ${EXAMPLE_FOLDER}/*.cpp)
+    file(GLOB SRC ${EXAMPLE_FOLDER}/src/*.cpp ${EXAMPLE_FOLDER}/src/*.hpp)
     add_executable(${EXAMPLE_NAME} ${SRC})
     set_target_properties(${EXAMPLE_NAME}
         PROPERTIES
@@ -17,6 +17,10 @@ function(buildExample EXAMPLE_NAME)
     target_link_libraries(${EXAMPLE_NAME} PRIVATE
         ${RENDERIT_LIBS}
     )
+    add_custom_target(copy_shaders
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${EXAMPLE_FOLDER}/shaders ${EXAMPLE_FOLDER}/bin/shaders
+    )
+    add_dependencies(${EXAMPLE_NAME} copy_shaders)
 endfunction(buildExample)
 
 # all example

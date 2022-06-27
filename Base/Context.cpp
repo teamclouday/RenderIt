@@ -6,10 +6,7 @@
 #include <imgui_impl_opengl3.h>
 
 #include <algorithm>
-#include <filesystem>
 #include <stdexcept>
-
-namespace fs = std::filesystem;
 
 namespace RenderIt
 {
@@ -104,8 +101,7 @@ void AppContext::initializeLocal()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
-    auto imgui_initfile = fs::current_path() / fs::path("RenderItApp.ini");
-    io.IniFilename = imgui_initfile.string().c_str();
+    io.IniFilename = "RenderItApp.ini";
     ImGui::StyleColorsDark();
 
     ImGui_ImplGlfw_InitForOpenGL(_window, true);
