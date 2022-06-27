@@ -1,4 +1,5 @@
 #include "Context.hpp"
+#include "Camera.hpp"
 #include "Tools.hpp"
 
 #include <imgui_impl_glfw.h>
@@ -30,13 +31,13 @@ AppContext::~AppContext()
     glfwTerminate();
 }
 
-AppContext *AppContext::instance()
+AppContext *AppContext::Instance()
 {
     static AppContext app;
     return &app;
 }
 
-void AppContext::setWindowSize(int width, int height)
+void AppContext::SetWindowSize(int width, int height)
 {
     if (!_window)
         return;
@@ -45,24 +46,24 @@ void AppContext::setWindowSize(int width, int height)
     glfwSetWindowSize(_window, _winW, _winH);
 }
 
-void AppContext::getWindowSize(int &width, int &height)
+void AppContext::GetWindowSize(int &width, int &height)
 {
     width = _winW;
     height = _winH;
 }
 
-void AppContext::setWindowTitle(const std::string &title)
+void AppContext::SetWindowTitle(const std::string &title)
 {
     _winTitle = title;
     glfwSetWindowTitle(_window, _winTitle.c_str());
 }
 
-bool AppContext::windowShouldClose()
+bool AppContext::WindowShouldClose()
 {
     return _window ? glfwWindowShouldClose(_window) : true;
 }
 
-void AppContext::loopEndFrame(std::function<void()> callUI)
+void AppContext::LoopEndFrame(std::function<void()> callUI)
 {
     if (displayUI)
     {
@@ -84,14 +85,10 @@ void AppContext::initializeLocal()
 {
     glfwSetErrorCallback(AppContext::glfw_error_callback);
     if (!glfwInit())
-    {
         throw std::runtime_error("Failed to init GLFW!");
-    }
     _window = glfwCreateWindow(_winW, _winH, _winTitle.c_str(), nullptr, nullptr);
     if (!_window)
-    {
         throw std::runtime_error("Failed to create GLFW window!");
-    }
     glfwSetWindowUserPointer(_window, this);
     glfwMakeContextCurrent(_window);
 
@@ -103,9 +100,7 @@ void AppContext::initializeLocal()
 
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK)
-    {
         throw std::runtime_error("Failed to init GLEW!");
-    }
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
@@ -119,6 +114,7 @@ void AppContext::initializeLocal()
 
 void AppContext::initializeGlobal()
 {
+    Camera::Instance();
 }
 
 void AppContext::glfw_error_callback(int error, const char *description)

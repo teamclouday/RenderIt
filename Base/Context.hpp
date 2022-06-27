@@ -15,17 +15,17 @@ class AppContext
 
     ~AppContext();
 
-    static AppContext *instance();
+    static AppContext *Instance();
 
-    void setWindowSize(int width, int height);
+    void SetWindowSize(int width, int height);
 
-    void getWindowSize(int &width, int &height);
+    void GetWindowSize(int &width, int &height);
 
-    void setWindowTitle(const std::string &title);
+    void SetWindowTitle(const std::string &title);
 
-    bool windowShouldClose();
+    bool WindowShouldClose();
 
-    void loopEndFrame(std::function<void()> callUI = nullptr);
+    void LoopEndFrame(std::function<void()> callUI = nullptr);
 
     void UI();
 

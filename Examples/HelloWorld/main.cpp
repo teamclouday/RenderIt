@@ -5,23 +5,34 @@ using namespace RenderIt;
 int main()
 {
     AppContext *app;
+    Camera *cam;
 
     try
     {
-        app = AppContext::instance();
+        app = AppContext::Instance();
+        cam = Camera::Instance();
     }
     catch (const std::exception &e)
     {
         display_message("Program", e.what(), MessageType::ERROR);
     }
 
-    app->setWindowTitle("Hello World");
+    int w = 0, h = 0;
+    app->SetWindowTitle("Hello World");
 
-    while (!app->windowShouldClose())
+    while (!app->WindowShouldClose())
     {
+        // scene logics
+
+        // render
+        app->GetWindowSize(w, h);
+        glViewport(0, 0, w, h);
         glClear(GL_COLOR_BUFFER_BIT);
-        glClearColor(0.25f, 1.0f, 0.8f, 1.0f);
-        app->loopEndFrame();
+        cam->PrepareFrame();
+
+        app->LoopEndFrame();
+
+        // input handling
     }
 
     return 0;
