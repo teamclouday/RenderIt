@@ -4,9 +4,12 @@
 #include <unordered_map>
 #include <utility>
 
+/** @file */
+
 namespace RenderIt
 {
 
+/// Input Manager supporting GLFW keys
 class InputManager
 {
     friend class AppContext;
@@ -41,6 +44,8 @@ class InputManager
     void Update();
 
   private:
+#pragma region glfw_callback_handlers
+
     void handle_glfw_key(int key, int action);
 
     void handle_glfw_mouse_pos(double posX, double posY);
@@ -48,6 +53,8 @@ class InputManager
     void handle_glfw_mouse_click(int button, int action);
 
     void handle_glfw_wheel(double xoffset, double yoffset);
+
+#pragma endregion glfw_callback_handlers
 
   private:
     bool _justStarted;

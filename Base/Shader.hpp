@@ -5,9 +5,12 @@
 #include <string>
 #include <vector>
 
+/** @file */
+
 namespace RenderIt
 {
 
+/// Shader program helper class
 class Shader
 {
   public:
@@ -15,18 +18,25 @@ class Shader
 
     ~Shader();
 
+    /// Add shader source to compile
     bool AddSource(const std::string &source, GLenum type);
 
+    /// Link the added shaders and compile a shader program
     bool Compile();
 
+    /// Is program compiled
     bool IsCompiled();
 
+    /// Bind current program
     void Bind();
 
+    /// Unbind current program
     void UnBind();
 
+    /// Reset program
     void Reset();
 
+    /// Get raw program
     GLuint GetProgram();
 
 #pragma region uniform_methods

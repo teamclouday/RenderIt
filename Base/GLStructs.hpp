@@ -3,9 +3,12 @@
 
 #include <vector>
 
+/** @file */
+
 namespace RenderIt
 {
 
+/// Structure for Vertex Array Object (VAO)
 struct SVAO
 {
     SVAO(size_t size = 1)
@@ -35,6 +38,7 @@ struct SVAO
     std::vector<GLuint> IDs;
 };
 
+/// Structure for OpenGL Buffers
 struct SBuffer
 {
     SBuffer(GLenum type = GL_ARRAY_BUFFER, size_t size = 1)
@@ -66,6 +70,7 @@ struct SBuffer
     GLenum type;
 };
 
+/// Structure for OpenGL Textures
 struct STexture
 {
     STexture(GLenum type = GL_TEXTURE_2D, size_t size = 1)
@@ -97,6 +102,7 @@ struct STexture
     GLenum type;
 };
 
+// Structure for Frame Buffer Object (FBO)
 struct SFBO
 {
     SFBO(size_t size = 1)
@@ -126,6 +132,7 @@ struct SFBO
     std::vector<GLuint> IDs;
 };
 
+/// Structure for Render Buffer Object (RBO)
 struct SRBO
 {
     SRBO(size_t size = 1)

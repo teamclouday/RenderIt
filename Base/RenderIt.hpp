@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Camera.hpp"
 #include "Context.hpp"
 #include "GLStructs.hpp"
@@ -7,3 +8,5 @@
 #include "Scene.hpp"
 #include "Shader.hpp"
 #include "Tools.hpp"
+
+/** @file */
