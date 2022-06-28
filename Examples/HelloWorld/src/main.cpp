@@ -7,11 +7,13 @@ int main()
 {
     AppContext *app;
     Camera *cam;
+    InputManager *input;
 
     try
     {
         app = AppContext::Instance();
         cam = Camera::Instance();
+        input = InputManager::Instance();
     }
     catch (const std::exception &e)
     {
@@ -70,6 +72,9 @@ int main()
         app->LoopEndFrame();
 
         // input handling
+        if (input->GetKeyPressed(GLFW_KEY_ESCAPE))
+            break;
+        input->Update();
     }
 
     return 0;

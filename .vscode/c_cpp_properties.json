@@ -3,7 +3,14 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/External/assimp/include",
+                "${workspaceFolder}/External/glew-cmake/include",
+                "${workspaceFolder}/External/glfw/include",
+                "${workspaceFolder}/External/glm",
+                "${workspaceFolder}/External/imgui",
+                "${workspaceFolder}/External/imgui/backends",
+                "${workspaceFolder}/External/termcolor/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

@@ -1,5 +1,6 @@
 #include "Context.hpp"
 #include "Camera.hpp"
+#include "Input.hpp"
 #include "Tools.hpp"
 
 #include <imgui_impl_glfw.h>
@@ -111,6 +112,7 @@ void AppContext::initializeLocal()
 void AppContext::initializeGlobal()
 {
     Camera::Instance();
+    InputManager::Instance();
 }
 
 void AppContext::glfw_error_callback(int error, const char *description)
@@ -127,18 +129,30 @@ void AppContext::glfw_window_size_callback(GLFWwindow *window, int width, int he
 
 void AppContext::glfw_key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
+    auto ctx = reinterpret_cast<AppContext *>(glfwGetWindowUserPointer(window));
+    auto input = InputManager::Instance();
+    input->handle_glfw_key(key, action);
 }
 
 void AppContext::glfw_mousepos_callback(GLFWwindow *window, double posX, double posY)
 {
+    auto ctx = reinterpret_cast<AppContext *>(glfwGetWindowUserPointer(window));
+    auto input = InputManager::Instance();
+    input->handle_glfw_mouse_pos(posX, posY);
 }
 
 void AppContext::glfw_mouseclick_callback(GLFWwindow *window, int button, int action, int mods)
 {
+    auto ctx = reinterpret_cast<AppContext *>(glfwGetWindowUserPointer(window));
+    auto input = InputManager::Instance();
+    input->handle_glfw_mouse_click(button, action);
 }
 
 void AppContext::glfw_wheel_callback(GLFWwindow *window, double xoffset, double yoffset)
 {
+    auto ctx = reinterpret_cast<AppContext *>(glfwGetWindowUserPointer(window));
+    auto input = InputManager::Instance();
+    input->handle_glfw_wheel(xoffset, yoffset);
 }
 
 } // namespace RenderIt
