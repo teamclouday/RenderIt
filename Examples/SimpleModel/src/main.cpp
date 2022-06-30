@@ -25,8 +25,8 @@ int main()
     app->displayUI = false;
 
     // prepare shaders
-    auto vertShader = read_file_content("./shaders/HelloWorld.vert");
-    auto fragShader = read_file_content("./shaders/HelloWorld.frag");
+    auto vertShader = read_file_content("./shaders/basic.vert");
+    auto fragShader = read_file_content("./shaders/basic.frag");
     auto shader = Shader();
     shader.AddSource(vertShader, GL_VERTEX_SHADER);
     shader.AddSource(fragShader, GL_FRAGMENT_SHADER);

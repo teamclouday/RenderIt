@@ -36,6 +36,9 @@ class AppContext
     /// Swap frame buffers, call after rendering
     void LoopEndFrame(std::function<void()> callUI = nullptr);
 
+    /// Enable common OpenGL features
+    void EnableCommonGLFeatures();
+
     /// UI calls
     void UI();
 

@@ -10,6 +10,7 @@ target_include_directories(RenderItLib PRIVATE
     ${CMAKE_SOURCE_DIR}/External/glm
     ${CMAKE_SOURCE_DIR}/External/assimp/include
     ${CMAKE_SOURCE_DIR}/External/termcolor/include
+    ${CMAKE_SOURCE_DIR}/External/stb
 )
 
 target_link_libraries(RenderItLib PRIVATE

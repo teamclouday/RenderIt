@@ -79,6 +79,17 @@ void AppContext::LoopEndFrame(std::function<void()> callUI)
     glfwPollEvents();
 }
 
+void AppContext::EnableCommonGLFeatures()
+{
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+}
+
 void AppContext::initializeLocal()
 {
     glfwSetErrorCallback(AppContext::glfw_error_callback);

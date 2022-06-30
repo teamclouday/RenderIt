@@ -29,4 +29,7 @@ void display_message(const std::string &title, const std::string &message, Messa
 /// Read full file content into string
 std::string read_file_content(const std::string &path);
 
+/// Select file from explorer
+std::string select_file_in_explorer();
+
 } // namespace RenderIt

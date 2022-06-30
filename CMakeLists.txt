@@ -18,13 +18,13 @@ find_package(Threads REQUIRED)
 option(BUILD_SHARED_LIBS "Build package with shared libraries." OFF)
 
 option(glew-cmake_BUILD_SHARED "Build the shared glew library" OFF)
-add_subdirectory(${CMAKE_SOURCE_DIR}/External/glew-cmake)
+add_subdirectory(${CMAKE_SOURCE_DIR}/External/glew-cmake EXCLUDE_FROM_ALL)
 
 option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" OFF)
 option(GLFW_BUILD_TESTS "Build the GLFW test programs" OFF)
 option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
 option(GLFW_INSTALL "Generate installation target" OFF)
-add_subdirectory(${CMAKE_SOURCE_DIR}/External/glfw)
+add_subdirectory(${CMAKE_SOURCE_DIR}/External/glfw EXCLUDE_FROM_ALL)
 
 option(ASSIMP_BUILD_ASSIMP_TOOLS
     "If the supplementary tools for Assimp are built in addition to the library."
@@ -42,7 +42,7 @@ OPTION(ASSIMP_BUILD_ZLIB
     "Build your own zlib"
     ON
 )
-add_subdirectory(${CMAKE_SOURCE_DIR}/External/assimp)
+add_subdirectory(${CMAKE_SOURCE_DIR}/External/assimp EXCLUDE_FROM_ALL)
 
 file(GLOB IMGUI_SRC
     ${CMAKE_SOURCE_DIR}/External/imgui/*.cpp
@@ -70,6 +70,7 @@ set(RENDERIT_HEADERS
     ${CMAKE_SOURCE_DIR}/External/glm
     ${CMAKE_SOURCE_DIR}/External/assimp/include
     ${CMAKE_SOURCE_DIR}/External/termcolor/include
+    ${CMAKE_SOURCE_DIR}/External/stb
     ${CMAKE_SOURCE_DIR}/Base
 )
 

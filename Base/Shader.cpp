@@ -3,6 +3,8 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include <cassert>
+
 namespace RenderIt
 {
 
@@ -102,6 +104,47 @@ void Shader::Reset()
 GLuint Shader::GetProgram()
 {
     return _program;
+}
+
+void Shader::ConfigMaterialTextures(std::shared_ptr<Material> mat)
+{
+    if (!_compiled)
+        return;
+
+    const std::vector<std::shared_ptr<STexture>> maps = {
+        mat->diffuse,   mat->specular,   mat->ambient,      mat->emissive,      mat->height,        mat->normals,
+        mat->shininess, mat->opacity,    mat->displacement, mat->lightmap,      mat->reflection,
+
+        mat->pbr_color, mat->pbr_normal, mat->pbr_emission, mat->pbr_metalness, mat->pbr_roughness, mat->pbr_occlusion,
+    };
+    const std::vector<std::string> mapNames = {
+        Material::mapNameDiffuse,      Material::mapNameSpecular,     Material::mapNameAmbient,
+        Material::mapNameEmissive,     Material::mapNameHeight,       Material::mapNameNormals,
+        Material::mapNameShininess,    Material::mapNameOpacity,      Material::mapNameDisplacement,
+        Material::mapNameLightmap,     Material::mapNameReflection,
+
+        Material::mapNamePBRColor,     Material::mapNamePBRNormal,    Material::mapNamePBREmission,
+        Material::mapNamePBRMetalness, Material::mapNamePBRRoughness, Material::mapNamePBROcclusion,
+    };
+
+    assert(maps.size() == mapNames.size());
+
+    int texIdx = 0;
+    for (auto i = 0; i < maps.size(); i++)
+    {
+        auto &m = maps[i];
+        auto &n = mapNames[i];
+        if (m)
+        {
+            glActiveTexture(GL_TEXTURE0 + texIdx);
+            m->Bind();
+            UniformInt(n, texIdx);
+            texIdx++;
+            UniformBool(n + Material::existsEXT, true);
+        }
+        else
+            UniformBool(n + Material::existsEXT, false);
+    }
 }
 
 void Shader::UniformBool(const std::string &name, bool val) const

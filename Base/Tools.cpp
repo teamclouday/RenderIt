@@ -36,4 +36,8 @@ std::string read_file_content(const std::string &path)
     return sstr.str();
 }
 
+std::string select_file_in_explorer()
+{
+}
+
 } // namespace RenderIt

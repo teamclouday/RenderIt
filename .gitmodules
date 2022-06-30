@@ -16,3 +16,6 @@
 [submodule "External/termcolor"]
 	path = External/termcolor
 	url = https://github.com/ikalnytskyi/termcolor.git
+[submodule "External/stb"]
+	path = External/stb
+	url = https://github.com/nothings/stb.git

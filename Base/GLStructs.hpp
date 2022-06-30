@@ -1,6 +1,10 @@
 #pragma once
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 
+#include <limits>
+#include <memory>
+#include <string>
 #include <vector>
 
 /** @file */
@@ -160,6 +164,94 @@ struct SRBO
         return 0;
     }
     std::vector<GLuint> IDs;
+};
+
+/// Vertex data
+struct Vertex
+{
+    glm::vec3 position;
+    glm::vec3 normal;
+    glm::vec2 texcoords;
+    glm::vec4 color;
+};
+
+/// Material info
+struct Material
+{
+    ~Material()
+    {
+        diffuse = specular = ambient = emissive = height = normals = shininess = opacity = displacement = nullptr;
+        pbr_color = pbr_normal = pbr_emission = pbr_metalness = pbr_roughness = pbr_occlusion = nullptr;
+    }
+
+    bool HasPBR()
+    {
+        return pbr_color || pbr_normal || pbr_emission || pbr_metalness || pbr_roughness || pbr_occlusion;
+    }
+
+    // legacy materials
+    std::shared_ptr<STexture> diffuse = nullptr;
+    std::shared_ptr<STexture> specular = nullptr;
+    std::shared_ptr<STexture> ambient = nullptr;
+    std::shared_ptr<STexture> emissive = nullptr;
+    std::shared_ptr<STexture> height = nullptr;
+    std::shared_ptr<STexture> normals = nullptr;
+    std::shared_ptr<STexture> shininess = nullptr;
+    std::shared_ptr<STexture> opacity = nullptr;
+    std::shared_ptr<STexture> displacement = nullptr;
+    std::shared_ptr<STexture> lightmap = nullptr;
+    std::shared_ptr<STexture> reflection = nullptr;
+
+    inline static const std::string mapNameDiffuse = "map_DIFFUSE";
+    inline static const std::string mapNameSpecular = "map_SPECULAR";
+    inline static const std::string mapNameAmbient = "map_AMBIENT";
+    inline static const std::string mapNameEmissive = "map_EMISSIVE";
+    inline static const std::string mapNameHeight = "map_HEIGHT";
+    inline static const std::string mapNameNormals = "map_NORMALS";
+    inline static const std::string mapNameShininess = "map_SHININESS";
+    inline static const std::string mapNameOpacity = "map_OPACITY";
+    inline static const std::string mapNameDisplacement = "map_DISPLACEMENT";
+    inline static const std::string mapNameLightmap = "map_LIGHTMAP";
+    inline static const std::string mapNameReflection = "map_REFLECTION";
+
+    // pbr materials
+    std::shared_ptr<STexture> pbr_color = nullptr;
+    std::shared_ptr<STexture> pbr_normal = nullptr;
+    std::shared_ptr<STexture> pbr_emission = nullptr;
+    std::shared_ptr<STexture> pbr_metalness = nullptr;
+    std::shared_ptr<STexture> pbr_roughness = nullptr;
+    std::shared_ptr<STexture> pbr_occlusion = nullptr;
+
+    inline static const std::string mapNamePBRColor = "mapPBR_COLOR";
+    inline static const std::string mapNamePBRNormal = "mapPBR_NORMAL";
+    inline static const std::string mapNamePBREmission = "mapPBR_EMISSION";
+    inline static const std::string mapNamePBRMetalness = "mapPBR_METALNESS";
+    inline static const std::string mapNamePBRRoughness = "mapPBR_ROUGHNESS";
+    inline static const std::string mapNamePBROcclusion = "mapPBR_OCCLUSION";
+
+    // this line will be appended to any names
+    // to indicate whether the corresponding texture exists
+    // e.g. bool map_DIFFUSE_exists;
+    inline static const std::string existsEXT = "_exists";
+};
+
+/// Bounding Box
+struct Bounds
+{
+    Bounds() : max(std::numeric_limits<float>::min()), min(std::numeric_limits<float>::max()), center(0.0f)
+    {
+    }
+
+    void Merge(const Bounds &other)
+    {
+        max = glm::max(max, other.max);
+        min = glm::min(min, other.min);
+        center = (max + min) * 0.5f;
+    }
+
+    glm::vec3 max;
+    glm::vec3 min;
+    glm::vec3 center;
 };
 
 } // namespace RenderIt

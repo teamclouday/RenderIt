@@ -2,8 +2,11 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
+#include <memory>
 #include <string>
 #include <vector>
+
+#include "GLStructs.hpp"
 
 /** @file */
 
@@ -38,6 +41,9 @@ class Shader
 
     /// Get raw program
     GLuint GetProgram();
+
+    /// Configure material textures
+    void ConfigMaterialTextures(std::shared_ptr<Material> mat);
 
 #pragma region uniform_methods
 
