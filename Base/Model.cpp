@@ -231,7 +231,7 @@ std::shared_ptr<STexture> Model::LoadTexture(const std::string &path)
     if (!data)
     {
         display_message(NAME, "Failed to load model file " + path + "\n" + std::string(stbi_failure_reason()),
-                        MessageType::ERROR);
+                        MessageType::WARN);
         return nullptr;
     }
 

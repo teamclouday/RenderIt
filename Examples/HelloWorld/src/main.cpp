@@ -55,13 +55,10 @@ int main()
 
     while (!app->WindowShouldClose())
     {
-        // scene logics
-
         // render
         app->GetWindowSize(w, h);
         glViewport(0, 0, w, h);
-        glClear(GL_COLOR_BUFFER_BIT);
-        cam->PrepareFrame();
+        cam->PrepareFrame(GL_COLOR_BUFFER_BIT);
 
         shader.Bind();
         vao.Bind();

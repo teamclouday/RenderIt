@@ -22,8 +22,9 @@ Camera *Camera::Instance()
     return &cam;
 }
 
-void Camera::PrepareFrame()
+void Camera::PrepareFrame(unsigned clearMask)
 {
+    glClear(static_cast<GLbitfield>(clearMask));
     glClearColor(_clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a);
     if (!_updated)
         update();
@@ -65,7 +66,10 @@ void Camera::SetFov(float fov)
 
 void Camera::SetWindowAspect(int width, int height)
 {
+    if (!height)
+        return;
     _aspect = static_cast<float>(width) / static_cast<float>(height);
+    _updated = false;
 }
 
 void Camera::SetViewNearFar(float near, float far)
@@ -73,6 +77,17 @@ void Camera::SetViewNearFar(float near, float far)
     _viewNear = std::max(0.0f, near);
     _viewFar = std::max(_viewNear, far);
     _updated = false;
+}
+
+void Camera::SetViewType(CameraViewType type)
+{
+    _viewType = type;
+    _updated = false;
+}
+
+void Camera::SetClearColor(const glm::vec4 &color)
+{
+    _clearColor = color;
 }
 
 void Camera::update()

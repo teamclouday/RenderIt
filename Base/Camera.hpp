@@ -25,7 +25,7 @@ class Camera
     static Camera *Instance();
 
     /// Prepare frame, called before rendering
-    void PrepareFrame();
+    void PrepareFrame(unsigned clearMask);
 
     /// Get view matrix
     const glm::mat4 &GetView();
@@ -50,6 +50,12 @@ class Camera
 
     /// Set view near and far clipping
     void SetViewNearFar(float near, float far);
+
+    /// Set camera view type
+    void SetViewType(CameraViewType type);
+
+    /// Set clear color
+    void SetClearColor(const glm::vec4 &color);
 
     /// UI calls
     void UI();
