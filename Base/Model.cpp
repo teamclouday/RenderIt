@@ -196,7 +196,6 @@ bool Model::Load(const std::string &path, unsigned flags)
         for (auto i = 0; i < node->mNumChildren; i++)
             nodes.push(node->mChildren[i]);
     }
-
     return true;
 }
 
@@ -207,6 +206,7 @@ bool Model::Load(MeshShape shape)
     std::shared_ptr<Mesh> newMesh = std::make_shared<Mesh>();
     _meshes.push_back(newMesh);
     newMesh->Load(shape);
+    return true;
 }
 
 void Model::Draw(Shader *shader)
@@ -230,8 +230,8 @@ std::shared_ptr<STexture> Model::LoadTexture(const std::string &path)
     unsigned char *data = stbi_load(path.c_str(), &w, &h, &n, STBI_rgb_alpha);
     if (!data)
     {
-        display_message(NAME, "Failed to load model file " + path + "\n" + std::string(stbi_failure_reason()),
-                        MessageType::WARN);
+        Tools::display_message(NAME, "Failed to load model file " + path + "\n" + std::string(stbi_failure_reason()),
+                               Tools::MessageType::WARN);
         return nullptr;
     }
 

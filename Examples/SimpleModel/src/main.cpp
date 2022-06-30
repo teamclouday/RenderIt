@@ -19,7 +19,7 @@ int main()
     }
     catch (const std::exception &e)
     {
-        display_message("Program", e.what(), MessageType::ERROR);
+        Tools::display_message("Program", e.what(), Tools::MessageType::ERROR);
     }
 
     int w = 0, h = 0;
@@ -28,8 +28,8 @@ int main()
     app->EnableCommonGLFeatures();
 
     // prepare shaders
-    auto vertShader = read_file_content("./shaders/SimpleModel.vert");
-    auto fragShader = read_file_content("./shaders/SimpleModel.frag");
+    auto vertShader = Tools::read_file_content("./shaders/SimpleModel.vert");
+    auto fragShader = Tools::read_file_content("./shaders/SimpleModel.frag");
 
     auto shader = Shader();
     shader.AddSource(vertShader, GL_VERTEX_SHADER);
@@ -38,13 +38,11 @@ int main()
     assert(shader.IsCompiled());
 
     // load model
-    // auto modelPath = select_file_in_explorer();
-    std::string modelPath = "./cube/cube.obj";
-    // std::string modelPath = "./grey_knight/scene.gltf";
+    auto modelPath = Tools::select_file_in_explorer();
     Model model = Model();
     if (!model.Load(modelPath))
     {
-        display_message("Program", "Failed to load model " + modelPath, MessageType::ERROR);
+        Tools::display_message("Program", "Failed to load model " + modelPath, Tools::MessageType::ERROR);
         return -1;
     }
 
@@ -58,6 +56,9 @@ int main()
     auto mView = cam->GetView();
     auto mProj = cam->GetProj();
     auto mModel = model.transform.GetMatrix();
+
+    // GL debug
+    Tools::set_gl_debug(true);
 
     while (!app->WindowShouldClose())
     {

@@ -17,7 +17,7 @@ int main()
     }
     catch (const std::exception &e)
     {
-        display_message("Program", e.what(), MessageType::ERROR);
+        Tools::display_message("Program", e.what(), Tools::MessageType::ERROR);
     }
 
     int w = 0, h = 0;
@@ -25,8 +25,8 @@ int main()
     app->displayUI = false;
 
     // prepare shaders
-    auto vertShader = read_file_content("./shaders/HelloWorld.vert");
-    auto fragShader = read_file_content("./shaders/HelloWorld.frag");
+    auto vertShader = Tools::read_file_content("./shaders/HelloWorld.vert");
+    auto fragShader = Tools::read_file_content("./shaders/HelloWorld.frag");
     auto shader = Shader();
     shader.AddSource(vertShader, GL_VERTEX_SHADER);
     shader.AddSource(fragShader, GL_FRAGMENT_SHADER);

@@ -21,3 +21,9 @@ target_link_libraries(RenderItLib PRIVATE
     OpenGL::GL
     Threads::Threads
 )
+
+if(WIN32)
+    target_link_libraries(RenderItLib PRIVATE
+        comdlg32
+    )
+endif()

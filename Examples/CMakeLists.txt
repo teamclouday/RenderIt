@@ -17,10 +17,12 @@ function(buildExample EXAMPLE_NAME)
     target_link_libraries(${EXAMPLE_NAME} PRIVATE
         ${RENDERIT_LIBS}
     )
-    add_custom_target(${EXAMPLE_NAME}_copy_shaders
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${EXAMPLE_FOLDER}/shaders ${EXAMPLE_FOLDER}/bin/shaders
-    )
-    add_dependencies(${EXAMPLE_NAME} ${EXAMPLE_NAME}_copy_shaders)
+    if(EXISTS ${EXAMPLE_FOLDER}/shaders)
+        add_custom_target(${EXAMPLE_NAME}_copy_shaders
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${EXAMPLE_FOLDER}/shaders ${EXAMPLE_FOLDER}/bin/shaders
+        )
+        add_dependencies(${EXAMPLE_NAME} ${EXAMPLE_NAME}_copy_shaders)
+    endif()
 endfunction(buildExample)
 
 # all example
