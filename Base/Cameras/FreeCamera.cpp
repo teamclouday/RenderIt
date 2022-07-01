@@ -62,7 +62,10 @@ void FreeCamera::ProcessWASDKeys()
 
     offFront *= sensMoveK;
     offRight *= sensMoveK;
-    _posVec += _frontVec * offFront + _rightVec * offRight;
+    auto delta = _frontVec * offFront + _rightVec * offRight;
+
+    _posVec += delta;
+    _centerVec += delta;
 
     _updated = false;
 }

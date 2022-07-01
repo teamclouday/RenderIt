@@ -1,4 +1,6 @@
 #pragma once
+#include <iostream>
+
 #include <glm/glm.hpp>
 
 #include "GLStructs.hpp"
@@ -23,6 +25,8 @@ class Transform
     void TransformToUnitOrigin(const Bounds &b);
 
     void UI();
+
+    friend std::ostream &operator<<(std::ostream &os, const Transform &t);
 
   public:
     glm::vec3 position;

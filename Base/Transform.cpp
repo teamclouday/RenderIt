@@ -27,8 +27,8 @@ glm::mat4 &Transform::GetMatrix()
 
 void Transform::UpdateMatrix()
 {
-    _mat = glm::translate(glm::mat4(1.0f), position) * glm::eulerAngleYXZ(rotation.y, rotation.x, rotation.z) *
-           glm::scale(glm::mat4(1.0f), scale);
+    _mat = glm::scale(glm::mat4(1.0f), scale) * glm::eulerAngleYXZ(rotation.y, rotation.x, rotation.z) *
+           glm::translate(glm::mat4(1.0f), position);
 }
 
 void Transform::TransformToUnitOrigin(const Bounds &b)
@@ -41,6 +41,12 @@ void Transform::TransformToUnitOrigin(const Bounds &b)
     // scale
     scale = glm::vec3(1.0f / len);
     UpdateMatrix();
+}
+
+std::ostream &operator<<(std::ostream &os, const Transform &t)
+{
+    os << "T(" << t.position << "|" << t.rotation << "|" << t.scale << ")";
+    return os;
 }
 
 } // namespace RenderIt

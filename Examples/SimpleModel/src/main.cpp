@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 
+#include <glm/gtc/matrix_inverse.hpp>
 #include <imgui.h>
 
 using namespace RenderIt;
@@ -30,6 +31,7 @@ int main()
     app->displayUI = false;
     app->EnableCommonGLFeatures();
     app->SetVsync(true);
+    Tools::set_gl_debug(true);
 
     // prepare shaders
     auto vertShader = Tools::read_file_content("./shaders/SimpleModel.vert");
@@ -61,9 +63,7 @@ int main()
     auto mView = cam->GetView();
     auto mProj = cam->GetProj();
     auto mModel = model->transform.GetMatrix();
-
-    // GL debug
-    Tools::set_gl_debug(true, false);
+    auto mModelInv = glm::inverse(mModel);
 
     app->Start();
 
@@ -76,9 +76,14 @@ int main()
         cam->PrepareFrame(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader->Bind();
+
         mView = cam->GetView();
         mProj = cam->GetProj();
-        shader->UniformMat4("mvp", mProj * mView * mModel);
+        shader->UniformMat4("mat_model", mModel);
+        shader->UniformMat4("mat_modelInv", mModelInv);
+        shader->UniformMat4("mat_VP", mProj * mView);
+        shader->UniformVec3("cameraPosWS", cam->GetPosition());
+
         model->Draw(shader);
         shader->UnBind();
 
