@@ -29,10 +29,10 @@ AppContext::~AppContext()
     glfwTerminate();
 }
 
-AppContext *AppContext::Instance()
+std::shared_ptr<AppContext> AppContext::Instance()
 {
-    static AppContext app;
-    return &app;
+    static auto app = std::make_shared<AppContext>();
+    return app;
 }
 
 void AppContext::SetWindowSize(int width, int height)
@@ -44,7 +44,7 @@ void AppContext::SetWindowSize(int width, int height)
     glfwSetWindowSize(_window, _winW, _winH);
 }
 
-void AppContext::GetWindowSize(int &width, int &height)
+void AppContext::GetWindowSize(int &width, int &height) const
 {
     width = _winW;
     height = _winH;
@@ -56,12 +56,12 @@ void AppContext::SetWindowTitle(const std::string &title)
     glfwSetWindowTitle(_window, _winTitle.c_str());
 }
 
-bool AppContext::WindowShouldClose()
+bool AppContext::WindowShouldClose() const
 {
     return _window ? glfwWindowShouldClose(_window) : true;
 }
 
-void AppContext::LoopEndFrame(std::function<void()> callUI)
+void AppContext::LoopEndFrame(std::function<void()> callUI) const
 {
     if (displayUI)
     {
@@ -79,7 +79,7 @@ void AppContext::LoopEndFrame(std::function<void()> callUI)
     glfwPollEvents();
 }
 
-void AppContext::EnableCommonGLFeatures()
+void AppContext::EnableCommonGLFeatures() const
 {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);

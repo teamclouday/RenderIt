@@ -24,16 +24,16 @@ struct SVAO
     {
         glDeleteVertexArrays(static_cast<GLsizei>(IDs.size()), IDs.data());
     }
-    void Bind(size_t idx = 0)
+    void Bind(size_t idx = 0) const
     {
         if (idx < IDs.size())
             glBindVertexArray(IDs[idx]);
     }
-    void UnBind()
+    void UnBind() const
     {
         glBindVertexArray(0);
     }
-    GLuint Get(size_t idx = 0)
+    GLuint Get(size_t idx = 0) const
     {
         if (IDs.size() > idx)
             return IDs[idx];
@@ -55,16 +55,16 @@ struct SBuffer
     {
         glDeleteBuffers(static_cast<GLsizei>(IDs.size()), IDs.data());
     }
-    void Bind(size_t idx = 0)
+    void Bind(size_t idx = 0) const
     {
         if (idx < IDs.size())
             glBindBuffer(type, IDs[idx]);
     }
-    void UnBind()
+    void UnBind() const
     {
         glBindBuffer(type, 0);
     }
-    GLuint Get(size_t idx = 0)
+    GLuint Get(size_t idx = 0) const
     {
         if (IDs.size() > idx)
             return IDs[idx];
@@ -87,16 +87,16 @@ struct STexture
     {
         glDeleteTextures(static_cast<GLsizei>(IDs.size()), IDs.data());
     }
-    void Bind(size_t idx = 0)
+    void Bind(size_t idx = 0) const
     {
         if (idx < IDs.size())
             glBindTexture(type, IDs[idx]);
     }
-    void UnBind()
+    void UnBind() const
     {
         glBindTexture(type, 0);
     }
-    GLuint Get(size_t idx = 0)
+    GLuint Get(size_t idx = 0) const
     {
         if (IDs.size() > idx)
             return IDs[idx];
@@ -118,16 +118,16 @@ struct SFBO
     {
         glDeleteFramebuffers(static_cast<GLsizei>(IDs.size()), IDs.data());
     }
-    void Bind(size_t idx = 0)
+    void Bind(size_t idx = 0) const
     {
         if (idx < IDs.size())
             glBindFramebuffer(GL_FRAMEBUFFER, IDs[idx]);
     }
-    void UnBind()
+    void UnBind() const
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
-    GLuint Get(size_t idx = 0)
+    GLuint Get(size_t idx = 0) const
     {
         if (IDs.size() > idx)
             return IDs[idx];
@@ -148,16 +148,16 @@ struct SRBO
     {
         glDeleteRenderbuffers(static_cast<GLsizei>(IDs.size()), IDs.data());
     }
-    void Bind(size_t idx = 0)
+    void Bind(size_t idx = 0) const
     {
         if (idx < IDs.size())
             glBindRenderbuffer(GL_RENDERBUFFER, IDs[idx]);
     }
-    void UnBind()
+    void UnBind() const
     {
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
     }
-    GLuint Get(size_t idx = 0)
+    GLuint Get(size_t idx = 0) const
     {
         if (IDs.size() > idx)
             return IDs[idx];
@@ -242,11 +242,46 @@ struct Bounds
     {
     }
 
+    /// Merge with other bounding box
     void Merge(const Bounds &other)
     {
         max = glm::max(max, other.max);
         min = glm::min(min, other.min);
         center = (max + min) * 0.5f;
+    }
+
+    /// Update bounding box by position
+    void Update(const glm::vec3 &v)
+    {
+        max = glm::max(v, max);
+        min = glm::min(v, min);
+        center = (max + min) * 0.5f;
+    }
+
+    /// Compute bounding box diagonal length
+    float Diagonal() const
+    {
+        if (!IsValid())
+            return 0.0f;
+        return glm::length(max - min);
+    }
+
+    /// Check if bounding is valid
+    bool IsValid() const
+    {
+        bool valid = true;
+        valid = valid && (max.x > std::numeric_limits<float>::min());
+        valid = valid && (max.y > std::numeric_limits<float>::min());
+        valid = valid && (max.z > std::numeric_limits<float>::min());
+
+        valid = valid && (min.x < std::numeric_limits<float>::max());
+        valid = valid && (min.y < std::numeric_limits<float>::max());
+        valid = valid && (min.z < std::numeric_limits<float>::max());
+
+        valid = valid && (max.x >= min.x);
+        valid = valid && (max.y >= min.y);
+        valid = valid && (max.z >= min.z);
+        return valid;
     }
 
     glm::vec3 max;

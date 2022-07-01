@@ -26,7 +26,7 @@ class Mesh
 
     ~Mesh();
 
-    void Draw(Shader *shader);
+    void Draw(std::shared_ptr<Shader> shader) const;
 
     void Load(MeshShape shape);
 
@@ -34,6 +34,8 @@ class Mesh
               std::shared_ptr<Material> material, GLenum primType = GL_TRIANGLES);
 
     void Reset();
+
+    void UI();
 
   public:
     const std::string NAME = "Mesh";

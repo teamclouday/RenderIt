@@ -14,7 +14,7 @@ Mesh::~Mesh()
     Reset();
 }
 
-void Mesh::Draw(Shader *shader)
+void Mesh::Draw(std::shared_ptr<Shader> shader) const
 {
     if (_mat)
         shader->ConfigMaterialTextures(_mat);
@@ -28,6 +28,7 @@ void Mesh::Load(MeshShape shape)
 {
     if (_vao || _vbo || _ebo || _mat)
         Reset();
+    // TODO: implement shapes
     switch (shape)
     {
     case MeshShape::Triangle:

@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <memory>
 #include <mutex>
 #include <unordered_map>
 #include <utility>
@@ -17,7 +18,7 @@ class InputManager
   public:
     InputManager();
 
-    static InputManager *Instance();
+    static std::shared_ptr<InputManager> Instance();
 
     /// Check if key is down or up
     bool GetKeyDown(int key);

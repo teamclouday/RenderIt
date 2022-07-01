@@ -1,4 +1,5 @@
 #include "Transform.hpp"
+#include "Camera.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
@@ -8,7 +9,7 @@ namespace RenderIt
 
 Transform::Transform() : position(0.0f), rotation(0.0f), scale(1.0f)
 {
-    Update();
+    UpdateMatrix();
 }
 
 Transform::Transform(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale)
@@ -16,7 +17,7 @@ Transform::Transform(const glm::vec3 &position, const glm::vec3 &rotation, const
     this->position = position;
     this->rotation = rotation;
     this->scale = scale;
-    Update();
+    UpdateMatrix();
 }
 
 glm::mat4 &Transform::GetMatrix()
@@ -24,10 +25,22 @@ glm::mat4 &Transform::GetMatrix()
     return _mat;
 }
 
-void Transform::Update()
+void Transform::UpdateMatrix()
 {
     _mat = glm::translate(glm::mat4(1.0f), position) * glm::eulerAngleYXZ(rotation.y, rotation.x, rotation.z) *
            glm::scale(glm::mat4(1.0f), scale);
+}
+
+void Transform::TransformToUnitOrigin(const Bounds &b)
+{
+    auto len = b.Diagonal();
+    if (!b.IsValid() || !len)
+        return;
+    // position
+    position = -b.center;
+    // scale
+    scale = glm::vec3(1.0f / len);
+    UpdateMatrix();
 }
 
 } // namespace RenderIt

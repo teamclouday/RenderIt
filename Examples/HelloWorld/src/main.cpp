@@ -1,13 +1,15 @@
 #include "RenderIt.hpp"
+
 #include <cassert>
+#include <memory>
 
 using namespace RenderIt;
 
 int main()
 {
-    AppContext *app;
-    Camera *cam;
-    InputManager *input;
+    std::shared_ptr<AppContext> app;
+    std::shared_ptr<Camera> cam;
+    std::shared_ptr<InputManager> input;
 
     try
     {
@@ -27,11 +29,11 @@ int main()
     // prepare shaders
     auto vertShader = Tools::read_file_content("./shaders/HelloWorld.vert");
     auto fragShader = Tools::read_file_content("./shaders/HelloWorld.frag");
-    auto shader = Shader();
-    shader.AddSource(vertShader, GL_VERTEX_SHADER);
-    shader.AddSource(fragShader, GL_FRAGMENT_SHADER);
-    shader.Compile();
-    assert(shader.IsCompiled());
+    auto shader = std::make_shared<Shader>();
+    shader->AddSource(vertShader, GL_VERTEX_SHADER);
+    shader->AddSource(fragShader, GL_FRAGMENT_SHADER);
+    shader->Compile();
+    assert(shader->IsCompiled());
 
     // clang-format off
     float vertexData[] {
@@ -60,11 +62,11 @@ int main()
         glViewport(0, 0, w, h);
         cam->PrepareFrame(GL_COLOR_BUFFER_BIT);
 
-        shader.Bind();
+        shader->Bind();
         vao.Bind();
         glDrawArrays(GL_TRIANGLES, 0, 3);
         vao.UnBind();
-        shader.UnBind();
+        shader->UnBind();
 
         app->LoopEndFrame();
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 
+#include <memory>
 #include <string>
 
 /** @file */
@@ -22,7 +23,7 @@ class Camera
     Camera();
 
     /// Get singleton
-    static Camera *Instance();
+    static std::shared_ptr<Camera> Instance();
 
     /// Prepare frame, called before rendering
     void PrepareFrame(unsigned clearMask);
@@ -54,22 +55,39 @@ class Camera
     /// Set camera view type
     void SetViewType(CameraViewType type);
 
-    /// Set clear color
-    void SetClearColor(const glm::vec4 &color);
+    /// Get camera position (world space)
+    glm::vec3 GetPosition();
+
+    /// Get camera look at center (world space)
+    glm::vec3 GetCenter();
+
+    /// Get camera up vector
+    glm::vec3 GetVecUp();
+
+    /// Get camera front vector
+    glm::vec3 GetVecFront();
+
+    /// Get camera right vector
+    glm::vec3 GetVecRight();
+
+    /// Get camera view type
+    CameraViewType GetViewType();
+
+    /// Get camera field of view
+    float GetFov();
 
     /// UI calls
     void UI();
 
   public:
     const std::string NAME = "Camera";
+    glm::vec4 clearColor;
 
   private:
     /// Internal update
     void update();
 
   private:
-    glm::vec4 _clearColor;
-
     glm::vec3 _posVec, _centerVec;
 
     glm::vec3 _upVec, _frontVec, _rightVec;

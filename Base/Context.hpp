@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 
 #include <functional>
+#include <memory>
 #include <string>
 
 /** @file */
@@ -19,25 +20,25 @@ class AppContext
     ~AppContext();
 
     /// Get singleton
-    static AppContext *Instance();
+    static std::shared_ptr<AppContext> Instance();
 
     /// Set application window size
     void SetWindowSize(int width, int height);
 
     /// Get application window size
-    void GetWindowSize(int &width, int &height);
+    void GetWindowSize(int &width, int &height) const;
 
     /// Set application window title
     void SetWindowTitle(const std::string &title);
 
     /// Whether window should close
-    bool WindowShouldClose();
+    bool WindowShouldClose() const;
 
     /// Swap frame buffers, call after rendering
-    void LoopEndFrame(std::function<void()> callUI = nullptr);
+    void LoopEndFrame(std::function<void()> callUI = nullptr) const;
 
     /// Enable common OpenGL features
-    void EnableCommonGLFeatures();
+    void EnableCommonGLFeatures() const;
 
     /// UI calls
     void UI();

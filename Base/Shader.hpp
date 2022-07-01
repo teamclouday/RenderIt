@@ -28,22 +28,22 @@ class Shader
     bool Compile();
 
     /// Is program compiled
-    bool IsCompiled();
+    bool IsCompiled() const;
 
     /// Bind current program
-    void Bind();
+    void Bind() const;
 
     /// Unbind current program
-    void UnBind();
+    void UnBind() const;
 
     /// Reset program
     void Reset();
 
     /// Get raw program
-    GLuint GetProgram();
+    GLuint GetProgram() const;
 
     /// Configure material textures
-    void ConfigMaterialTextures(std::shared_ptr<Material> mat);
+    void ConfigMaterialTextures(std::shared_ptr<Material> mat) const;
 
 #pragma region uniform_methods
 
@@ -71,7 +71,7 @@ class Shader
 
     void UniformMat4(const std::string &name, const glm::mat4 &val) const;
 
-    void UboBinding(const std::string &name, uint32_t binding);
+    void UboBinding(const std::string &name, uint32_t binding) const;
 
 #pragma endregion uniform_methods
 

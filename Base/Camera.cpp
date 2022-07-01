@@ -9,23 +9,23 @@ namespace RenderIt
 {
 
 Camera::Camera()
-    : _clearColor(0.0f, 0.0f, 0.0f, 1.0f), _posVec(0.0f, 0.0f, -1.0f), _centerVec(0.0f), _upVec(0.0f), _frontVec(0.0f),
+    : clearColor(0.0f, 0.0f, 0.0f, 1.0f), _posVec(0.0f, 0.0f, -1.0f), _centerVec(0.0f), _upVec(0.0f), _frontVec(0.0f),
       _rightVec(0.0f), _worldUpVec(0.0f, 1.0f, 0.0f), _dist(0.0f), _projMat(1.0f), _viewMat(1.0f),
       _viewType(CameraViewType::Projection), _fov(45.0f), _aspect(1.0f), _viewNear(0.1f), _viewFar(1000.0f),
       _updated(false)
 {
 }
 
-Camera *Camera::Instance()
+std::shared_ptr<Camera> Camera::Instance()
 {
-    static Camera cam;
-    return &cam;
+    static auto cam = std::make_shared<Camera>();
+    return cam;
 }
 
 void Camera::PrepareFrame(unsigned clearMask)
 {
     glClear(static_cast<GLbitfield>(clearMask));
-    glClearColor(_clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a);
+    glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     if (!_updated)
         update();
 }
@@ -85,9 +85,39 @@ void Camera::SetViewType(CameraViewType type)
     _updated = false;
 }
 
-void Camera::SetClearColor(const glm::vec4 &color)
+glm::vec3 Camera::GetPosition()
 {
-    _clearColor = color;
+    return _posVec;
+}
+
+glm::vec3 Camera::GetCenter()
+{
+    return _centerVec;
+}
+
+glm::vec3 Camera::GetVecUp()
+{
+    return _upVec;
+}
+
+glm::vec3 Camera::GetVecFront()
+{
+    return _frontVec;
+}
+
+glm::vec3 Camera::GetVecRight()
+{
+    return _rightVec;
+}
+
+CameraViewType Camera::GetViewType()
+{
+    return _viewType;
+}
+
+float Camera::GetFov()
+{
+    return _fov;
 }
 
 void Camera::update()

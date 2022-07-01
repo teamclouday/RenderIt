@@ -70,6 +70,9 @@ bool Model::Load(const std::string &path, unsigned flags)
                                                           mesh->mColors[0][i].b, mesh->mColors[0][i].a)
                                               : glm::vec4(1.0f);
                 vertices.push_back({position, normal, texcoords, color});
+
+                // update bounds
+                bounds.Update(position);
             }
 
             // indices data
@@ -209,7 +212,7 @@ bool Model::Load(MeshShape shape)
     return true;
 }
 
-void Model::Draw(Shader *shader)
+void Model::Draw(std::shared_ptr<Shader> shader) const
 {
     for (auto &mesh : _meshes)
         mesh->Draw(shader);

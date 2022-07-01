@@ -75,18 +75,18 @@ bool Shader::Compile()
     return _compiled = true;
 }
 
-bool Shader::IsCompiled()
+bool Shader::IsCompiled() const
 {
     return _compiled;
 }
 
-void Shader::Bind()
+void Shader::Bind() const
 {
     if (_compiled)
         glUseProgram(_program);
 }
 
-void Shader::UnBind()
+void Shader::UnBind() const
 {
     glUseProgram(0);
 }
@@ -101,12 +101,12 @@ void Shader::Reset()
     _compiled = false;
 }
 
-GLuint Shader::GetProgram()
+GLuint Shader::GetProgram() const
 {
     return _program;
 }
 
-void Shader::ConfigMaterialTextures(std::shared_ptr<Material> mat)
+void Shader::ConfigMaterialTextures(std::shared_ptr<Material> mat) const
 {
     if (!_compiled)
         return;
@@ -231,7 +231,7 @@ void Shader::UniformMat4(const std::string &name, const glm::mat4 &val) const
     glUniformMatrix4fv(glGetUniformLocation(_program, name.c_str()), 1, GL_FALSE, glm::value_ptr(val));
 }
 
-void Shader::UboBinding(const std::string &name, uint32_t binding)
+void Shader::UboBinding(const std::string &name, uint32_t binding) const
 {
     if (!_compiled)
         return;

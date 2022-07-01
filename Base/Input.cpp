@@ -11,10 +11,10 @@ InputManager::InputManager()
 {
 }
 
-InputManager *InputManager::Instance()
+std::shared_ptr<InputManager> InputManager::Instance()
 {
-    static InputManager input;
-    return &input;
+    static auto input = std::make_shared<InputManager>();
+    return input;
 }
 
 bool InputManager::GetKeyDown(int key)

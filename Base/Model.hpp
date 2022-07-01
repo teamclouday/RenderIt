@@ -28,19 +28,21 @@ class Model
 
     bool Load(MeshShape shape);
 
-    void Draw(Shader *shader);
+    void Draw(std::shared_ptr<Shader> shader) const;
 
     void Reset();
+
+    void UI();
 
   public:
     const std::string NAME = "Model";
     Transform transform;
+    Bounds bounds;
 
   private:
     std::shared_ptr<STexture> LoadTexture(const std::string &path);
 
   private:
-    Bounds _bounds;
     std::vector<std::shared_ptr<Mesh>> _meshes;
     // map filename -> texture pointer
     std::unordered_map<std::string, std::shared_ptr<STexture>> _textures;
