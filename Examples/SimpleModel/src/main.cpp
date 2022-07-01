@@ -4,18 +4,20 @@
 #include <memory>
 #include <string>
 
+#include <imgui.h>
+
 using namespace RenderIt;
 
 int main()
 {
     std::shared_ptr<AppContext> app;
-    std::shared_ptr<Camera> cam;
+    std::shared_ptr<OrbitCamera> cam;
     std::shared_ptr<InputManager> input;
 
     try
     {
         app = AppContext::Instance();
-        cam = Camera::Instance();
+        cam = OrbitCamera::Instance();
         input = InputManager::Instance();
     }
     catch (const std::exception &e)
@@ -27,6 +29,7 @@ int main()
     app->SetWindowTitle("Simple Model");
     app->displayUI = false;
     app->EnableCommonGLFeatures();
+    app->SetVsync(true);
 
     // prepare shaders
     auto vertShader = Tools::read_file_content("./shaders/SimpleModel.vert");
@@ -60,12 +63,12 @@ int main()
     auto mModel = model->transform.GetMatrix();
 
     // GL debug
-    Tools::set_gl_debug(true);
+    Tools::set_gl_debug(true, false);
+
+    app->Start();
 
     while (!app->WindowShouldClose())
     {
-        // scene logics
-
         // render
         app->GetWindowSize(w, h);
         cam->SetWindowAspect(w, h);

@@ -226,14 +226,17 @@ void Model::Reset()
 
 std::shared_ptr<STexture> Model::LoadTexture(const std::string &path)
 {
-    if (_textures.count(path))
-        return _textures[path];
+    auto p = path;
+    Tools::ensure_path_separators(p);
+
+    if (_textures.count(p))
+        return _textures[p];
 
     int w{0}, h{0}, n{4};
-    unsigned char *data = stbi_load(path.c_str(), &w, &h, &n, STBI_rgb_alpha);
+    unsigned char *data = stbi_load(p.c_str(), &w, &h, &n, STBI_rgb_alpha);
     if (!data)
     {
-        Tools::display_message(NAME, "Failed to load model file " + path + "\n" + std::string(stbi_failure_reason()),
+        Tools::display_message(NAME, "Failed to load texture file " + p + "\n" + std::string(stbi_failure_reason()),
                                Tools::MessageType::WARN);
         return nullptr;
     }
@@ -249,7 +252,7 @@ std::shared_ptr<STexture> Model::LoadTexture(const std::string &path)
     tex->UnBind();
 
     stbi_image_free(data);
-    return _textures[path] = tex;
+    return _textures[p] = tex;
 }
 
 } // namespace RenderIt

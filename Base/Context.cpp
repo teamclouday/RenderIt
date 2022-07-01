@@ -63,18 +63,14 @@ bool AppContext::WindowShouldClose() const
 
 void AppContext::LoopEndFrame(std::function<void()> callUI) const
 {
-    if (displayUI)
-    {
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+    if (displayUI && callUI)
+        callUI();
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        if (callUI)
-            callUI();
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    }
     glfwSwapBuffers(_window);
     glfwPollEvents();
 }
@@ -90,11 +86,23 @@ void AppContext::EnableCommonGLFeatures() const
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 }
 
+void AppContext::SetVsync(bool enable) const
+{
+    glfwSwapInterval(enable ? 1 : 0);
+}
+
+void AppContext::Start() const
+{
+    glfwShowWindow(_window);
+    glfwFocusWindow(_window);
+}
+
 void AppContext::initializeLocal()
 {
     glfwSetErrorCallback(AppContext::glfw_error_callback);
     if (!glfwInit())
         throw std::runtime_error("Failed to init GLFW!");
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     _window = glfwCreateWindow(_winW, _winH, _winTitle.c_str(), nullptr, nullptr);
     if (!_window)
         throw std::runtime_error("Failed to create GLFW window!");
@@ -122,7 +130,6 @@ void AppContext::initializeLocal()
 
 void AppContext::initializeGlobal()
 {
-    Camera::Instance();
     InputManager::Instance();
 }
 

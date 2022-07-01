@@ -33,6 +33,10 @@ struct Tools
     /// Select file from explorer
     static std::string select_file_in_explorer();
 
+    /// Ensure separators are valid
+    static void ensure_path_separators(std::string &path);
+
+    /// Enable/Disable OpenGL debug output
     static void set_gl_debug(bool enable, bool filterNotifications = true);
 };
 

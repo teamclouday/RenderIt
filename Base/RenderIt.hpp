@@ -12,4 +12,7 @@
 #include "Tools.hpp"
 #include "Transform.hpp"
 
+#include "Cameras/FreeCamera.hpp"
+#include "Cameras/OrbitCamera.hpp"
+
 /** @file */

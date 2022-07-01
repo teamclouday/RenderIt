@@ -2,7 +2,7 @@
 function(buildExample EXAMPLE_NAME)
     set(EXAMPLE_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME})
     message(STATUS "Generating project file for ${EXAMPLE_NAME}")
-    file(GLOB SRC ${EXAMPLE_FOLDER}/src/*.cpp ${EXAMPLE_FOLDER}/src/*.hpp)
+    file(GLOB_RECURSE SRC ${EXAMPLE_FOLDER}/src/*.cpp ${EXAMPLE_FOLDER}/src/*.hpp)
     add_executable(${EXAMPLE_NAME} ${SRC})
     set_target_properties(${EXAMPLE_NAME}
         PROPERTIES
@@ -12,7 +12,7 @@ function(buildExample EXAMPLE_NAME)
     )
     target_include_directories(${EXAMPLE_NAME} PRIVATE
         ${RENDERIT_HEADERS}
-        ${EXAMPLE_FOLDER}
+        ${EXAMPLE_FOLDER}/src
     )
     target_link_libraries(${EXAMPLE_NAME} PRIVATE
         ${RENDERIT_LIBS}

@@ -40,6 +40,12 @@ class AppContext
     /// Enable common OpenGL features
     void EnableCommonGLFeatures() const;
 
+    /// Enable/Disable vsync
+    void SetVsync(bool enable) const;
+
+    /// Start by displaying window
+    void Start() const;
+
     /// UI calls
     void UI();
 

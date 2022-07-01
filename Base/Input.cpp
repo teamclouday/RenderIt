@@ -7,7 +7,8 @@ namespace RenderIt
 {
 
 InputManager::InputManager()
-    : _justStarted(true), _mousePosData({0.0f}), _mouseDown({false}), _mouseDown_acc({false}), _wheelData({0.0f})
+    : _resetMouseOffset(true), _resetMouseWheel(true), _mousePosData({0.0f}), _mouseDown({false}),
+      _mouseDown_acc({false}), _wheelData({0.0f})
 {
 }
 
@@ -35,6 +36,38 @@ bool InputManager::GetKeyPressed(int key)
         return false;
 }
 
+bool InputManager::GetMouseDown(int button)
+{
+    LOCKIT
+    switch (button)
+    {
+    case GLFW_MOUSE_BUTTON_LEFT:
+        return _mouseDown[0];
+    case GLFW_MOUSE_BUTTON_MIDDLE:
+        return _mouseDown[1];
+    case GLFW_MOUSE_BUTTON_RIGHT:
+        return _mouseDown[2];
+    default:
+        return false;
+    }
+}
+
+bool InputManager::GetMousePressed(int button)
+{
+    LOCKIT
+    switch (button)
+    {
+    case GLFW_MOUSE_BUTTON_LEFT:
+        return _mouseDown_acc[0];
+    case GLFW_MOUSE_BUTTON_MIDDLE:
+        return _mouseDown_acc[1];
+    case GLFW_MOUSE_BUTTON_RIGHT:
+        return _mouseDown_acc[2];
+    default:
+        return false;
+    }
+}
+
 void InputManager::GetMousePos(float &posX, float &posY)
 {
     LOCKIT
@@ -54,6 +87,7 @@ void InputManager::GetWheelOffsets(float &offsetX, float &offsetY)
     LOCKIT
     offsetX = _wheelData[0];
     offsetY = _wheelData[1];
+    _wheelData[0] = _wheelData[1] = 0.0f;
 }
 
 void InputManager::Update()
@@ -61,13 +95,12 @@ void InputManager::Update()
     LOCKIT
     // update keys
     _keyStates_acc.clear();
-    // update mouse offsets
-    _mousePosData[2] = _mousePosData[3] = 0.0f;
     // update mouse down accumulated
     _mouseDown_acc[0] = _mouseDown[0];
     _mouseDown_acc[1] = _mouseDown[1];
     _mouseDown_acc[2] = _mouseDown[2];
-    _justStarted = true;
+    _resetMouseOffset = true;
+    _resetMouseWheel = true;
 }
 
 void InputManager::handle_glfw_key(int key, int action)
@@ -82,12 +115,12 @@ void InputManager::handle_glfw_mouse_pos(double posX, double posY)
     LOCKIT
     float posXf = static_cast<float>(posX);
     float posYf = static_cast<float>(posY);
-    if (_justStarted)
+    if (_resetMouseOffset)
     {
-        _justStarted = false;
         _mousePosData[0] = posXf;
         _mousePosData[1] = posYf;
         _mousePosData[2] = _mousePosData[3] = 0.0f;
+        _resetMouseOffset = false;
     }
     else
     {
@@ -124,8 +157,17 @@ void InputManager::handle_glfw_mouse_click(int button, int action)
 void InputManager::handle_glfw_wheel(double xoffset, double yoffset)
 {
     LOCKIT
-    _wheelData[0] += static_cast<float>(xoffset);
-    _wheelData[1] += static_cast<float>(yoffset);
+    if (_resetMouseWheel)
+    {
+        _wheelData[0] = xoffset;
+        _wheelData[1] = yoffset;
+        _resetMouseWheel = false;
+    }
+    else
+    {
+        _wheelData[0] += static_cast<float>(xoffset);
+        _wheelData[1] += static_cast<float>(yoffset);
+    }
 }
 
 } // namespace RenderIt

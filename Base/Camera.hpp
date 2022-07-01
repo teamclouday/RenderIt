@@ -83,11 +83,11 @@ class Camera
     const std::string NAME = "Camera";
     glm::vec4 clearColor;
 
-  private:
+  protected:
     /// Internal update
     void update();
 
-  private:
+  protected:
     glm::vec3 _posVec, _centerVec;
 
     glm::vec3 _upVec, _frontVec, _rightVec;

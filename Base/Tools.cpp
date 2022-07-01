@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <termcolor/termcolor.hpp>
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -51,6 +52,7 @@ std::string Tools::select_file_in_explorer()
 {
     const char *NAME = "Tools";
     char filepath[1024];
+    memset(filepath, sizeof(filepath), 0);
 #if defined(WIN32) || defined(_WIN32)
     filepath[0] = '\0';
     OPENFILENAMEA f{};
@@ -76,6 +78,22 @@ std::string Tools::select_file_in_explorer()
     filepath[sizeof(filepath) - 1] = 0;
 #endif
     return std::string(filepath);
+}
+
+void Tools::ensure_path_separators(std::string &path)
+{
+    char pref = fs::path::preferred_separator;
+    switch (pref)
+    {
+    case '/': {
+        std::replace(path.begin(), path.end(), '\\', pref);
+        break;
+    }
+    case '\\': {
+        std::replace(path.begin(), path.end(), '/', pref);
+        break;
+    }
+    }
 }
 
 void GLAPIENTRY GLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,

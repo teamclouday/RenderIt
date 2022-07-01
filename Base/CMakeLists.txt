@@ -1,6 +1,6 @@
-file(GLOB RENDERIT_SRC *.cpp *.hpp)
+file(GLOB_RECURSE RENDERIT_SRC *.cpp *.hpp)
 
-add_library(RenderItLib ${RENDERIT_SRC})
+add_library(RenderItLib STATIC ${RENDERIT_SRC})
 
 target_include_directories(RenderItLib PRIVATE
     ${CMAKE_SOURCE_DIR}/External/glew-cmake/include
@@ -11,6 +11,7 @@ target_include_directories(RenderItLib PRIVATE
     ${CMAKE_SOURCE_DIR}/External/assimp/include
     ${CMAKE_SOURCE_DIR}/External/termcolor/include
     ${CMAKE_SOURCE_DIR}/External/stb
+    ${CMAKE_SOURCE_DIR}/Base
 )
 
 target_link_libraries(RenderItLib PRIVATE

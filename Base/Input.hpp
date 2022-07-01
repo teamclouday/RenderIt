@@ -58,7 +58,7 @@ class InputManager
 #pragma endregion glfw_callback_handlers
 
   private:
-    bool _justStarted;
+    bool _resetMouseOffset, _resetMouseWheel;
     std::array<float, 4> _mousePosData; // x, y, xoffset, yoffset
     std::array<bool, 3> _mouseDown;     // left, middle, right
     std::array<bool, 3> _mouseDown_acc; // left, middle, right

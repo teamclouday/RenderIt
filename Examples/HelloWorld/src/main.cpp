@@ -25,6 +25,7 @@ int main()
     int w = 0, h = 0;
     app->SetWindowTitle("Hello World");
     app->displayUI = false;
+    app->SetVsync(true);
 
     // prepare shaders
     auto vertShader = Tools::read_file_content("./shaders/HelloWorld.vert");
@@ -54,6 +55,8 @@ int main()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
     vao.UnBind();
+
+    app->Start();
 
     while (!app->WindowShouldClose())
     {
