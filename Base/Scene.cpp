@@ -3,14 +3,6 @@
 namespace RenderIt
 {
 
-Scene::Scene()
-{
-}
-
-Scene::~Scene()
-{
-}
-
 std::shared_ptr<Scene> Scene::Instance()
 {
     static auto scene = std::make_shared<Scene>();
@@ -19,7 +11,12 @@ std::shared_ptr<Scene> Scene::Instance()
 
 void Scene::AttachObject(std::shared_ptr<Model> model)
 {
-    _models.push_back(model);
+    if (!model)
+        return;
+    // find the ultimate parent of model
+    while (model->GetParent())
+        model = model->GetParent();
+    _models.insert(model);
 }
 
 void Scene::Draw(std::shared_ptr<Shader> shader) const

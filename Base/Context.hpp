@@ -35,7 +35,7 @@ class AppContext
     bool WindowShouldClose() const;
 
     /// Swap frame buffers, call after rendering
-    void LoopEndFrame(std::function<void()> callUI = nullptr) const;
+    void LoopEndFrame(std::function<void()> callUI = nullptr);
 
     /// Enable common OpenGL features
     void EnableCommonGLFeatures() const;
@@ -44,7 +44,10 @@ class AppContext
     void SetVsync(bool enable) const;
 
     /// Start by displaying window
-    void Start() const;
+    void Start();
+
+    /// Get delta time from last frame (seconds)
+    float GetDeltaTime() const;
 
     /// UI calls
     void UI();
@@ -80,6 +83,7 @@ class AppContext
     int _winW, _winH;
     std::string _winTitle;
     GLFWwindow *_window;
+    float _tPrev, _tDelta;
 };
 
 } // namespace RenderIt

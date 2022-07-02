@@ -370,6 +370,8 @@ void Model::UI()
         ImGui::TreePop();
     }
 
+    // TODO: Add animation GUI
+
     ImGui::PopID();
 }
 

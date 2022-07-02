@@ -4,8 +4,10 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
+#include "Animation.hpp"
 #include "Bounds.hpp"
 #include "GLStructs.hpp"
 #include "Mesh.hpp"
@@ -27,6 +29,8 @@ namespace RenderIt
 class Model
 {
   public:
+    friend class Animator;
+
     Model();
 
     ~Model();
@@ -36,6 +40,9 @@ class Model
 
     /// Load with simple shape
     bool Load(MeshShape shape);
+
+    /// Load animation from local file
+    bool LoadAnimation(const std::string &path);
 
     /// Draw all meshes
     void Draw(std::shared_ptr<Shader> shader) const;
@@ -55,6 +62,15 @@ class Model
     /// Get number of children of current model
     size_t GetNumChildren() const;
 
+    /// Set current active animation
+    void SetActiveAnimation(unsigned idx);
+
+    /// Get number of animations
+    size_t GetNumAnimations() const;
+
+    /// Whether model has animation
+    bool HasAnimation() const;
+
     /// UI calls
     void UI();
 
@@ -72,12 +88,32 @@ class Model
     std::shared_ptr<STexture> LoadTexture(unsigned char *pixels, int width, int height, const std::string &name);
 
   private:
+#pragma region model_meshes
+
     std::vector<std::shared_ptr<Mesh>> _meshes;
     // map filename -> texture pointer
     std::unordered_map<std::string, std::shared_ptr<STexture>> _textures;
 
+#pragma endregion model_meshes
+
+#pragma region model_animations
+
+    unsigned _animationActive;
+    // animations
+    std::vector<std::shared_ptr<Animation>> _animations;
+    // map bone name -> (bone ID, transform matrix)
+    std::unordered_map<std::string, std::pair<unsigned, glm::mat4>> _boneInfo;
+    // animation node
+    std::shared_ptr<Animation::Node> _animNodeRoot;
+
+#pragma endregion model_animations
+
+#pragma region model_hierarchy
+
     std::shared_ptr<Model> _parent;
     std::vector<std::shared_ptr<Model>> _children;
+
+#pragma endregion model_hierarchy
 };
 
 } // namespace RenderIt

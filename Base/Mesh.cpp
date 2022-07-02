@@ -82,6 +82,12 @@ void Mesh::Load(const std::vector<Vertex> &vertices, const std::vector<unsigned>
     // bitangent
     glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, bitangent));
+    // bone IDs
+    glEnableVertexAttribArray(5);
+    glVertexAttribPointer(5, 4, GL_UNSIGNED_INT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, boneIDs));
+    // bone weights
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, boneWeights));
 
     _vao->UnBind();
 }

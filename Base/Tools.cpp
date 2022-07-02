@@ -48,7 +48,7 @@ std::string Tools::read_file_content(const std::string &path)
     return sstr.str();
 }
 
-std::string Tools::select_file_in_explorer()
+std::string Tools::select_file_in_explorer(const std::string &title)
 {
     const char *NAME = "Tools";
     char filepath[1024];
@@ -60,7 +60,7 @@ std::string Tools::select_file_in_explorer()
     f.hwndOwner = NULL;
     f.lpstrFile = filepath;
     f.lpstrFilter = "All Files\0*.*\0\0";
-    f.lpstrTitle = "Select File";
+    f.lpstrTitle = title.c_str();
     f.nMaxFile = sizeof(filepath);
     f.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
     if (!GetOpenFileNameA(&f))
@@ -69,7 +69,7 @@ std::string Tools::select_file_in_explorer()
         return "";
     }
 #elif defined(__linux__)
-    FILE *f = popen("zenity --file-selection --title=\"Select File\"", "r");
+    FILE *f = popen(("zenity --file-selection --title=\"" + title + "\"").c_str(), "r");
     fgets(filepath, sizeof(filepath), f);
     filepath[strlen(filepath) - 1] = 0;
     pclose(f);
@@ -192,6 +192,53 @@ void Tools::set_gl_debug(bool enable, bool filterNotifications)
         glDisable(GL_DEBUG_OUTPUT);
         glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     }
+}
+
+glm::vec2 Tools::convertAssimpVector(const aiVector2D &v)
+{
+    return glm::vec2(v.x, v.y);
+}
+
+glm::vec3 Tools::convertAssimpVector(const aiVector3D &v)
+{
+    return glm::vec3(v.x, v.y, v.z);
+}
+
+glm::vec3 Tools::convertAssimpColor(const aiColor3D &c)
+{
+    return glm::vec3(c.r, c.g, c.b);
+}
+
+glm::vec4 Tools::convertAssimpColor(const aiColor4D &c)
+{
+    return glm::vec4(c.r, c.g, c.b, c.a);
+}
+
+glm::mat3 Tools::convertAssimpMatrix(const aiMatrix3x3 &m)
+{
+    glm::mat3 mat{0.0f};
+    for (unsigned i = 0; i < 3; i++)
+    {
+        for (unsigned j = 0; j < 3; j++)
+            mat[i][j] = m[j][i];
+    }
+    return mat;
+}
+
+glm::mat4 Tools::convertAssimpMatrix(const aiMatrix4x4 &m)
+{
+    glm::mat4 mat{0.0f};
+    for (unsigned i = 0; i < 4; i++)
+    {
+        for (unsigned j = 0; j < 4; j++)
+            mat[i][j] = m[j][i];
+    }
+    return mat;
+}
+
+glm::quat Tools::convertAssimpQuaternion(const aiQuaternion &q)
+{
+    return glm::quat(q.w, q.x, q.y, q.z);
 }
 
 } // namespace RenderIt

@@ -12,7 +12,7 @@
 namespace RenderIt
 {
 
-AppContext::AppContext() : displayUI(true), _winW(800), _winH(600), _winTitle("RenderIt")
+AppContext::AppContext() : displayUI(true), _winW(800), _winH(600), _winTitle("RenderIt"), _tDelta(0.0f)
 {
     initializeLocal();
     initializeGlobal();
@@ -61,7 +61,7 @@ bool AppContext::WindowShouldClose() const
     return _window ? glfwWindowShouldClose(_window) : true;
 }
 
-void AppContext::LoopEndFrame(std::function<void()> callUI) const
+void AppContext::LoopEndFrame(std::function<void()> callUI)
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -73,6 +73,10 @@ void AppContext::LoopEndFrame(std::function<void()> callUI) const
 
     glfwSwapBuffers(_window);
     glfwPollEvents();
+
+    auto tCurr = static_cast<float>(glfwGetTime());
+    _tDelta = tCurr - _tPrev;
+    _tPrev = tCurr;
 }
 
 void AppContext::EnableCommonGLFeatures() const
@@ -91,10 +95,16 @@ void AppContext::SetVsync(bool enable) const
     glfwSwapInterval(enable ? 1 : 0);
 }
 
-void AppContext::Start() const
+void AppContext::Start()
 {
     glfwShowWindow(_window);
     glfwFocusWindow(_window);
+    _tPrev = static_cast<float>(glfwGetTime());
+}
+
+float AppContext::GetDeltaTime() const
+{
+    return _tDelta;
 }
 
 void AppContext::initializeLocal()

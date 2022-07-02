@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Animation.hpp"
+#include "Animator.hpp"
+#include "Bone.hpp"
 #include "Bounds.hpp"
 #include "Camera.hpp"
 #include "Context.hpp"

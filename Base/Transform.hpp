@@ -13,9 +13,16 @@ namespace RenderIt
 /// Transform info
 struct Transform
 {
-    Transform();
+    // Define combination types for computing matrix
+    enum class Type
+    {
+        TRS,
+        SRT
+    };
 
-    Transform(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale);
+    Transform(Type t = Type::TRS);
+
+    Transform(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, Type t = Type::TRS);
 
     /// Update model matrix
     void UpdateMatrix();
@@ -31,6 +38,8 @@ struct Transform
 
     glm::mat4 matrix;
     glm::mat4 matrixInv;
+
+    Type type;
 };
 
 } // namespace RenderIt

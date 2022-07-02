@@ -22,7 +22,9 @@ namespace fs = std::filesystem;
 namespace RenderIt
 {
 
-Model::Model() : modelName(MODEL_NAME_DEFAULT), _parent(nullptr), _children({})
+Model::Model()
+    : modelName(MODEL_NAME_DEFAULT), transform(Transform::Type::SRT), _animationActive(0), _animNodeRoot(nullptr),
+      _parent(nullptr)
 {
 }
 
@@ -44,7 +46,8 @@ bool Model::Load(const std::string &path, unsigned flags)
     if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         return false;
 
-    modelName = fs::path(path).filename();
+    auto sceneName = std::string(scene->mName.C_Str());
+    modelName = sceneName.length() > 0 ? sceneName : fs::path(path).filename().string();
 
     // process nodes
     std::queue<aiNode *> nodes;
@@ -54,9 +57,9 @@ bool Model::Load(const std::string &path, unsigned flags)
         auto node = nodes.front();
         nodes.pop();
         // create meshes
-        for (auto i = 0; i < node->mNumMeshes; i++)
+        for (auto meshIdx = 0; meshIdx < node->mNumMeshes; meshIdx++)
         {
-            auto mesh = scene->mMeshes[node->mMeshes[i]];
+            auto mesh = scene->mMeshes[node->mMeshes[meshIdx]];
 
             std::shared_ptr<Mesh> newMesh = std::make_shared<Mesh>();
             _meshes.push_back(newMesh);
@@ -66,29 +69,31 @@ bool Model::Load(const std::string &path, unsigned flags)
             std::shared_ptr<Material> material = std::make_shared<Material>();
 
             // vertex data
-            for (auto i = 0; i < mesh->mNumVertices; i++)
+            for (auto vertexIdx = 0; vertexIdx < mesh->mNumVertices; vertexIdx++)
             {
-                auto position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-                auto normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+                auto position = Tools::convertAssimpVector(mesh->mVertices[vertexIdx]);
+                auto normal = Tools::convertAssimpVector(mesh->mNormals[vertexIdx]);
                 auto texcoords = mesh->HasTextureCoords(0)
-                                     ? glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y)
+                                     ? glm::vec2(Tools::convertAssimpVector(mesh->mTextureCoords[0][vertexIdx]))
                                      : glm::vec2(0.0f);
-                auto tangent = mesh->HasTangentsAndBitangents()
-                                   ? glm::vec3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z)
-                                   : glm::vec3(0.0f);
+                auto tangent = mesh->HasTangentsAndBitangents() ? Tools::convertAssimpVector(mesh->mTangents[vertexIdx])
+                                                                : glm::vec3(0.0f);
                 auto bitangent = mesh->HasTangentsAndBitangents()
-                                     ? glm::vec3(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z)
+                                     ? Tools::convertAssimpVector(mesh->mBitangents[vertexIdx])
                                      : glm::vec3(0.0f);
-                vertices.push_back({position, normal, texcoords, tangent, bitangent});
+                auto defaultBoneID = glm::uvec4(0);
+                auto defaultBoneWeights = glm::vec4(0.0f);
+                vertices.push_back(
+                    {position, normal, texcoords, tangent, bitangent, defaultBoneID, defaultBoneWeights});
 
                 // update bounds
                 bounds.Update(position);
             }
 
             // indices data
-            for (auto i = 0; i < mesh->mNumFaces; i++)
+            for (auto faceIdx = 0; faceIdx < mesh->mNumFaces; faceIdx++)
             {
-                auto face = mesh->mFaces[i];
+                auto face = mesh->mFaces[faceIdx];
                 assert(face.mNumIndices == 3);
                 indices.push_back(face.mIndices[0]);
                 indices.push_back(face.mIndices[1]);
@@ -142,13 +147,13 @@ bool Model::Load(const std::string &path, unsigned flags)
             float fval{0.0f};
             int ival{0};
             if (mat->Get(AI_MATKEY_COLOR_AMBIENT, color) == AI_SUCCESS)
-                material->colorAmbient = glm::vec3(color.r, color.g, color.b);
+                material->colorAmbient = Tools::convertAssimpColor(color);
             if (mat->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS)
-                material->colorDiffuse = glm::vec3(color.r, color.g, color.b);
+                material->colorDiffuse = Tools::convertAssimpColor(color);
             if (mat->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS)
-                material->colorSpecular = glm::vec3(color.r, color.g, color.b);
+                material->colorSpecular = Tools::convertAssimpColor(color);
             if (mat->Get(AI_MATKEY_COLOR_EMISSIVE, color) == AI_SUCCESS)
-                material->colorEmissive = glm::vec3(color.r, color.g, color.b);
+                material->colorEmissive = Tools::convertAssimpColor(color);
 
             if (mat->Get(AI_MATKEY_SHININESS, fval) == AI_SUCCESS)
                 material->valShininess = fval;
@@ -158,12 +163,79 @@ bool Model::Load(const std::string &path, unsigned flags)
             if (mat->Get(AI_MATKEY_TWOSIDED, ival) == AI_SUCCESS)
                 material->twoSided = ival != 0;
 
+            // vertex bone info
+            for (auto boneIdx = 0; boneIdx < mesh->mNumBones; boneIdx++)
+            {
+                unsigned boneID;
+                std::string boneName = mesh->mBones[boneIdx]->mName.C_Str();
+                if (!_boneInfo.count(boneName))
+                {
+                    boneID = _boneInfo.size();
+                    _boneInfo[boneName] = {boneID, Tools::convertAssimpMatrix(mesh->mBones[boneIdx]->mOffsetMatrix)};
+                }
+                else
+                    boneID = _boneInfo[boneName].first;
+                assert(boneID >= 0);
+
+                auto weights = mesh->mBones[boneIdx]->mWeights;
+                auto numWeights = mesh->mBones[boneIdx]->mNumWeights;
+
+                for (auto weightIdx = 0; weightIdx < numWeights; weightIdx++)
+                {
+                    auto vertexId = weights[weightIdx].mVertexId;
+                    assert(vertexId <= vertices.size());
+                    // set vertex info
+                    auto &vertex = vertices[vertexId];
+                    for (auto i = 0; i < 4; i++)
+                    {
+                        if (!vertex.boneIDs[i] && !vertex.boneWeights[i])
+                        {
+                            vertex.boneIDs[i] = boneID;
+                            vertex.boneWeights[i] = weights[weightIdx].mWeight;
+                            break;
+                        }
+                    }
+                }
+            }
+
             newMesh->Load(vertices, indices, material, GL_TRIANGLES);
         }
         // add sub nodes
-        for (auto i = 0; i < node->mNumChildren; i++)
-            nodes.push(node->mChildren[i]);
+        for (auto nodeIdx = 0; nodeIdx < node->mNumChildren; nodeIdx++)
+            nodes.push(node->mChildren[nodeIdx]);
     }
+
+    // prepare animations
+    if (scene->HasAnimations())
+    {
+        // read animation structure
+        std::queue<std::pair<aiNode *, std::shared_ptr<Animation::Node>>> animNodes;
+        animNodes.push({scene->mRootNode, nullptr});
+        while (!animNodes.empty())
+        {
+            // get next pair
+            auto data = animNodes.front();
+            animNodes.pop();
+            auto node = data.first;
+            auto animNodeParent = data.second;
+            // init current node
+            auto animNode = std::make_shared<Animation::Node>();
+            animNode->transform = Tools::convertAssimpMatrix(node->mTransformation);
+            animNode->name = node->mName.C_Str();
+            // add to parent node
+            if (!animNodeParent)
+                _animNodeRoot = animNode;
+            else
+                animNodeParent->children.push_back(animNode);
+            // solve children nodes
+            for (auto nodeIdx = 0; nodeIdx < node->mNumChildren; nodeIdx++)
+                animNodes.push({node->mChildren[nodeIdx], animNode});
+        }
+        // load animatins
+        for (auto animIdx = 0; animIdx < scene->mNumAnimations; animIdx++)
+            _animations.push_back(std::make_shared<Animation>(scene->mAnimations[animIdx], _boneInfo));
+    }
+
     return true;
 }
 
@@ -175,6 +247,47 @@ bool Model::Load(MeshShape shape)
     _meshes.push_back(newMesh);
     newMesh->Load(shape);
     modelName = std::to_string(shape);
+    return true;
+}
+
+bool Model::LoadAnimation(const std::string &path)
+{
+    if (!_meshes.size())
+        return false;
+
+    // load file
+    Assimp::Importer importer;
+    const auto scene = importer.ReadFile(path, 0);
+    if (!scene || !scene->mRootNode || !scene->HasAnimations())
+        return false;
+
+    // read animation structure
+    std::queue<std::pair<aiNode *, std::shared_ptr<Animation::Node>>> animNodes;
+    animNodes.push({scene->mRootNode, nullptr});
+    while (!animNodes.empty())
+    {
+        // get next pair
+        auto data = animNodes.front();
+        animNodes.pop();
+        auto node = data.first;
+        auto animNodeParent = data.second;
+        // init current node
+        auto animNode = std::make_shared<Animation::Node>();
+        animNode->transform = Tools::convertAssimpMatrix(node->mTransformation);
+        animNode->name = node->mName.C_Str();
+        // add to parent node
+        if (!animNodeParent)
+            _animNodeRoot = animNode;
+        else
+            animNodeParent->children.push_back(animNode);
+        // solve children nodes
+        for (auto nodeIdx = 0; nodeIdx < node->mNumChildren; nodeIdx++)
+            animNodes.push({node->mChildren[nodeIdx], animNode});
+    }
+    // load animatins
+    for (auto animIdx = 0; animIdx < scene->mNumAnimations; animIdx++)
+        _animations.push_back(std::make_shared<Animation>(scene->mAnimations[animIdx], _boneInfo));
+
     return true;
 }
 
@@ -192,6 +305,10 @@ void Model::Reset()
     _children.resize(0);
     _parent = nullptr;
     modelName = MODEL_NAME_DEFAULT;
+    _animations.clear();
+    _animations.resize(0);
+    _boneInfo.clear();
+    _animNodeRoot = nullptr;
 }
 
 bool Model::AddChild(std::shared_ptr<Model> child)
@@ -224,6 +341,22 @@ std::shared_ptr<Model> Model::GetChild(unsigned idx) const
 size_t Model::GetNumChildren() const
 {
     return _children.size();
+}
+
+void Model::SetActiveAnimation(unsigned idx)
+{
+    if (idx < _animations.size())
+        _animationActive = idx;
+}
+
+size_t Model::GetNumAnimations() const
+{
+    return _animations.size();
+}
+
+bool Model::HasAnimation() const
+{
+    return _animations.size() > 0;
 }
 
 std::shared_ptr<STexture> Model::LoadTexture(const std::string &path)

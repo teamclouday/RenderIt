@@ -9,23 +9,36 @@
 namespace RenderIt
 {
 
-Transform::Transform() : position(0.0f), rotation(0.0f), scale(1.0f)
+Transform::Transform(Type t) : position(0.0f), rotation(0.0f), scale(1.0f), type(t)
 {
     UpdateMatrix();
 }
 
-Transform::Transform(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale)
+Transform::Transform(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, Type t)
 {
     this->position = position;
     this->rotation = rotation;
     this->scale = scale;
+    type = t;
     UpdateMatrix();
 }
 
 void Transform::UpdateMatrix()
 {
-    matrix = glm::scale(glm::mat4(1.0f), scale) * glm::eulerAngleYXZ(rotation.y, rotation.x, rotation.z) *
-             glm::translate(glm::mat4(1.0f), position);
+    switch (type)
+    {
+    case Type::SRT: {
+        matrix = glm::scale(glm::mat4(1.0f), scale) * glm::eulerAngleYXZ(rotation.y, rotation.x, rotation.z) *
+                 glm::translate(glm::mat4(1.0f), position);
+        break;
+    }
+    case Type::TRS:
+    default: {
+        matrix = glm::translate(glm::mat4(1.0f), position) * glm::eulerAngleYXZ(rotation.y, rotation.x, rotation.z) *
+                 glm::scale(glm::mat4(1.0f), scale);
+        break;
+    }
+    }
     matrixInv = glm::inverse(matrix);
 }
 

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <set>
 #include <string>
-#include <vector>
 
 #include "Model.hpp"
 #include "Shader.hpp"
@@ -16,10 +16,6 @@ namespace RenderIt
 class Scene
 {
   public:
-    Scene();
-
-    ~Scene();
-
     /// Get singleton
     static std::shared_ptr<Scene> Instance();
 
@@ -36,7 +32,7 @@ class Scene
     const std::string NAME = "Scene";
 
   private:
-    std::vector<std::shared_ptr<Model>> _models;
+    std::set<std::shared_ptr<Model>> _models;
 };
 
 } // namespace RenderIt
