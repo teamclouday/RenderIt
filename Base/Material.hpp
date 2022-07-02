@@ -5,6 +5,7 @@
 
 #include "GLStructs.hpp"
 
+/** @file */
 namespace RenderIt
 {
 
@@ -89,7 +90,11 @@ struct Material
 
 #pragma endregion material_consts
 
+#pragma region material_other
+
     bool twoSided = false;
+
+#pragma endregion material_other
 };
 
 } // namespace RenderIt

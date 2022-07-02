@@ -8,6 +8,7 @@
 namespace RenderIt
 {
 
+/// Collection of tools
 struct Tools
 {
     /// Defines display message types

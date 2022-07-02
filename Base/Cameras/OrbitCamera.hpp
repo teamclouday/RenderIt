@@ -4,9 +4,12 @@
 
 #include "Camera.hpp"
 
+/** @file */
+
 namespace RenderIt
 {
 
+/// Camera that locks to center
 class OrbitCamera : public Camera
 {
   public:
@@ -28,10 +31,13 @@ class OrbitCamera : public Camera
     float wheelZoomMinDist = 0.1f;
 
   private:
+    /// Process mouse click & drag
     void ProcessMouseMovements();
 
+    /// Process mouse wheel zoom in/out
     void ProcessMouseWheel();
 
+    /// Process WASD key press
     void ProcessWASDKeys();
 };
 

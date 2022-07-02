@@ -4,10 +4,12 @@
 
 #include <iostream>
 
+/** @file */
+
 namespace RenderIt
 {
 
-/// Bounding Box
+/// Bounding box (AABB)
 struct Bounds
 {
     Bounds();

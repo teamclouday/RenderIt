@@ -5,9 +5,12 @@
 
 #include "Bounds.hpp"
 
+/** @file */
+
 namespace RenderIt
 {
 
+/// Transform info
 struct Transform
 {
     Transform();

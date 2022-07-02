@@ -9,9 +9,12 @@
 #include "Shader.hpp"
 #include "Vertex.hpp"
 
+/** @file */
+
 namespace RenderIt
 {
 
+/// Simple mesh shapes
 enum class MeshShape
 {
     None,
@@ -20,6 +23,7 @@ enum class MeshShape
     Sphere
 };
 
+/// A general mesh
 class Mesh
 {
   public:
@@ -27,15 +31,20 @@ class Mesh
 
     ~Mesh();
 
+    /// Draw mesh data
     void Draw(std::shared_ptr<Shader> shader) const;
 
+    /// Load simple shape
     void Load(MeshShape shape);
 
+    /// Load with mesh data
     void Load(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices,
               std::shared_ptr<Material> material, GLenum primType = GL_TRIANGLES);
 
+    /// Reset mesh data
     void Reset();
 
+    /// UI calls
     void UI();
 
   public:

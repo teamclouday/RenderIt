@@ -4,9 +4,12 @@
 
 #include "Camera.hpp"
 
+/** @file */
+
 namespace RenderIt
 {
 
+/// Camera that moves freely
 class FreeCamera : public Camera
 {
   public:
@@ -26,8 +29,10 @@ class FreeCamera : public Camera
     float wheelZoomMinDist = 0.1f;
 
   private:
+    /// Process mouse click & drag
     void ProcessMouseMovements();
 
+    /// Process WASD key press
     void ProcessWASDKeys();
 };
 
