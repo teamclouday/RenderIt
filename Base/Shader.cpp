@@ -111,40 +111,47 @@ void Shader::ConfigMaterialTextures(std::shared_ptr<Material> mat) const
     if (!_compiled)
         return;
 
-    const std::vector<std::shared_ptr<STexture>> maps = {
-        mat->diffuse,   mat->specular,   mat->ambient,      mat->emissive,      mat->height,        mat->normals,
-        mat->shininess, mat->opacity,    mat->displacement, mat->lightmap,      mat->reflection,
-
-        mat->pbr_color, mat->pbr_normal, mat->pbr_emission, mat->pbr_metalness, mat->pbr_roughness, mat->pbr_occlusion,
-    };
-    const std::vector<std::string> mapNames = {
-        Material::mapNameDiffuse,      Material::mapNameSpecular,     Material::mapNameAmbient,
-        Material::mapNameEmissive,     Material::mapNameHeight,       Material::mapNameNormals,
-        Material::mapNameShininess,    Material::mapNameOpacity,      Material::mapNameDisplacement,
-        Material::mapNameLightmap,     Material::mapNameReflection,
-
-        Material::mapNamePBRColor,     Material::mapNamePBRNormal,    Material::mapNamePBREmission,
-        Material::mapNamePBRMetalness, Material::mapNamePBRRoughness, Material::mapNamePBROcclusion,
-    };
-
-    assert(maps.size() == mapNames.size());
-
+    // bind textures
     int texIdx = 0;
-    for (auto i = 0; i < maps.size(); i++)
-    {
-        auto &m = maps[i];
-        auto &n = mapNames[i];
-        if (m)
+    auto bindTexture = [&](std::shared_ptr<STexture> &tex, const std::string &name) {
+        if (tex)
         {
             glActiveTexture(GL_TEXTURE0 + texIdx);
-            m->Bind();
-            UniformInt(n, texIdx);
+            tex->Bind();
+            UniformInt(name, texIdx);
+            UniformBool(name + Material::existsEXT, true);
             texIdx++;
-            UniformBool(n + Material::existsEXT, true);
         }
         else
-            UniformBool(n + Material::existsEXT, false);
-    }
+            UniformBool(name + Material::existsEXT, false);
+    };
+
+    bindTexture(mat->diffuse, Material::mapNameDiffuse);
+    bindTexture(mat->specular, Material::mapNameSpecular);
+    bindTexture(mat->ambient, Material::mapNameAmbient);
+    bindTexture(mat->emissive, Material::mapNameEmissive);
+    bindTexture(mat->height, Material::mapNameHeight);
+    bindTexture(mat->normals, Material::mapNameNormals);
+    bindTexture(mat->shininess, Material::mapNameShininess);
+    bindTexture(mat->opacity, Material::mapNameOpacity);
+    bindTexture(mat->displacement, Material::mapNameDisplacement);
+    bindTexture(mat->lightmap, Material::mapNameLightmap);
+    bindTexture(mat->reflection, Material::mapNameReflection);
+
+    bindTexture(mat->pbr_color, Material::mapNamePBRColor);
+    bindTexture(mat->pbr_normal, Material::mapNamePBRNormal);
+    bindTexture(mat->pbr_emission, Material::mapNamePBREmission);
+    bindTexture(mat->pbr_metalness, Material::mapNamePBRMetalness);
+    bindTexture(mat->pbr_roughness, Material::mapNamePBRRoughness);
+    bindTexture(mat->pbr_occlusion, Material::mapNamePBROcclusion);
+
+    // set constants
+    UniformVec3(Material::valNameColorAmbient, mat->colorAmbient);
+    UniformVec3(Material::valNameColorDiffuse, mat->colorDiffuse);
+    UniformVec3(Material::valNameColorSpecular, mat->colorSpecular);
+    UniformVec3(Material::valNameColorEmissive, mat->colorEmissive);
+    UniformFloat(Material::valNameColorShininess, mat->valShininess);
+    UniformFloat(Material::valNameColorOpacity, mat->valOpacity);
 }
 
 void Shader::UniformBool(const std::string &name, bool val) const

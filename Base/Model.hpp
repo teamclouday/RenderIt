@@ -15,7 +15,10 @@ namespace RenderIt
 {
 
 #define MODEL_LOAD_FLAGS                                                                                               \
-    aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices | aiProcess_GenSmoothNormals
+    aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SplitLargeMeshes |                             \
+        aiProcess_PreTransformVertices | aiProcess_ValidateDataStructure | aiProcess_ImproveCacheLocality |            \
+        aiProcess_RemoveRedundantMaterials | aiProcess_GenSmoothNormals | aiProcess_FlipUVs |                          \
+        aiProcess_FindInvalidData | aiProcess_OptimizeMeshes | aiProcess_CalcTangentSpace
 
 class Model
 {
@@ -41,6 +44,8 @@ class Model
 
   private:
     std::shared_ptr<STexture> LoadTexture(const std::string &path);
+
+    std::shared_ptr<STexture> LoadTexture(unsigned char *pixels, int width, int height, const std::string &name);
 
   private:
     std::vector<std::shared_ptr<Mesh>> _meshes;

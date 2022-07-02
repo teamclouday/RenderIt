@@ -173,7 +173,8 @@ struct Vertex
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec2 texcoords;
-    glm::vec4 color;
+    glm::vec3 tangent;
+    glm::vec3 bitangent;
 };
 
 /// Material info
@@ -189,6 +190,8 @@ struct Material
     {
         return pbr_color || pbr_normal || pbr_emission || pbr_metalness || pbr_roughness || pbr_occlusion;
     }
+
+#pragma region material_maps
 
     // legacy materials
     std::shared_ptr<STexture> diffuse = nullptr;
@@ -234,6 +237,26 @@ struct Material
     // to indicate whether the corresponding texture exists
     // e.g. bool map_DIFFUSE_exists;
     inline static const std::string existsEXT = "_exists";
+
+#pragma endregion material_maps
+
+#pragma region material_consts
+
+    glm::vec3 colorAmbient = glm::vec3(0.0f);
+    glm::vec3 colorDiffuse = glm::vec3(0.0f);
+    glm::vec3 colorSpecular = glm::vec3(0.0f);
+    glm::vec3 colorEmissive = glm::vec3(0.0f);
+    float valShininess = 0.0f;
+    float valOpacity = 1.0f;
+
+    inline static const std::string valNameColorAmbient = "val_AMBIENT";
+    inline static const std::string valNameColorDiffuse = "val_DIFFUSE";
+    inline static const std::string valNameColorSpecular = "val_SPECULAR";
+    inline static const std::string valNameColorEmissive = "val_EMISSIVE";
+    inline static const std::string valNameColorShininess = "val_SHININESS";
+    inline static const std::string valNameColorOpacity = "val_OPACITY";
+
+#pragma endregion material_consts
 };
 
 /// Bounding Box

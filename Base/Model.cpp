@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <stb_image.h>
 
+#include <cassert>
 #include <filesystem>
 #include <queue>
 
@@ -36,7 +37,7 @@ bool Model::Load(const std::string &path, unsigned flags)
     // load file
     Assimp::Importer importer;
     const auto scene = importer.ReadFile(path, flags);
-    if (!scene)
+    if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         return false;
 
     // process nodes
@@ -63,13 +64,16 @@ bool Model::Load(const std::string &path, unsigned flags)
             {
                 auto position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
                 auto normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-                auto texcoords = mesh->mTextureCoords[0]
+                auto texcoords = mesh->HasTextureCoords(0)
                                      ? glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y)
                                      : glm::vec2(0.0f);
-                auto color = mesh->mColors[0] ? glm::vec4(mesh->mColors[0][i].r, mesh->mColors[0][i].g,
-                                                          mesh->mColors[0][i].b, mesh->mColors[0][i].a)
-                                              : glm::vec4(1.0f);
-                vertices.push_back({position, normal, texcoords, color});
+                auto tangent = mesh->HasTangentsAndBitangents()
+                                   ? glm::vec3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z)
+                                   : glm::vec3(0.0f);
+                auto bitangent = mesh->HasTangentsAndBitangents()
+                                     ? glm::vec3(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z)
+                                     : glm::vec3(0.0f);
+                vertices.push_back({position, normal, texcoords, tangent, bitangent});
 
                 // update bounds
                 bounds.Update(position);
@@ -79,119 +83,70 @@ bool Model::Load(const std::string &path, unsigned flags)
             for (auto i = 0; i < mesh->mNumFaces; i++)
             {
                 auto face = mesh->mFaces[i];
-                for (auto j = 0; j < face.mNumIndices; j++)
-                    indices.push_back(face.mIndices[j]);
+                assert(face.mNumIndices == 3);
+                indices.push_back(face.mIndices[0]);
+                indices.push_back(face.mIndices[1]);
+                indices.push_back(face.mIndices[2]);
             }
 
             // material data
             auto mat = scene->mMaterials[mesh->mMaterialIndex];
             aiString texturePath;
 
+            auto setTexture = [&](aiTextureType type, std::shared_ptr<STexture> &target) {
+                if (mat->GetTextureCount(type))
+                {
+                    mat->GetTexture(type, 0, &texturePath);
+                    if (auto tex = scene->GetEmbeddedTexture(texturePath.C_Str()))
+                    {
+                        unsigned char *data = reinterpret_cast<unsigned char *>(tex->pcData);
+                        target = LoadTexture(data, tex->mWidth, tex->mHeight, texturePath.C_Str());
+                    }
+                    else
+                    {
+                        auto path = directory / fs::path(texturePath.C_Str());
+                        target = LoadTexture(path);
+                    }
+                }
+            };
+
             // legacy materials
-            if (mat->GetTextureCount(aiTextureType_DIFFUSE))
-            {
-                mat->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->diffuse = LoadTexture(path);
-            }
-            if (mat->GetTextureCount(aiTextureType_SPECULAR))
-            {
-                mat->GetTexture(aiTextureType_SPECULAR, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->specular = LoadTexture(path);
-            }
-            if (mat->GetTextureCount(aiTextureType_AMBIENT))
-            {
-                mat->GetTexture(aiTextureType_AMBIENT, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->ambient = LoadTexture(path);
-            }
-            if (mat->GetTextureCount(aiTextureType_EMISSIVE))
-            {
-                mat->GetTexture(aiTextureType_EMISSIVE, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->emissive = LoadTexture(path);
-            }
-            if (mat->GetTextureCount(aiTextureType_HEIGHT))
-            {
-                mat->GetTexture(aiTextureType_HEIGHT, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->height = LoadTexture(path);
-            }
-            if (mat->GetTextureCount(aiTextureType_NORMALS))
-            {
-                mat->GetTexture(aiTextureType_NORMALS, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->normals = LoadTexture(path);
-            }
-            if (mat->GetTextureCount(aiTextureType_SHININESS))
-            {
-                mat->GetTexture(aiTextureType_SHININESS, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->shininess = LoadTexture(path);
-            }
-            if (mat->GetTextureCount(aiTextureType_OPACITY))
-            {
-                mat->GetTexture(aiTextureType_OPACITY, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->opacity = LoadTexture(path);
-            }
-            if (mat->GetTextureCount(aiTextureType_DISPLACEMENT))
-            {
-                mat->GetTexture(aiTextureType_DISPLACEMENT, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->displacement = LoadTexture(path);
-            }
-            if (mat->GetTextureCount(aiTextureType_LIGHTMAP))
-            {
-                mat->GetTexture(aiTextureType_LIGHTMAP, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->lightmap = LoadTexture(path);
-            }
-            if (mat->GetTextureCount(aiTextureType_REFLECTION))
-            {
-                mat->GetTexture(aiTextureType_REFLECTION, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->reflection = LoadTexture(path);
-            }
+            setTexture(aiTextureType_DIFFUSE, material->diffuse);
+            setTexture(aiTextureType_SPECULAR, material->specular);
+            setTexture(aiTextureType_AMBIENT, material->ambient);
+            setTexture(aiTextureType_EMISSIVE, material->emissive);
+            setTexture(aiTextureType_HEIGHT, material->height);
+            setTexture(aiTextureType_NORMALS, material->normals);
+            setTexture(aiTextureType_SHININESS, material->shininess);
+            setTexture(aiTextureType_OPACITY, material->opacity);
+            setTexture(aiTextureType_DISPLACEMENT, material->displacement);
+            setTexture(aiTextureType_LIGHTMAP, material->lightmap);
+            setTexture(aiTextureType_REFLECTION, material->reflection);
 
             // pbr materials
-            if (mat->GetTextureCount(aiTextureType_BASE_COLOR))
-            {
-                mat->GetTexture(aiTextureType_BASE_COLOR, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->pbr_color = LoadTexture(path);
-            }
-            if (mat->GetTextureCount(aiTextureType_NORMAL_CAMERA))
-            {
-                mat->GetTexture(aiTextureType_NORMAL_CAMERA, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->pbr_normal = LoadTexture(path);
-            }
-            if (mat->GetTextureCount(aiTextureType_EMISSION_COLOR))
-            {
-                mat->GetTexture(aiTextureType_EMISSION_COLOR, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->pbr_emission = LoadTexture(path);
-            }
-            if (mat->GetTextureCount(aiTextureType_METALNESS))
-            {
-                mat->GetTexture(aiTextureType_METALNESS, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->pbr_metalness = LoadTexture(path);
-            }
-            if (mat->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS))
-            {
-                mat->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->pbr_roughness = LoadTexture(path);
-            }
-            if (mat->GetTextureCount(aiTextureType_AMBIENT_OCCLUSION))
-            {
-                mat->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &texturePath);
-                auto path = directory / fs::path(texturePath.C_Str());
-                material->pbr_occlusion = LoadTexture(path);
-            }
+            setTexture(aiTextureType_BASE_COLOR, material->pbr_color);
+            setTexture(aiTextureType_NORMAL_CAMERA, material->pbr_normal);
+            setTexture(aiTextureType_EMISSION_COLOR, material->pbr_emission);
+            setTexture(aiTextureType_METALNESS, material->pbr_metalness);
+            setTexture(aiTextureType_DIFFUSE_ROUGHNESS, material->pbr_roughness);
+            setTexture(aiTextureType_AMBIENT_OCCLUSION, material->pbr_occlusion);
+
+            // material constants
+            aiColor3D color;
+            float val{0.0f};
+            if (mat->Get(AI_MATKEY_COLOR_AMBIENT, color) == AI_SUCCESS)
+                material->colorAmbient = glm::vec3(color.r, color.g, color.b);
+            if (mat->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS)
+                material->colorDiffuse = glm::vec3(color.r, color.g, color.b);
+            if (mat->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS)
+                material->colorSpecular = glm::vec3(color.r, color.g, color.b);
+            if (mat->Get(AI_MATKEY_COLOR_EMISSIVE, color) == AI_SUCCESS)
+                material->colorEmissive = glm::vec3(color.r, color.g, color.b);
+
+            if (mat->Get(AI_MATKEY_SHININESS, val) == AI_SUCCESS)
+                material->valShininess = val;
+            if (mat->Get(AI_MATKEY_OPACITY, val) == AI_SUCCESS)
+                material->valOpacity = val;
 
             newMesh->Load(vertices, indices, material, GL_TRIANGLES);
         }
@@ -241,18 +196,53 @@ std::shared_ptr<STexture> Model::LoadTexture(const std::string &path)
         return nullptr;
     }
 
-    std::shared_ptr<STexture> tex = std::make_shared<STexture>(GL_TEXTURE_2D);
+    auto tex = std::make_shared<STexture>(GL_TEXTURE_2D);
     tex->Bind();
-    glTexParameteri(tex->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(tex->type, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(tex->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(tex->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(tex->type, GL_TEXTURE_WRAP_R, GL_REPEAT);
+    glTexParameteri(tex->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(tex->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(tex->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
     tex->UnBind();
 
     stbi_image_free(data);
     return _textures[p] = tex;
+}
+
+std::shared_ptr<STexture> Model::LoadTexture(unsigned char *pixels, int width, int height, const std::string &name)
+{
+    if (_textures.count(name))
+        return _textures[name];
+
+    int w{0}, h{0}, n{4};
+    unsigned char *data;
+    if (!height)
+        data = stbi_load_from_memory(pixels, width, &w, &h, &n, STBI_rgb_alpha);
+    else
+        data = stbi_load_from_memory(pixels, width * height, &w, &h, &n, STBI_rgb_alpha);
+    if (!data)
+    {
+        Tools::display_message(NAME,
+                               "Failed to load embedded texture " + name + "\n" + std::string(stbi_failure_reason()),
+                               Tools::MessageType::WARN);
+        return nullptr;
+    }
+
+    auto tex = std::make_shared<STexture>(GL_TEXTURE_2D);
+    tex->Bind();
+    glTexParameteri(tex->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(tex->type, GL_TEXTURE_WRAP_R, GL_REPEAT);
+    glTexParameteri(tex->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(tex->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(tex->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    tex->UnBind();
+
+    stbi_image_free(data);
+    return _textures[name] = tex;
 }
 
 } // namespace RenderIt
