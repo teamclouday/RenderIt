@@ -10,7 +10,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 
-#include <limits>
 #include <memory>
 #include <string>
 
@@ -19,8 +18,9 @@ namespace RenderIt
 
 void UIShowMatrix(const glm::mat4 &m)
 {
-    ImGui::Text("%.2f,%.2f,%.2f,%.2f\n%.2f,%.2f,%.2f,%.2f\n%.2f,%.2f,%.2f,%.2f\n%.2f,%.2f,%.2f,%.2f", m[0], m[4], m[8],
-                m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]);
+    ImGui::Text("%6.2f,%6.2f,%6.2f,%6.2f\n%6.2f,%6.2f,%6.2f,%6.2f\n%6.2f,%6.2f,%6.2f,%6.2f\n%6.2f,%6.2f,%6.2f,%6.2f",
+                m[0][0], m[1][0], m[2][0], m[3][0], m[0][1], m[1][1], m[2][1], m[3][1], m[0][2], m[1][2], m[2][2],
+                m[3][2], m[0][3], m[1][3], m[2][3], m[3][3]);
 }
 
 void UIShowVector(const glm::vec3 &v)
@@ -196,14 +196,30 @@ void UIShowBounds(const Bounds &b)
 void UIEditTransform(Transform &t)
 {
     bool shouldUpdate = false;
-    shouldUpdate |= ImGui::DragFloat3("Position\n", glm::value_ptr(t.position), 0.001f,
-                                      std::numeric_limits<float>::min(), std::numeric_limits<float>::max(), "%.3f");
-    shouldUpdate |= ImGui::DragFloat3("Rotation\n", glm::value_ptr(t.rotation), 0.001f,
-                                      std::numeric_limits<float>::min(), std::numeric_limits<float>::max(), "%.3f");
-    shouldUpdate |= ImGui::DragFloat3("Scale\n", glm::value_ptr(t.scale), 0.001f, std::numeric_limits<float>::min(),
-                                      std::numeric_limits<float>::max(), "%.3f");
+    shouldUpdate |= ImGui::DragFloat3("Position", glm::value_ptr(t.position), 0.001f, -10000.0f, 10000.0f, "%.3f");
+    shouldUpdate |= ImGui::DragFloat3("Rotation", glm::value_ptr(t.rotation), 0.001f, -10000.0f, 10000.0f, "%.3f");
+    shouldUpdate |= ImGui::DragFloat3("Scale", glm::value_ptr(t.scale), 0.001f, -10000.0f, 10000.0f, "%.3f");
+    if (t.scale.x == t.scale.y && t.scale.x == t.scale.z)
+    {
+        if (ImGui::DragFloat("Scale All", &t.scale.x, 0.001f, -10000.0f, 10000.0f, "%.3f"))
+        {
+            t.scale.y = t.scale.x;
+            t.scale.z = t.scale.x;
+            shouldUpdate = true;
+        }
+    }
     if (shouldUpdate)
         t.UpdateMatrix();
+    if (ImGui::TreeNode("Matrix"))
+    {
+        UIShowMatrix(t.matrix);
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Matrix Inverse"))
+    {
+        UIShowMatrix(t.matrixInv);
+        ImGui::TreePop();
+    }
 }
 
 void AppContext::UI()
@@ -236,16 +252,14 @@ void Camera::UI()
         _updated = false;
     if (ImGui::DragFloat("View Near", &_viewNear, 0.01f, 0.0f, _viewFar, "%.2f"))
         _updated = false;
-    if (ImGui::DragFloat("View Far", &_viewFar, 0.01f, _viewNear, std::numeric_limits<float>::max(), "%.2f"))
+    if (ImGui::DragFloat("View Far", &_viewFar, 0.01f, _viewNear, 10000.0f, "%.2f"))
         _updated = false;
 
     ImGui::Separator();
 
-    if (ImGui::DragFloat3("Position\n", glm::value_ptr(_posVec), 0.001f, std::numeric_limits<float>::min(),
-                          std::numeric_limits<float>::max(), "%.3f"))
+    if (ImGui::DragFloat3("Position", glm::value_ptr(_posVec), 0.001f, -10000.0f, 10000.0f, "%.3f"))
         _updated = false;
-    if (ImGui::DragFloat3("Center\n", glm::value_ptr(_centerVec), 0.001f, std::numeric_limits<float>::min(),
-                          std::numeric_limits<float>::max(), "%.3f"))
+    if (ImGui::DragFloat3("Center", glm::value_ptr(_centerVec), 0.001f, -10000.0f, 10000.0f, "%.3f"))
         _updated = false;
     ImGui::Text("Distance: %.5f", _dist);
 
@@ -315,6 +329,10 @@ void Model::UI()
 {
     ImGui::PushID(NAME.c_str());
 
+    ImGui::Text("Name: %s", modelName.c_str());
+
+    ImGui::Separator();
+
     if (ImGui::TreeNode("Transform"))
     {
         UIEditTransform(transform);
@@ -323,6 +341,32 @@ void Model::UI()
     if (ImGui::TreeNode("Bounds"))
     {
         UIShowBounds(bounds);
+        ImGui::TreePop();
+    }
+
+    ImGui::Separator();
+
+    if (ImGui::TreeNode("Meshes"))
+    {
+        for (auto i = 0; i < _meshes.size(); i++)
+        {
+            ImGui::PushID(i);
+            _meshes[i]->UI();
+            ImGui::PopID();
+        }
+        ImGui::TreePop();
+    }
+
+    ImGui::Separator();
+
+    if (_children.size() && ImGui::TreeNode("Children"))
+    {
+        for (auto i = 0; i < _children.size(); i++)
+        {
+            ImGui::PushID(i);
+            _children[i]->UI();
+            ImGui::PopID();
+        }
         ImGui::TreePop();
     }
 

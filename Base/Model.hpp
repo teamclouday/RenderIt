@@ -36,12 +36,21 @@ class Model
 
     void Reset();
 
+    bool AddChild(std::shared_ptr<Model> child);
+
+    std::shared_ptr<Model> GetParent() const;
+
+    std::shared_ptr<Model> GetChild(unsigned idx) const;
+
+    size_t GetNumChildren() const;
+
     void UI();
 
   public:
     const std::string NAME = "Model";
     Transform transform;
     Bounds bounds;
+    std::string modelName;
 
   private:
     std::shared_ptr<STexture> LoadTexture(const std::string &path);
@@ -52,6 +61,9 @@ class Model
     std::vector<std::shared_ptr<Mesh>> _meshes;
     // map filename -> texture pointer
     std::unordered_map<std::string, std::shared_ptr<STexture>> _textures;
+
+    std::shared_ptr<Model> _parent;
+    std::vector<std::shared_ptr<Model>> _children;
 };
 
 } // namespace RenderIt

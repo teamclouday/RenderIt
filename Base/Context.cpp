@@ -135,7 +135,7 @@ void AppContext::initializeGlobal()
 
 void AppContext::glfw_error_callback(int error, const char *description)
 {
-    Tools::display_message("GLFW", std::string(description), Tools::MessageType::ERROR);
+    Tools::display_message("GLFW", std::string(description), Tools::MessageType::WARN);
 }
 
 void AppContext::glfw_window_size_callback(GLFWwindow *window, int width, int height)

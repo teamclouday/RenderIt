@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "GLStructs.hpp"
@@ -13,11 +14,10 @@ namespace RenderIt
 
 enum class MeshShape
 {
-    None = 0,
-    Triangle = 1,
-    Plane = 2,
-    Cube = 3,
-    Sphere = 4
+    None,
+    Plane,
+    Cube,
+    Sphere
 };
 
 class Mesh
@@ -51,3 +51,23 @@ class Mesh
 };
 
 } // namespace RenderIt
+
+namespace std
+{
+inline string to_string(const RenderIt::MeshShape &type)
+{
+    switch (type)
+    {
+    case RenderIt::MeshShape::None:
+        return "None";
+    case RenderIt::MeshShape::Plane:
+        return "Plane";
+    case RenderIt::MeshShape::Cube:
+        return "Cube";
+    case RenderIt::MeshShape::Sphere:
+        return "Sphere";
+    default:
+        return "";
+    }
+}
+} // namespace std

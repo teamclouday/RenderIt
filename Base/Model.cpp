@@ -17,10 +17,12 @@
 
 namespace fs = std::filesystem;
 
+#define MODEL_NAME_DEFAULT "null"
+
 namespace RenderIt
 {
 
-Model::Model()
+Model::Model() : modelName(MODEL_NAME_DEFAULT), _parent(nullptr), _children({})
 {
 }
 
@@ -41,6 +43,8 @@ bool Model::Load(const std::string &path, unsigned flags)
     const auto scene = importer.ReadFile(path, flags);
     if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         return false;
+
+    modelName = fs::path(path).filename();
 
     // process nodes
     std::queue<aiNode *> nodes;
@@ -166,6 +170,7 @@ bool Model::Load(MeshShape shape)
     std::shared_ptr<Mesh> newMesh = std::make_shared<Mesh>();
     _meshes.push_back(newMesh);
     newMesh->Load(shape);
+    modelName = std::to_string(shape);
     return true;
 }
 
@@ -179,6 +184,42 @@ void Model::Reset()
 {
     _meshes.clear();
     _meshes.resize(0);
+    _children.clear();
+    _children.resize(0);
+    _parent = nullptr;
+    modelName = MODEL_NAME_DEFAULT;
+}
+
+bool Model::AddChild(std::shared_ptr<Model> child)
+{
+    // validate
+    auto tmp = child;
+    while (tmp)
+    {
+        if (tmp.get() == this)
+            return false;
+        tmp = tmp->GetParent();
+    }
+    _children.push_back(child);
+    child->_parent = std::shared_ptr<Model>(this);
+    return true;
+}
+
+std::shared_ptr<Model> Model::GetParent() const
+{
+    return _parent;
+}
+
+std::shared_ptr<Model> Model::GetChild(unsigned idx) const
+{
+    if (idx >= _children.size())
+        return nullptr;
+    return _children[idx];
+}
+
+size_t Model::GetNumChildren() const
+{
+    return _children.size();
 }
 
 std::shared_ptr<STexture> Model::LoadTexture(const std::string &path)

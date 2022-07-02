@@ -2,6 +2,7 @@
 #include "Camera.hpp"
 #include "GLMIOStream.hpp"
 
+#include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
 
@@ -25,6 +26,7 @@ void Transform::UpdateMatrix()
 {
     matrix = glm::scale(glm::mat4(1.0f), scale) * glm::eulerAngleYXZ(rotation.y, rotation.x, rotation.z) *
              glm::translate(glm::mat4(1.0f), position);
+    matrixInv = glm::inverse(matrix);
 }
 
 void Transform::TransformToUnitOrigin(const Bounds &b)

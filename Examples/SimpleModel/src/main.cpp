@@ -4,7 +4,6 @@
 #include <memory>
 #include <string>
 
-#include <glm/gtc/matrix_inverse.hpp>
 #include <imgui.h>
 
 using namespace RenderIt;
@@ -62,8 +61,31 @@ int main()
 
     auto mView = cam->GetView();
     auto mProj = cam->GetProj();
-    auto mModel = model->transform.matrix;
-    auto mModelInv = glm::inverse(mModel);
+
+    // define UI
+    auto renderUI = [&]() {
+        ImGui::Begin("UI");
+        if (ImGui::BeginTabBar(""))
+        {
+            if (app && ImGui::BeginTabItem("Application"))
+            {
+                app->UI();
+                ImGui::EndTabItem();
+            }
+            if (cam && ImGui::BeginTabItem("Camera"))
+            {
+                cam->UI();
+                ImGui::EndTabItem();
+            }
+            if (model && ImGui::BeginTabItem("Model"))
+            {
+                model->UI();
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
+        }
+        ImGui::End();
+    };
 
     app->Start();
 
@@ -79,19 +101,21 @@ int main()
 
         mView = cam->GetView();
         mProj = cam->GetProj();
-        shader->UniformMat4("mat_model", mModel);
-        shader->UniformMat4("mat_modelInv", mModelInv);
+        shader->UniformMat4("mat_model", model->transform.matrix);
+        shader->UniformMat4("mat_modelInv", model->transform.matrixInv);
         shader->UniformMat4("mat_VP", mProj * mView);
         shader->UniformVec3("cameraPosWS", cam->GetPosition());
 
         model->Draw(shader);
         shader->UnBind();
 
-        app->LoopEndFrame();
+        app->LoopEndFrame(renderUI);
 
         // input handling
         if (input->GetKeyPressed(GLFW_KEY_ESCAPE))
             break;
+        if (input->GetKeyPressed(GLFW_KEY_F11))
+            app->displayUI = !app->displayUI;
         input->Update();
     }
 

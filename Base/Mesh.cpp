@@ -32,8 +32,6 @@ void Mesh::Load(MeshShape shape)
     // TODO: implement shapes
     switch (shape)
     {
-    case MeshShape::Triangle:
-        break;
     case MeshShape::Plane:
         break;
     case MeshShape::Cube:

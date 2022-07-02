@@ -44,6 +44,9 @@ class InputManager
     /// Call after use of Input states
     void Update();
 
+  public:
+    bool ignoreUI;
+
   private:
 #pragma region glfw_callback_handlers
 

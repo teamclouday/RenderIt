@@ -1,5 +1,7 @@
 #include "Input.hpp"
+
 #include <GLFW/glfw3.h>
+#include <imgui.h>
 
 #define LOCKIT const std::lock_guard<std::mutex> lock(_mtx);
 
@@ -7,7 +9,7 @@ namespace RenderIt
 {
 
 InputManager::InputManager()
-    : _resetMouseOffset(true), _resetMouseWheel(true), _mousePosData({0.0f}), _mouseDown({false}),
+    : ignoreUI(true), _resetMouseOffset(true), _resetMouseWheel(true), _mousePosData({0.0f}), _mouseDown({false}),
       _mouseDown_acc({false}), _wheelData({0.0f})
 {
 }
@@ -105,6 +107,9 @@ void InputManager::Update()
 
 void InputManager::handle_glfw_key(int key, int action)
 {
+    if (ignoreUI && ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow))
+        return;
+
     LOCKIT
     _keyStates[key] = action != GLFW_RELEASE;
     _keyStates_acc[key] = _keyStates_acc.count(key) ? (_keyStates_acc[key] || _keyStates[key]) : _keyStates[key];
@@ -113,6 +118,12 @@ void InputManager::handle_glfw_key(int key, int action)
 void InputManager::handle_glfw_mouse_pos(double posX, double posY)
 {
     LOCKIT
+    if (ignoreUI && ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow))
+    {
+        _mousePosData[2] = _mousePosData[3] = 0.0f;
+        return;
+    }
+
     float posXf = static_cast<float>(posX);
     float posYf = static_cast<float>(posY);
     if (_resetMouseOffset)
@@ -133,6 +144,9 @@ void InputManager::handle_glfw_mouse_pos(double posX, double posY)
 
 void InputManager::handle_glfw_mouse_click(int button, int action)
 {
+    if (ignoreUI && ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow))
+        return;
+
     LOCKIT
     switch (button)
     {
@@ -156,6 +170,9 @@ void InputManager::handle_glfw_mouse_click(int button, int action)
 
 void InputManager::handle_glfw_wheel(double xoffset, double yoffset)
 {
+    if (ignoreUI && ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow))
+        return;
+
     LOCKIT
     if (_resetMouseWheel)
     {
