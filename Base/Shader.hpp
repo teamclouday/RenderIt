@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "GLStructs.hpp"
+#include "Material.hpp"
 
 /** @file */
 

@@ -11,8 +11,7 @@ namespace RenderIt
 Camera::Camera()
     : clearColor(0.0f, 0.0f, 0.0f, 1.0f), _posVec(0.0f, 0.0f, -1.0f), _centerVec(0.0f), _upVec(0.0f), _frontVec(0.0f),
       _rightVec(0.0f), _worldUpVec(0.0f, 1.0f, 0.0f), _dist(0.0f), _projMat(1.0f), _viewMat(1.0f),
-      _viewType(CameraViewType::Projection), _fov(45.0f), _aspect(1.0f), _viewNear(0.1f), _viewFar(1000.0f),
-      _updated(false)
+      _viewType(CameraViewType::Persp), _fov(45.0f), _aspect(1.0f), _viewNear(0.1f), _viewFar(1000.0f), _updated(false)
 {
 }
 
@@ -138,9 +137,10 @@ void Camera::update()
         _projMat = glm::ortho(-size_x, size_x, -size_y, size_y, 0.0f, 2.0f * _dist);
         break;
     }
-    case CameraViewType::Projection:
+    case CameraViewType::Persp: {
         _projMat = glm::perspective(_fov, _aspect, _viewNear, _viewFar);
         break;
+    }
     }
     _updated = true;
 }

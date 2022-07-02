@@ -3,20 +3,16 @@
 
 #include <glm/glm.hpp>
 
-#include "GLStructs.hpp"
+#include "Bounds.hpp"
 
 namespace RenderIt
 {
 
-class Transform
+struct Transform
 {
-  public:
     Transform();
 
     Transform(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale);
-
-    /// Get model matrix
-    glm::mat4 &GetMatrix();
 
     /// Update model matrix
     void UpdateMatrix();
@@ -24,17 +20,12 @@ class Transform
     /// Given model bounds, compute transformation for unit square around origin
     void TransformToUnitOrigin(const Bounds &b);
 
-    void UI();
-
     friend std::ostream &operator<<(std::ostream &os, const Transform &t);
 
-  public:
     glm::vec3 position;
     glm::vec3 rotation;
     glm::vec3 scale;
-
-  private:
-    glm::mat4 _mat;
+    glm::mat4 matrix;
 };
 
 } // namespace RenderIt

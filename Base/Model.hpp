@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Bounds.hpp"
 #include "GLStructs.hpp"
 #include "Mesh.hpp"
 #include "Shader.hpp"

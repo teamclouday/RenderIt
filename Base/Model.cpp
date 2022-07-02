@@ -1,7 +1,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "Model.hpp"
+#include "Material.hpp"
 #include "Tools.hpp"
+#include "Vertex.hpp"
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>

@@ -6,6 +6,7 @@
 
 #include "GLStructs.hpp"
 #include "Shader.hpp"
+#include "Vertex.hpp"
 
 namespace RenderIt
 {

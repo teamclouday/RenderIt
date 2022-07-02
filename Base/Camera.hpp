@@ -13,7 +13,7 @@ namespace RenderIt
 enum class CameraViewType
 {
     Ortho = 0,
-    Projection = 1
+    Persp = 1
 };
 
 /// Camera class for 3D view
@@ -103,3 +103,19 @@ class Camera
 };
 
 } // namespace RenderIt
+
+namespace std
+{
+inline string to_string(const RenderIt::CameraViewType &type)
+{
+    switch (type)
+    {
+    case RenderIt::CameraViewType::Ortho:
+        return "Orthogonal";
+    case RenderIt::CameraViewType::Persp:
+        return "Perspective";
+    default:
+        return "";
+    }
+}
+} // namespace std

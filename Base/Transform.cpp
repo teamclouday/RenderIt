@@ -1,5 +1,6 @@
 #include "Transform.hpp"
 #include "Camera.hpp"
+#include "GLMIOStream.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
@@ -20,15 +21,10 @@ Transform::Transform(const glm::vec3 &position, const glm::vec3 &rotation, const
     UpdateMatrix();
 }
 
-glm::mat4 &Transform::GetMatrix()
-{
-    return _mat;
-}
-
 void Transform::UpdateMatrix()
 {
-    _mat = glm::scale(glm::mat4(1.0f), scale) * glm::eulerAngleYXZ(rotation.y, rotation.x, rotation.z) *
-           glm::translate(glm::mat4(1.0f), position);
+    matrix = glm::scale(glm::mat4(1.0f), scale) * glm::eulerAngleYXZ(rotation.y, rotation.x, rotation.z) *
+             glm::translate(glm::mat4(1.0f), position);
 }
 
 void Transform::TransformToUnitOrigin(const Bounds &b)

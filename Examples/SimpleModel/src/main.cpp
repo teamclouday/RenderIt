@@ -58,11 +58,11 @@ int main()
     cam->SetCenter(glm::vec3(0.0f));
     cam->SetFov(45.0f);
     cam->SetViewNearFar(0.01f, 1000.0f);
-    cam->SetViewType(CameraViewType::Projection);
+    cam->SetViewType(CameraViewType::Persp);
 
     auto mView = cam->GetView();
     auto mProj = cam->GetProj();
-    auto mModel = model->transform.GetMatrix();
+    auto mModel = model->transform.matrix;
     auto mModelInv = glm::inverse(mModel);
 
     app->Start();
