@@ -66,7 +66,7 @@ void main()
     vec3 colSpecular = vec3(0.0);
     if(intensity > 0.0)
     {
-        colSpecular = val_SPECULAR * (map_SPECULAR_exists ?
+        colSpecular = (map_SPECULAR_exists ?
             texture(map_SPECULAR, vertOut.texCoords).rgb :
             vec3(1.0));
         colSpecular *= lightColor * pow(max(0.0, dot(reflect(-lightDir, normDir), viewDir)), val_SHININESS <= 0.0 ? 32.0 : val_SHININESS);

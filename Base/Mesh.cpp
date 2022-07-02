@@ -18,7 +18,13 @@ Mesh::~Mesh()
 void Mesh::Draw(std::shared_ptr<Shader> shader) const
 {
     if (_mat)
+    {
         shader->ConfigMaterialTextures(_mat);
+        if (_mat->twoSided)
+            glDisable(GL_CULL_FACE);
+        else
+            glEnable(GL_CULL_FACE);
+    }
     glActiveTexture(GL_TEXTURE0);
     _vao->Bind();
     glDrawElements(_primType, _indicesCount, GL_UNSIGNED_INT, 0);

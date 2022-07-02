@@ -88,6 +88,8 @@ struct Material
     inline static const std::string valNameColorOpacity = "val_OPACITY";
 
 #pragma endregion material_consts
+
+    bool twoSided = false;
 };
 
 } // namespace RenderIt

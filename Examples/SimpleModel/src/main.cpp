@@ -58,6 +58,7 @@ int main()
     cam->SetFov(45.0f);
     cam->SetViewNearFar(0.01f, 1000.0f);
     cam->SetViewType(CameraViewType::Persp);
+    cam->clearColor = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
 
     auto mView = cam->GetView();
     auto mProj = cam->GetProj();

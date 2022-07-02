@@ -139,7 +139,8 @@ bool Model::Load(const std::string &path, unsigned flags)
 
             // material constants
             aiColor3D color;
-            float val{0.0f};
+            float fval{0.0f};
+            int ival{0};
             if (mat->Get(AI_MATKEY_COLOR_AMBIENT, color) == AI_SUCCESS)
                 material->colorAmbient = glm::vec3(color.r, color.g, color.b);
             if (mat->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS)
@@ -149,10 +150,13 @@ bool Model::Load(const std::string &path, unsigned flags)
             if (mat->Get(AI_MATKEY_COLOR_EMISSIVE, color) == AI_SUCCESS)
                 material->colorEmissive = glm::vec3(color.r, color.g, color.b);
 
-            if (mat->Get(AI_MATKEY_SHININESS, val) == AI_SUCCESS)
-                material->valShininess = val;
-            if (mat->Get(AI_MATKEY_OPACITY, val) == AI_SUCCESS)
-                material->valOpacity = val;
+            if (mat->Get(AI_MATKEY_SHININESS, fval) == AI_SUCCESS)
+                material->valShininess = fval;
+            if (mat->Get(AI_MATKEY_OPACITY, fval) == AI_SUCCESS)
+                material->valOpacity = fval;
+
+            if (mat->Get(AI_MATKEY_TWOSIDED, ival) == AI_SUCCESS)
+                material->twoSided = ival != 0;
 
             newMesh->Load(vertices, indices, material, GL_TRIANGLES);
         }
