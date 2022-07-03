@@ -1,9 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 
-#include <GLMIOStream.hpp>
-
-#include "Material.hpp"
 #include "Model.hpp"
+#include "Material.hpp"
 #include "Tools.hpp"
 #include "Vertex.hpp"
 
@@ -90,8 +88,6 @@ bool Model::Load(const std::string &path, unsigned flags)
 
                 // update bounds
                 bounds.Update(position);
-                if (position.y > 100.0f || position.y < -100.0f)
-                    Tools::println(mesh->mName.C_Str(), ": ", position);
             }
 
             // indices data
