@@ -222,6 +222,10 @@ bool Model::Load(const std::string &path, unsigned flags)
             auto animNode = std::make_shared<Animation::Node>();
             animNode->transform = Tools::convertAssimpMatrix(node->mTransformation);
             animNode->name = node->mName.C_Str();
+            // a fix for wierd model scaling near root level
+            // neutralize scales for root node & its direct children
+            if (!_animNodeRoot || animNodeParent == _animNodeRoot)
+                Tools::neutralizeTRSMatrixScale(animNode->transform);
             // add to parent node
             if (!animNodeParent)
                 _animNodeRoot = animNode;
@@ -275,6 +279,9 @@ bool Model::LoadAnimation(const std::string &path)
         auto animNode = std::make_shared<Animation::Node>();
         animNode->transform = Tools::convertAssimpMatrix(node->mTransformation);
         animNode->name = node->mName.C_Str();
+        // neutralize scales for root node & its direct children
+        if (!_animNodeRoot || animNodeParent == _animNodeRoot)
+            Tools::neutralizeTRSMatrixScale(animNode->transform);
         // add to parent node
         if (!animNodeParent)
             _animNodeRoot = animNode;

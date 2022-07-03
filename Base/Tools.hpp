@@ -68,6 +68,9 @@ struct Tools
     static glm::quat convertAssimpQuaternion(const aiQuaternion &q);
 
 #pragma endregion assimp_conversions
+
+    /// Neutralize transformation matrix scale (assuming TRS)
+    static void neutralizeTRSMatrixScale(glm::mat4 &mat);
 };
 
 } // namespace RenderIt

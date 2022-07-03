@@ -241,4 +241,11 @@ glm::quat Tools::convertAssimpQuaternion(const aiQuaternion &q)
     return glm::quat(q.w, q.x, q.y, q.z);
 }
 
+void Tools::neutralizeTRSMatrixScale(glm::mat4 &mat)
+{
+    mat[0] = glm::normalize(mat[0]);
+    mat[1] = glm::normalize(mat[1]);
+    mat[2] = glm::normalize(mat[2]);
+}
+
 } // namespace RenderIt

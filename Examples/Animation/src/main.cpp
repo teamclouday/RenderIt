@@ -44,6 +44,21 @@ int main()
     shader->Compile();
     assert(shader->IsCompiled());
 
+    auto reloadShaders = [&]() {
+        auto vertShader = Tools::read_file_content("./shaders/Animation.vert");
+        auto fragShader = Tools::read_file_content("./shaders/Animation.frag");
+
+        auto shaderNew = std::make_shared<Shader>();
+        shaderNew->AddSource(vertShader, GL_VERTEX_SHADER);
+        shaderNew->AddSource(fragShader, GL_FRAGMENT_SHADER);
+        shaderNew->Compile();
+        if (shaderNew->IsCompiled())
+        {
+            shader = shaderNew;
+            Tools::println("Shaders reloaded");
+        }
+    };
+
     // load model
     auto modelPath = Tools::select_file_in_explorer("Select Model File");
     auto model = std::make_shared<Model>();
@@ -144,6 +159,8 @@ int main()
             else
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
+        if (input->GetKeyPressed(GLFW_KEY_R))
+            reloadShaders();
         input->Update();
     }
 

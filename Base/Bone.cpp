@@ -44,7 +44,7 @@ Bone::Bone(const std::string &boneName, unsigned boneID, const aiNodeAnim *animN
         if (duplicates.count(timestamp))
             continue;
         duplicates.insert(timestamp);
-        rotations.push_back({Tools::convertAssimpQuaternion(rotation), timestamp});
+        rotations.push_back({glm::normalize(Tools::convertAssimpQuaternion(rotation)), timestamp});
     }
     // sort ascending
     std::sort(rotations.begin(), rotations.end(),
@@ -141,7 +141,7 @@ float Bone::Interpolate(float prevTime, float nextTime, float currTime)
 {
     auto timePast = currTime - prevTime;
     auto timeTotal = nextTime - prevTime;
-    if (timeTotal <= 0.0f || timePast <= 0.0f)
+    if (timeTotal <= 0.0f || timePast < 0.0f)
     {
         Tools::display_message("Animation Bone",
                                "Invalid interpolation time (" + std::to_string(prevTime) + "," +
