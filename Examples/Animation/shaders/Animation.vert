@@ -18,7 +18,7 @@ layout(location = 0) out VERTOUT
 }
 vertOut;
 
-#define MAX_NUM_BONES 200
+#define MAX_NUM_BONES 300
 
 layout(std140, binding = 0) uniform BoneMatrices
 {
@@ -40,7 +40,7 @@ void main()
         boneTransform += boneMats[inBoneIDs[1]] * inBoneWeights[1];
         boneTransform += boneMats[inBoneIDs[2]] * inBoneWeights[2];
         boneTransform += boneMats[inBoneIDs[3]] * inBoneWeights[3];
-        normInvMat = transpose(inverse(mat3(boneTransform)));
+        normInvMat = inverse(mat3(boneTransform));
     }
     else
     {

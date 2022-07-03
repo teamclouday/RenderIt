@@ -10,7 +10,7 @@
 
 #include "Bone.hpp"
 
-#define ANIMATION_MAX_BONES 200
+#define ANIMATION_MAX_BONES 300
 
 namespace RenderIt
 {
