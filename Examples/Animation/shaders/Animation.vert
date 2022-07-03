@@ -18,7 +18,7 @@ layout(location = 0) out VERTOUT
 }
 vertOut;
 
-#define MAX_NUM_BONES 100
+#define MAX_NUM_BONES 200
 
 layout(std140, binding = 0) uniform BoneMatrices
 {
@@ -52,6 +52,6 @@ void main()
     vertOut.tangentWS = normalize(normInvMat * mat_modelInv * inTangent);
     vertOut.bitangentWS = normalize(normInvMat * mat_modelInv * inBiTangent);
     vertOut.texCoords = inTexCoords;
-    vertOut.fragPosWS = mat_model * boneTransform * vec4(inPos, 1.0);
+    vertOut.fragPosWS = boneTransform * vec4(inPos, 1.0);
     gl_Position = mat_VP * vertOut.fragPosWS;
 }

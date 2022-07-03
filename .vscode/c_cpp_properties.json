@@ -10,7 +10,8 @@
                 "${workspaceFolder}/External/glm",
                 "${workspaceFolder}/External/imgui",
                 "${workspaceFolder}/External/imgui/backends",
-                "${workspaceFolder}/External/termcolor/include"
+                "${workspaceFolder}/External/termcolor/include",
+                "${workspaceFolder}/External/tinygltf"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

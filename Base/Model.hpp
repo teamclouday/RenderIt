@@ -20,10 +20,10 @@ namespace RenderIt
 {
 
 #define MODEL_LOAD_FLAGS                                                                                               \
-    aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SplitLargeMeshes |                             \
-        aiProcess_ValidateDataStructure | aiProcess_ImproveCacheLocality | aiProcess_RemoveRedundantMaterials |        \
-        aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_FindInvalidData | aiProcess_OptimizeMeshes |        \
-        aiProcess_CalcTangentSpace
+    aiProcess_CalcTangentSpace | aiProcess_JoinIdenticalVertices | aiProcess_Triangulate |                             \
+        aiProcess_GenSmoothNormals | aiProcess_SplitLargeMeshes | aiProcess_LimitBoneWeights |                         \
+        aiProcess_ValidateDataStructure | aiProcess_ImproveCacheLocality | aiProcess_FindInvalidData |                 \
+        aiProcess_FlipUVs
 
 /// Model definition
 class Model
@@ -35,8 +35,11 @@ class Model
 
     ~Model();
 
-    /// Load from local file
+    /// Load from local file with assimp
     bool Load(const std::string &path, unsigned flags = MODEL_LOAD_FLAGS);
+
+    /// Load gltf models from local file with tinygltf
+    bool LoadGLTF(const std::string &path);
 
     /// Load with simple shape
     bool Load(MeshShape shape);

@@ -98,10 +98,10 @@ glm::vec3 Bone::InterpolateScale(float time)
 
 float Bone::Interpolate(float prevTime, float nextTime, float currTime)
 {
-    auto timePast = currTime - prevTime;
-    auto timeTotal = nextTime - prevTime;
-    assert(timeTotal > 0.0f);
-    return timePast / timeTotal;
+    auto timePast = std::abs(currTime - prevTime);
+    auto timeTotal = std::abs(nextTime - prevTime);
+    assert(timeTotal);
+    return glm::clamp(timePast / timeTotal, 0.0f, 1.0f);
 }
 
 } // namespace RenderIt

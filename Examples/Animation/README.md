@@ -1,5 +1,5 @@
 # Animation
 
-`RenderIt` skeletral animation
+`RenderIt` skeletal animation
 
 ![demo](assets/demo.gif)
