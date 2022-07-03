@@ -33,9 +33,9 @@ function(buildExamples)
 endfunction(buildExamples)
 
 set(EXAMPLES
-    Animation
     HelloWorld
     SimpleModel
+    Animation
 )
 
 buildExamples()

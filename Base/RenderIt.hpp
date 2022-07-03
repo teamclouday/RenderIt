@@ -14,11 +14,12 @@
 #include "Renderer.hpp"
 #include "Scene.hpp"
 #include "Shader.hpp"
-#include "Tools.hpp"
 #include "Transform.hpp"
 #include "Vertex.hpp"
 
 #include "Cameras/FreeCamera.hpp"
 #include "Cameras/OrbitCamera.hpp"
+
+#include "Tools.hpp"
 
 /** @file */

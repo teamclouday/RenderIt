@@ -8,15 +8,12 @@
 #include <queue>
 #include <utility>
 
-#include "Tools.hpp"
-
 namespace RenderIt
 {
 Animator::Animator()
 {
-    _boneMatrices.reserve(ANIMATION_MAX_BONES);
     for (auto i = 0; i < ANIMATION_MAX_BONES; i++)
-        _boneMatrices.push_back(glm::mat4(1.0f));
+        _boneMatrices[i] = glm::mat4(1.0f);
 
     _boneUBO = std::make_unique<SBuffer>(GL_UNIFORM_BUFFER);
     _boneUBO->Bind();
@@ -48,7 +45,7 @@ void Animator::UpdateAnimation(std::shared_ptr<Model> model)
     anim->currTime += anim->ticksPerSecond * _deltaT;
     anim->currTime = std::fmod(anim->currTime, anim->duration);
     // compute bone transforms
-    std::queue<std::pair<std::shared_ptr<Animation::Node>, const glm::mat4 &>> nodes;
+    std::queue<std::pair<std::shared_ptr<Animation::Node>, glm::mat4>> nodes;
     nodes.push({model->_animNodeRoot, glm::mat4(1.0f)});
     while (!nodes.empty())
     {
@@ -64,7 +61,7 @@ void Animator::UpdateAnimation(std::shared_ptr<Model> model)
         if (bone)
         {
             bone->Update(anim->currTime);
-            nodeT = bone->transform.matrix;
+            nodeT = bone->matrix;
         }
         // compute current global transform
         auto currT = parentT * nodeT;

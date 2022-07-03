@@ -1,6 +1,6 @@
 #pragma once
+#include <array>
 #include <memory>
-#include <vector>
 
 #include <glm/glm.hpp>
 
@@ -39,7 +39,7 @@ class Animator
     void updateUniformBuffer();
 
   private:
-    std::vector<glm::mat4> _boneMatrices;
+    std::array<glm::mat4, ANIMATION_MAX_BONES> _boneMatrices;
     std::unique_ptr<SBuffer> _boneUBO;
 
     float _deltaT;

@@ -220,7 +220,7 @@ glm::mat3 Tools::convertAssimpMatrix(const aiMatrix3x3 &m)
     for (unsigned i = 0; i < 3; i++)
     {
         for (unsigned j = 0; j < 3; j++)
-            mat[i][j] = m[j][i];
+            mat[i][j] = static_cast<float>(m[j][i]);
     }
     return mat;
 }
@@ -231,7 +231,7 @@ glm::mat4 Tools::convertAssimpMatrix(const aiMatrix4x4 &m)
     for (unsigned i = 0; i < 4; i++)
     {
         for (unsigned j = 0; j < 4; j++)
-            mat[i][j] = m[j][i];
+            mat[i][j] = static_cast<float>(m[j][i]);
     }
     return mat;
 }

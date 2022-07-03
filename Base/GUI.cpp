@@ -1,3 +1,5 @@
+#include "Animation.hpp"
+#include "Bone.hpp"
 #include "Bounds.hpp"
 #include "Camera.hpp"
 #include "Context.hpp"
@@ -222,6 +224,66 @@ void UIEditTransform(Transform &t)
     }
 }
 
+void UIShowBone(const Bone &bone)
+{
+    ImGui::Text("Name = %s", bone.name.c_str());
+    ImGui::Text("ID = %u", bone.ID);
+    ImGui::Separator();
+    if (ImGui::TreeNode("Transform"))
+    {
+        UIShowMatrix(bone.matrix);
+        ImGui::TreePop();
+    }
+}
+
+void UIShowAnimation(const Animation &anim)
+{
+    ImGui::Text("Name: %s", anim.name.c_str());
+    ImGui::Separator();
+    ImGui::Text("Current: %.2f (s)", anim.currTime);
+    ImGui::Text("Duration: %.2f (s)", anim.duration);
+    ImGui::Text("Ticks: %1f (per second)", anim.ticksPerSecond);
+    ImGui::Separator();
+    ImGui::Text("Max Supported Bones: %d", ANIMATION_MAX_BONES);
+    if (ImGui::TreeNode("Bones"))
+    {
+        for (auto &pair : anim.bones)
+        {
+            ImGui::PushID(pair.first.c_str());
+            if (ImGui::TreeNode(pair.first.c_str()))
+            {
+                UIShowBone(*pair.second.get());
+                ImGui::TreePop();
+            }
+            ImGui::PopID();
+        }
+        ImGui::TreePop();
+    }
+}
+
+void UIShowAnimNode(const Animation::Node &node)
+{
+    if (ImGui::TreeNode(node.name.c_str()))
+    {
+        if (ImGui::TreeNode("Transform"))
+        {
+            UIShowMatrix(node.transform);
+            ImGui::TreePop();
+        }
+        if (node.children.size() && ImGui::TreeNode("Children"))
+        {
+            for (auto i = 0; i < node.children.size(); i++)
+            {
+                ImGui::PushID(i);
+                UIShowAnimNode(*node.children[i].get());
+                ImGui::PopID();
+            }
+            ImGui::TreePop();
+        }
+        ImGui::TreePop();
+    }
+}
+
 void AppContext::UI()
 {
     ImGui::PushID(NAME.c_str());
@@ -359,6 +421,33 @@ void Model::UI()
 
     ImGui::Separator();
 
+    if (_animations.size() && ImGui::TreeNode("Animations"))
+    {
+        for (auto i = 0; i < _animations.size(); i++)
+        {
+            ImGui::PushID(i);
+            ImGui::RadioButton(_animations[i]->name.c_str(), reinterpret_cast<int *>(&_animationActive),
+                               static_cast<int>(i));
+            if (ImGui::TreeNode((_animations[i]->name + " details").c_str()))
+            {
+                UIShowAnimation(*_animations[i].get());
+                ImGui::TreePop();
+            }
+            ImGui::PopID();
+        }
+        ImGui::TreePop();
+    }
+
+    ImGui::Separator();
+
+    if (_animNodeRoot && ImGui::TreeNode("Animation Tree"))
+    {
+        UIShowAnimNode(*_animNodeRoot.get());
+        ImGui::TreePop();
+    }
+
+    ImGui::Separator();
+
     if (_children.size() && ImGui::TreeNode("Children"))
     {
         for (auto i = 0; i < _children.size(); i++)
@@ -369,8 +458,6 @@ void Model::UI()
         }
         ImGui::TreePop();
     }
-
-    // TODO: Add animation GUI
 
     ImGui::PopID();
 }

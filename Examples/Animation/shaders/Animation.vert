@@ -1,25 +1,26 @@
 #version 450 core
 
-layout (location = 0) in vec3 inPos;
-layout (location = 1) in vec3 inNormal;
-layout (location = 2) in vec2 inTexCoords;
-layout (location = 3) in vec3 inTangent;
-layout (location = 4) in vec3 inBiTangent;
-layout (location = 5) in uvec4 inBoneIDs;
-layout (location = 6) in vec4 inBoneWeights;
+layout(location = 0) in vec3 inPos;
+layout(location = 1) in vec3 inNormal;
+layout(location = 2) in vec2 inTexCoords;
+layout(location = 3) in vec3 inTangent;
+layout(location = 4) in vec3 inBiTangent;
+layout(location = 5) in uvec4 inBoneIDs;
+layout(location = 6) in vec4 inBoneWeights;
 
-layout (location = 0) out VERTOUT
+layout(location = 0) out VERTOUT
 {
     vec3 normalWS;
     vec3 tangentWS;
     vec3 bitangentWS;
     vec2 texCoords;
     vec4 fragPosWS;
-} vertOut;
+}
+vertOut;
 
-#define MAX_NUM_BONES   100
+#define MAX_NUM_BONES 100
 
-layout (std140, binding = 0) uniform BoneMatrices
+layout(std140, binding = 0) uniform BoneMatrices
 {
     mat4 boneMats[MAX_NUM_BONES];
 };
@@ -33,7 +34,7 @@ void main()
     mat4 boneTransform;
     mat3 normInvMat;
 
-    if(inBoneWeights[0] != 0.0)
+    if ((inBoneWeights[0] + inBoneWeights[1] + inBoneWeights[2] + inBoneWeights[3]) != 0.0)
     {
         boneTransform = boneMats[inBoneIDs[0]] * inBoneWeights[0];
         boneTransform += boneMats[inBoneIDs[1]] * inBoneWeights[1];
@@ -47,9 +48,9 @@ void main()
         normInvMat = mat3(1.0);
     }
 
-    vertOut.normalWS = normalize(inNormal * mat_modelInv);
-    vertOut.tangentWS = normalize(inTangent * mat_modelInv);
-    vertOut.bitangentWS = normalize(inBiTangent * mat_modelInv);
+    vertOut.normalWS = normalize(normInvMat * mat_modelInv * inNormal);
+    vertOut.tangentWS = normalize(normInvMat * mat_modelInv * inTangent);
+    vertOut.bitangentWS = normalize(normInvMat * mat_modelInv * inBiTangent);
     vertOut.texCoords = inTexCoords;
     vertOut.fragPosWS = mat_model * boneTransform * vec4(inPos, 1.0);
     gl_Position = mat_VP * vertOut.fragPosWS;

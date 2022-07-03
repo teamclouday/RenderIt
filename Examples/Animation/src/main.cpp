@@ -54,12 +54,6 @@ int main()
     }
     model->transform.TransformToUnitOrigin(model->bounds);
 
-    // load animation file
-    // auto modelAnimationPath = Tools::select_file_in_explorer("Select Model Animation File");
-    // if (!model->LoadAnimation(modelAnimationPath))
-    //     Tools::display_message("Program", "Failed to load animation " + modelAnimationPath,
-    //     Tools::MessageType::WARN);
-
     // setup camera
     cam->SetPosition(glm::vec3(1.0f, 1.0f, 1.0f));
     cam->SetCenter(glm::vec3(0.0f));
@@ -98,11 +92,16 @@ int main()
 
     app->Start();
 
+    bool doAnimation = true;
+
     while (!app->WindowShouldClose())
     {
         // do animation
-        anim->Update(app->GetDeltaTime());
-        anim->UpdateAnimation(model);
+        if (doAnimation)
+        {
+            anim->Update(app->GetDeltaTime());
+            anim->UpdateAnimation(model);
+        }
 
         // render
         app->GetWindowSize(w, h);
@@ -134,6 +133,8 @@ int main()
             break;
         if (input->GetKeyPressed(GLFW_KEY_F11))
             app->displayUI = !app->displayUI;
+        if (input->GetKeyPressed(GLFW_KEY_SPACE))
+            doAnimation = !doAnimation;
         input->Update();
     }
 

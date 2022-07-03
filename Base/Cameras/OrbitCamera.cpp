@@ -45,8 +45,8 @@ void OrbitCamera::ProcessMouseMovements()
         offX *= sensRotateM;
         offY *= sensRotateM;
         auto dir = glm::normalize(_posVec - _centerVec);
-        dir = glm::vec3(glm::vec4(dir, 0.0f) * glm::rotate(glm::mat4(1.0f), offX, _worldUpVec));
-        auto tmp = glm::vec3(glm::vec4(dir, 0.0f) * glm::rotate(glm::mat4(1.0f), offY, _rightVec));
+        dir = glm::vec3(glm::vec4(dir, 0.0f) * glm::rotate(glm::mat4(1.0f), glm::radians(offX), _worldUpVec));
+        auto tmp = glm::vec3(glm::vec4(dir, 0.0f) * glm::rotate(glm::mat4(1.0f), glm::radians(offY), _rightVec));
         if (tmp.x * dir.x > 0.00001f)
             dir = tmp;
         _posVec = _centerVec + dir * _dist;

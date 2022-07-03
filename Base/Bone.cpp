@@ -2,6 +2,7 @@
 #include "Tools.hpp"
 
 #include <cassert>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace RenderIt
 {
@@ -37,10 +38,10 @@ Bone::Bone(const std::string &boneName, unsigned boneID, const aiNodeAnim *animN
 
 void Bone::Update(float time)
 {
-    transform.position = InterpolatePosition(time);
-    transform.rotation = glm::eulerAngles(InterpolateRotation(time));
-    transform.scale = InterpolateScale(time);
-    transform.UpdateMatrix();
+    auto matT = glm::translate(glm::mat4(1.0f), InterpolatePosition(time));
+    auto matR = glm::toMat4(InterpolateRotation(time));
+    auto matS = glm::scale(glm::mat4(1.0f), InterpolateScale(time));
+    matrix = matT * matR * matS;
 }
 
 glm::vec3 Bone::InterpolatePosition(float time)
@@ -74,7 +75,7 @@ glm::quat Bone::InterpolateRotation(float time)
     }
     // get interpolated scale
     auto scale = Interpolate(rotations[idx].second, rotations[idx + 1].second, time);
-    return glm::mix(rotations[idx].first, rotations[idx + 1].first, scale);
+    return glm::slerp(rotations[idx].first, rotations[idx + 1].first, scale);
 }
 
 glm::vec3 Bone::InterpolateScale(float time)

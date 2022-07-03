@@ -10,7 +10,7 @@
 
 #include "Bone.hpp"
 
-#define ANIMATION_MAX_BONES 100
+#define ANIMATION_MAX_BONES 200
 
 namespace RenderIt
 {
@@ -34,6 +34,8 @@ struct Animation
     float ticksPerSecond;
 
     float currTime;
+
+    std::string name;
 
     // map bone name -> bone
     std::unordered_map<std::string, std::shared_ptr<Bone>> bones;

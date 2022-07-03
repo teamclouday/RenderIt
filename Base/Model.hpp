@@ -21,9 +21,9 @@ namespace RenderIt
 
 #define MODEL_LOAD_FLAGS                                                                                               \
     aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SplitLargeMeshes |                             \
-        aiProcess_PreTransformVertices | aiProcess_ValidateDataStructure | aiProcess_ImproveCacheLocality |            \
-        aiProcess_RemoveRedundantMaterials | aiProcess_GenSmoothNormals | aiProcess_FlipUVs |                          \
-        aiProcess_FindInvalidData | aiProcess_OptimizeMeshes | aiProcess_CalcTangentSpace
+        aiProcess_ValidateDataStructure | aiProcess_ImproveCacheLocality | aiProcess_RemoveRedundantMaterials |        \
+        aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_FindInvalidData | aiProcess_OptimizeMeshes |        \
+        aiProcess_CalcTangentSpace
 
 /// Model definition
 class Model

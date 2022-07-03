@@ -35,7 +35,7 @@ struct Bone
     std::vector<std::pair<glm::quat, float>> rotations;
     std::vector<std::pair<glm::vec3, float>> scales;
 
-    Transform transform;
+    glm::mat4 matrix;
 
     std::string name;
     unsigned ID;

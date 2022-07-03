@@ -138,7 +138,7 @@ void Camera::update()
         break;
     }
     case CameraViewType::Persp: {
-        _projMat = glm::perspective(_fov, _aspect, _viewNear, _viewFar);
+        _projMat = glm::perspective(glm::radians(_fov), _aspect, _viewNear, _viewFar);
         break;
     }
     }
