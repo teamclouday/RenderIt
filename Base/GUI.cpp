@@ -413,7 +413,11 @@ void Model::UI()
         for (auto i = 0; i < _meshes.size(); i++)
         {
             ImGui::PushID(i);
-            _meshes[i]->UI();
+            if (ImGui::TreeNode(("Mesh " + std::to_string(i)).c_str()))
+            {
+                _meshes[i]->UI();
+                ImGui::TreePop();
+            }
             ImGui::PopID();
         }
         ImGui::TreePop();
