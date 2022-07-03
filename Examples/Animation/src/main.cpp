@@ -93,6 +93,7 @@ int main()
     app->Start();
 
     bool doAnimation = true;
+    bool doWireframe = false;
 
     while (!app->WindowShouldClose())
     {
@@ -135,6 +136,14 @@ int main()
             app->displayUI = !app->displayUI;
         if (input->GetKeyPressed(GLFW_KEY_SPACE))
             doAnimation = !doAnimation;
+        if (input->GetKeyPressed(GLFW_KEY_ENTER))
+        {
+            doWireframe = !doWireframe;
+            if (doWireframe)
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            else
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
         input->Update();
     }
 

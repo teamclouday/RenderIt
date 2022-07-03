@@ -2,6 +2,7 @@
 #include "Tools.hpp"
 
 #include <cassert>
+#include <cstdlib>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace RenderIt
@@ -15,7 +16,7 @@ Bone::Bone(const std::string &boneName, unsigned boneID, const aiNodeAnim *animN
     for (auto i = 0; i < animNode->mNumPositionKeys; i++)
     {
         auto position = animNode->mPositionKeys[i].mValue;
-        auto timestamp = animNode->mPositionKeys[i].mTime;
+        auto timestamp = std::abs(animNode->mPositionKeys[i].mTime);
         positions.push_back({Tools::convertAssimpVector(position), timestamp});
     }
 
@@ -23,7 +24,7 @@ Bone::Bone(const std::string &boneName, unsigned boneID, const aiNodeAnim *animN
     for (auto i = 0; i < animNode->mNumRotationKeys; i++)
     {
         auto rotation = animNode->mRotationKeys[i].mValue;
-        auto timestamp = animNode->mRotationKeys[i].mTime;
+        auto timestamp = std::abs(animNode->mRotationKeys[i].mTime);
         rotations.push_back({Tools::convertAssimpQuaternion(rotation), timestamp});
     }
 
@@ -31,7 +32,7 @@ Bone::Bone(const std::string &boneName, unsigned boneID, const aiNodeAnim *animN
     for (auto i = 0; i < animNode->mNumScalingKeys; i++)
     {
         auto scale = animNode->mScalingKeys[i].mValue;
-        auto timestamp = animNode->mScalingKeys[i].mTime;
+        auto timestamp = std::abs(animNode->mScalingKeys[i].mTime);
         scales.push_back({Tools::convertAssimpVector(scale), timestamp});
     }
 }
