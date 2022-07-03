@@ -103,7 +103,7 @@ int main()
         mView = cam->GetView();
         mProj = cam->GetProj();
         shader->UniformMat4("mat_model", model->transform.matrix);
-        shader->UniformMat4("mat_modelInv", model->transform.matrixInv);
+        shader->UniformMat3("mat_modelInv", glm::mat3(model->transform.matrixInv));
         shader->UniformMat4("mat_VP", mProj * mView);
         shader->UniformVec3("cameraPosWS", cam->GetPosition());
 

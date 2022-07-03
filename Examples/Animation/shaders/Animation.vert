@@ -48,9 +48,9 @@ void main()
         normInvMat = mat3(1.0);
     }
 
-    vertOut.normalWS = normalize(normInvMat * mat_modelInv * inNormal);
-    vertOut.tangentWS = normalize(normInvMat * mat_modelInv * inTangent);
-    vertOut.bitangentWS = normalize(normInvMat * mat_modelInv * inBiTangent);
+    vertOut.normalWS = normalize(inNormal * normInvMat * mat_modelInv);
+    vertOut.tangentWS = normalize(inTangent * normInvMat * mat_modelInv);
+    vertOut.bitangentWS = normalize(inBiTangent * normInvMat * mat_modelInv);
     vertOut.texCoords = inTexCoords;
     vertOut.fragPosWS = mat_model * boneTransform * vec4(inPos, 1.0);
     gl_Position = mat_VP * vertOut.fragPosWS;

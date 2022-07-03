@@ -18,13 +18,13 @@ vertOut;
 
 uniform mat4 mat_VP;
 uniform mat4 mat_model;
-uniform mat4 mat_modelInv;
+uniform mat3 mat_modelInv;
 
 void main()
 {
-    vertOut.normalWS = normalize((vec4(inNormal, 0.0) * mat_modelInv).xyz);
-    vertOut.tangentWS = normalize(mat3(mat_model) * inTangent);
-    vertOut.bitangentWS = normalize(mat3(mat_model) * inBiTangent);
+    vertOut.normalWS = normalize(inNormal * mat_modelInv);
+    vertOut.tangentWS = normalize(inTangent * mat_modelInv);
+    vertOut.bitangentWS = normalize(inBiTangent * mat_modelInv);
     vertOut.texCoords = inTexCoords;
     vertOut.fragPosWS = mat_model * vec4(inPos, 1.0);
     gl_Position = mat_VP * vertOut.fragPosWS;
