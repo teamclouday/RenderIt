@@ -37,7 +37,7 @@ void Animator::Update(float deltaSeconds)
 
 void Animator::UpdateAnimation(std::shared_ptr<Model> model)
 {
-    if (!model->HasAnimation())
+    if (!model->HasAnimation() || !_deltaT)
         return;
     auto anim = model->_animations[model->_animationActive];
     assert(anim);

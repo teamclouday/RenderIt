@@ -52,6 +52,6 @@ void main()
     vertOut.tangentWS = normalize(normInvMat * mat_modelInv * inTangent);
     vertOut.bitangentWS = normalize(normInvMat * mat_modelInv * inBiTangent);
     vertOut.texCoords = inTexCoords;
-    vertOut.fragPosWS = boneTransform * vec4(inPos, 1.0);
+    vertOut.fragPosWS = mat_model * boneTransform * vec4(inPos, 1.0);
     gl_Position = mat_VP * vertOut.fragPosWS;
 }

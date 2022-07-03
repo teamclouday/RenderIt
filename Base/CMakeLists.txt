@@ -1,5 +1,9 @@
 file(GLOB_RECURSE RENDERIT_SRC *.cpp *.hpp)
 
+# if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+#     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+# endif()
+
 add_library(RenderItLib STATIC ${RENDERIT_SRC})
 
 target_include_directories(RenderItLib PRIVATE
