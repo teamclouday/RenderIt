@@ -14,7 +14,7 @@ Animation::Animation(const aiAnimation *anim, std::unordered_map<std::string, st
     name = anim->mName.C_Str();
     assert(duration > 0.0f);
     // collect bones
-    for (auto channelIdx = 0; channelIdx < anim->mNumChannels; channelIdx++)
+    for (auto channelIdx = 0; channelIdx < anim->mNumChannels; ++channelIdx)
     {
         auto channel = anim->mChannels[channelIdx];
         std::string boneName = channel->mNodeName.C_Str();

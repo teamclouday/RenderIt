@@ -12,7 +12,7 @@ namespace RenderIt
 {
 Animator::Animator()
 {
-    for (auto i = 0; i < ANIMATION_MAX_BONES; i++)
+    for (auto i = 0; i < ANIMATION_MAX_BONES; ++i)
         _boneMatrices[i] = glm::mat4(1.0f);
 
     _boneUBO = std::make_unique<SBuffer>(GL_UNIFORM_BUFFER);

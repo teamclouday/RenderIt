@@ -272,7 +272,7 @@ void UIShowAnimNode(const Animation::Node &node)
         }
         if (node.children.size() && ImGui::TreeNode("Children"))
         {
-            for (auto i = 0; i < node.children.size(); i++)
+            for (auto i = 0; i < node.children.size(); ++i)
             {
                 ImGui::PushID(i);
                 UIShowAnimNode(*node.children[i].get());
@@ -410,7 +410,7 @@ void Model::UI()
 
     if (ImGui::TreeNode("Meshes"))
     {
-        for (auto i = 0; i < _meshes.size(); i++)
+        for (auto i = 0; i < _meshes.size(); ++i)
         {
             ImGui::PushID(i);
             if (ImGui::TreeNode(("Mesh " + std::to_string(i)).c_str()))
@@ -427,7 +427,7 @@ void Model::UI()
 
     if (_animations.size() && ImGui::TreeNode("Animations"))
     {
-        for (auto i = 0; i < _animations.size(); i++)
+        for (auto i = 0; i < _animations.size(); ++i)
         {
             ImGui::PushID(i);
             ImGui::RadioButton(_animations[i]->name.c_str(), reinterpret_cast<int *>(&_animationActive),
@@ -454,7 +454,7 @@ void Model::UI()
 
     if (_children.size() && ImGui::TreeNode("Children"))
     {
-        for (auto i = 0; i < _children.size(); i++)
+        for (auto i = 0; i < _children.size(); ++i)
         {
             ImGui::PushID(i);
             _children[i]->UI();

@@ -217,9 +217,9 @@ glm::vec4 Tools::convertAssimpColor(const aiColor4D &c)
 glm::mat3 Tools::convertAssimpMatrix(const aiMatrix3x3 &m)
 {
     glm::mat3 mat{0.0f};
-    for (unsigned i = 0; i < 3; i++)
+    for (unsigned i = 0; i < 3; ++i)
     {
-        for (unsigned j = 0; j < 3; j++)
+        for (unsigned j = 0; j < 3; ++j)
             mat[i][j] = static_cast<float>(m[j][i]);
     }
     return mat;
@@ -228,9 +228,9 @@ glm::mat3 Tools::convertAssimpMatrix(const aiMatrix3x3 &m)
 glm::mat4 Tools::convertAssimpMatrix(const aiMatrix4x4 &m)
 {
     glm::mat4 mat{0.0f};
-    for (unsigned i = 0; i < 4; i++)
+    for (unsigned i = 0; i < 4; ++i)
     {
-        for (unsigned j = 0; j < 4; j++)
+        for (unsigned j = 0; j < 4; ++j)
             mat[i][j] = static_cast<float>(m[j][i]);
     }
     return mat;

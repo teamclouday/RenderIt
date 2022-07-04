@@ -55,7 +55,7 @@ bool Model::Load(const std::string &path, unsigned flags)
         auto node = nodes.front();
         nodes.pop();
         // create meshes
-        for (auto meshIdx = 0; meshIdx < node->mNumMeshes; meshIdx++)
+        for (auto meshIdx = 0; meshIdx < node->mNumMeshes; ++meshIdx)
         {
             auto mesh = scene->mMeshes[node->mMeshes[meshIdx]];
 
@@ -67,7 +67,7 @@ bool Model::Load(const std::string &path, unsigned flags)
             std::shared_ptr<Material> material = std::make_shared<Material>();
 
             // vertex data
-            for (auto vertexIdx = 0; vertexIdx < mesh->mNumVertices; vertexIdx++)
+            for (auto vertexIdx = 0; vertexIdx < mesh->mNumVertices; ++vertexIdx)
             {
                 auto position = Tools::convertAssimpVector(mesh->mVertices[vertexIdx]);
                 auto normal = Tools::convertAssimpVector(mesh->mNormals[vertexIdx]);
@@ -89,7 +89,7 @@ bool Model::Load(const std::string &path, unsigned flags)
             }
 
             // indices data
-            for (auto faceIdx = 0; faceIdx < mesh->mNumFaces; faceIdx++)
+            for (auto faceIdx = 0; faceIdx < mesh->mNumFaces; ++faceIdx)
             {
                 auto face = mesh->mFaces[faceIdx];
                 assert(face.mNumIndices == 3);
@@ -162,7 +162,7 @@ bool Model::Load(const std::string &path, unsigned flags)
                 material->twoSided = ival != 0;
 
             // vertex bone info
-            for (auto boneIdx = 0; boneIdx < mesh->mNumBones; boneIdx++)
+            for (auto boneIdx = 0; boneIdx < mesh->mNumBones; ++boneIdx)
             {
                 unsigned boneID;
                 std::string boneName = mesh->mBones[boneIdx]->mName.C_Str();
@@ -178,13 +178,13 @@ bool Model::Load(const std::string &path, unsigned flags)
                 auto weights = mesh->mBones[boneIdx]->mWeights;
                 auto numWeights = mesh->mBones[boneIdx]->mNumWeights;
 
-                for (auto weightIdx = 0; weightIdx < numWeights; weightIdx++)
+                for (auto weightIdx = 0; weightIdx < numWeights; ++weightIdx)
                 {
                     auto vertexId = weights[weightIdx].mVertexId;
                     assert(vertexId <= vertices.size());
                     // set vertex info
                     auto &vertex = vertices[vertexId];
-                    for (auto i = 0; i < 4; i++)
+                    for (auto i = 0; i < 4; ++i)
                     {
                         if (!vertex.boneIDs[i] && !vertex.boneWeights[i])
                         {
@@ -199,7 +199,7 @@ bool Model::Load(const std::string &path, unsigned flags)
             newMesh->Load(vertices, indices, material, GL_TRIANGLES);
         }
         // add sub nodes
-        for (auto nodeIdx = 0; nodeIdx < node->mNumChildren; nodeIdx++)
+        for (auto nodeIdx = 0; nodeIdx < node->mNumChildren; ++nodeIdx)
             nodes.push(node->mChildren[nodeIdx]);
     }
 
@@ -230,11 +230,11 @@ bool Model::Load(const std::string &path, unsigned flags)
             else
                 animNodeParent->children.push_back(animNode);
             // solve children nodes
-            for (auto nodeIdx = 0; nodeIdx < node->mNumChildren; nodeIdx++)
+            for (auto nodeIdx = 0; nodeIdx < node->mNumChildren; ++nodeIdx)
                 animNodes.push({node->mChildren[nodeIdx], animNode});
         }
         // load animatins
-        for (auto animIdx = 0; animIdx < scene->mNumAnimations; animIdx++)
+        for (auto animIdx = 0; animIdx < scene->mNumAnimations; ++animIdx)
             _animations.push_back(std::make_shared<Animation>(scene->mAnimations[animIdx], _boneInfo));
     }
 
@@ -286,11 +286,11 @@ bool Model::LoadAnimation(const std::string &path)
         else
             animNodeParent->children.push_back(animNode);
         // solve children nodes
-        for (auto nodeIdx = 0; nodeIdx < node->mNumChildren; nodeIdx++)
+        for (auto nodeIdx = 0; nodeIdx < node->mNumChildren; ++nodeIdx)
             animNodes.push({node->mChildren[nodeIdx], animNode});
     }
     // load animatins
-    for (auto animIdx = 0; animIdx < scene->mNumAnimations; animIdx++)
+    for (auto animIdx = 0; animIdx < scene->mNumAnimations; ++animIdx)
         _animations.push_back(std::make_shared<Animation>(scene->mAnimations[animIdx], _boneInfo));
 
     return true;

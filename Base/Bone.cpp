@@ -18,7 +18,7 @@ Bone::Bone(const std::string &boneName, unsigned boneID, const aiNodeAnim *animN
     std::unordered_set<float> duplicates;
 
     assert(animNode->mNumPositionKeys);
-    for (auto i = 0; i < animNode->mNumPositionKeys; i++)
+    for (auto i = 0; i < animNode->mNumPositionKeys; ++i)
     {
         auto position = animNode->mPositionKeys[i].mValue;
         auto timestamp = static_cast<float>(std::abs(animNode->mPositionKeys[i].mTime));
@@ -36,7 +36,7 @@ Bone::Bone(const std::string &boneName, unsigned boneID, const aiNodeAnim *animN
     duplicates.clear();
 
     assert(animNode->mNumRotationKeys);
-    for (auto i = 0; i < animNode->mNumRotationKeys; i++)
+    for (auto i = 0; i < animNode->mNumRotationKeys; ++i)
     {
         auto rotation = animNode->mRotationKeys[i].mValue;
         auto timestamp = static_cast<float>(std::abs(animNode->mRotationKeys[i].mTime));
@@ -54,7 +54,7 @@ Bone::Bone(const std::string &boneName, unsigned boneID, const aiNodeAnim *animN
     duplicates.clear();
 
     assert(animNode->mNumScalingKeys);
-    for (auto i = 0; i < animNode->mNumScalingKeys; i++)
+    for (auto i = 0; i < animNode->mNumScalingKeys; ++i)
     {
         auto scale = animNode->mScalingKeys[i].mValue;
         auto timestamp = static_cast<float>(std::abs(animNode->mScalingKeys[i].mTime));
@@ -87,7 +87,7 @@ glm::vec3 Bone::InterpolatePosition(float time)
 
     // find target index
     unsigned idx = 0;
-    for (; idx < positions.size() - 1; idx++)
+    for (; idx < positions.size() - 1; ++idx)
     {
         if (time < positions[idx + 1].second)
             break;
@@ -106,7 +106,7 @@ glm::quat Bone::InterpolateRotation(float time)
 
     // find target index
     unsigned idx = 0;
-    for (; idx < rotations.size() - 1; idx++)
+    for (; idx < rotations.size() - 1; ++idx)
     {
         if (time < rotations[idx + 1].second)
             break;
@@ -125,7 +125,7 @@ glm::vec3 Bone::InterpolateScale(float time)
 
     // find target index
     unsigned idx = 0;
-    for (; idx < scales.size() - 1; idx++)
+    for (; idx < scales.size() - 1; ++idx)
     {
         if (time < scales[idx + 1].second)
             break;

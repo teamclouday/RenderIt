@@ -7,7 +7,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(RenderIt)
 
-option(RENDERIT_EXAMPLES "Build the Render examples" ON)
+option(RENDERIT_EXAMPLES_PERSONAL "Build the Personal RenderIt examples" ON)
+option(RENDERIT_EXAMPLES_GPUGems "Build the GPU Gems RenderIt examples" ON)
 
 add_definitions(-DUNICODE)
 add_definitions(-DGLEW_STATIC)
@@ -84,6 +85,10 @@ set(RENDERIT_LIBS
     RenderItLib
 )
 
-if(RENDERIT_EXAMPLES)
-add_subdirectory(Examples)
-endif(RENDERIT_EXAMPLES)
+if(RENDERIT_EXAMPLES_PERSONAL)
+add_subdirectory(Examples/Personal)
+endif(RENDERIT_EXAMPLES_PERSONAL)
+
+if(RENDERIT_EXAMPLES_GPUGems)
+add_subdirectory(Examples/GPUGems)
+endif(RENDERIT_EXAMPLES_GPUGems)

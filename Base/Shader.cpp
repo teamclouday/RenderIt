@@ -120,7 +120,7 @@ void Shader::ConfigMaterialTextures(std::shared_ptr<Material> mat) const
             tex->Bind();
             UniformInt(name, texIdx);
             UniformBool(name + Material::existsEXT, true);
-            texIdx++;
+            ++texIdx;
         }
         else
             UniformBool(name + Material::existsEXT, false);
