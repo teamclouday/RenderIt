@@ -65,6 +65,15 @@ struct SBuffer
     {
         glBindBuffer(type, 0);
     }
+    void BindBase(GLuint binding, size_t idx = 0) const
+    {
+        if (idx < IDs.size())
+            glBindBufferBase(type, binding, IDs[idx]);
+    }
+    void UnBindBase(GLuint binding) const
+    {
+        glBindBufferBase(type, binding, 0);
+    }
     GLuint Get(size_t idx = 0) const
     {
         if (IDs.size() > idx)

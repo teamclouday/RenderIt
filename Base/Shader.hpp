@@ -74,6 +74,8 @@ class Shader
 
     void UboBinding(const std::string &name, uint32_t binding) const;
 
+    void SsboBinding(const std::string &name, uint32_t binding) const;
+
 #pragma endregion uniform_methods
 
   public:

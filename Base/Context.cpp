@@ -107,6 +107,11 @@ float AppContext::GetDeltaTime() const
     return _tDelta;
 }
 
+float AppContext::GetFrameEndTime() const
+{
+    return _tPrev;
+}
+
 void AppContext::initializeLocal()
 {
     glfwSetErrorCallback(AppContext::glfw_error_callback);

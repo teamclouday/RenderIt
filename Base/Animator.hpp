@@ -29,7 +29,7 @@ class Animator
     void Bind(unsigned bindingID = 0) const;
 
     /// UnBind uniform buffer
-    void UnBind() const;
+    void UnBind(unsigned bindingID = 0) const;
 
   public:
     const std::string NAME = "Animator";

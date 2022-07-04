@@ -80,13 +80,12 @@ void Animator::UpdateAnimation(std::shared_ptr<Model> model)
 
 void Animator::Bind(unsigned bindingID) const
 {
-    glBindBufferBase(_boneUBO->type, static_cast<GLuint>(bindingID), _boneUBO->Get());
-    _boneUBO->Bind();
+    _boneUBO->BindBase(bindingID);
 }
 
-void Animator::UnBind() const
+void Animator::UnBind(unsigned bindingID) const
 {
-    _boneUBO->UnBind();
+    _boneUBO->UnBindBase(bindingID);
 }
 
 void Animator::updateUniformBuffer()

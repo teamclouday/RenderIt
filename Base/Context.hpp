@@ -49,6 +49,9 @@ class AppContext
     /// Get delta time from last frame (seconds)
     float GetDeltaTime() const;
 
+    /// Get the end time of previous frame
+    float GetFrameEndTime() const;
+
     /// UI calls
     void UI();
 

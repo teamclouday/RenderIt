@@ -246,4 +246,12 @@ void Shader::UboBinding(const std::string &name, uint32_t binding) const
     glUniformBlockBinding(_program, idx, binding);
 }
 
+void Shader::SsboBinding(const std::string &name, uint32_t binding) const
+{
+    if (!_compiled)
+        return;
+    GLuint idx = glGetProgramResourceIndex(_program, GL_SHADER_STORAGE_BLOCK, name.c_str());
+    glShaderStorageBlockBinding(_program, idx, binding);
+}
+
 } // namespace RenderIt
