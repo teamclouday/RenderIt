@@ -19,6 +19,9 @@ class OrbitCamera : public Camera
     /// Implement new prepare frame method
     void PrepareFrame(unsigned clearMask);
 
+    /// UI calls
+    void UI();
+
   public:
     const std::string NAME = "OrbitCamera";
     // sensitivity of rotation (left mouse drag)

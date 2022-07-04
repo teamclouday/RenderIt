@@ -9,6 +9,9 @@
 #include "Model.hpp"
 #include "Transform.hpp"
 
+#include "Cameras/FreeCamera.hpp"
+#include "Cameras/OrbitCamera.hpp"
+
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 
@@ -365,6 +368,65 @@ void Camera::UI()
 
     ImGui::Text("Aspect Ratio: %.4f", _aspect);
     ImGui::Text("Updated: %s", _updated ? "true" : "false");
+
+    ImGui::PopID();
+}
+
+void OrbitCamera::UI()
+{
+    Camera::UI();
+    ImGui::PushID(NAME.c_str());
+
+    ImGui::Separator();
+    ImGui::Text("Input Controls");
+
+    if (ImGui::TreeNode("Rotation (Mouse)"))
+    {
+        ImGui::DragFloat("Sensitivity", &sensRotateM, 0.001f, 0.001f, 10000.0f, "%.3f");
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Move (Mouse)"))
+    {
+        ImGui::DragFloat("Sensitivity", &sensMoveM, 0.001f, 0.001f, 10000.0f, "%.3f");
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Move (Key)"))
+    {
+        ImGui::DragFloat("Sensitivity", &sensMoveK, 0.001f, 0.001f, 10000.0f, "%.3f");
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Zoom (Wheel)"))
+    {
+        ImGui::DragFloat("Min Distance", &wheelZoomMinDist, 0.0001f, 0.0001f, 10000.0f, "%.4f");
+        ImGui::TreePop();
+    }
+
+    ImGui::PopID();
+}
+
+void FreeCamera::UI()
+{
+    Camera::UI();
+    ImGui::PushID(NAME.c_str());
+
+    ImGui::Separator();
+    ImGui::Text("Input Controls");
+
+    if (ImGui::TreeNode("Rotation (Mouse)"))
+    {
+        ImGui::DragFloat("Sensitivity", &sensRotateM, 0.001f, 0.001f, 10000.0f, "%.3f");
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Move (Key)"))
+    {
+        ImGui::DragFloat("Sensitivity", &sensMoveK, 0.001f, 0.001f, 10000.0f, "%.3f");
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Zoom (Wheel)"))
+    {
+        ImGui::DragFloat("Min Distance", &wheelZoomMinDist, 0.0001f, 0.0001f, 10000.0f, "%.4f");
+        ImGui::TreePop();
+    }
 
     ImGui::PopID();
 }

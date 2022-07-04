@@ -19,6 +19,9 @@ class FreeCamera : public Camera
     /// Implement new prepare frame method
     void PrepareFrame(unsigned clearMask);
 
+    /// UI calls
+    void UI();
+
   public:
     const std::string NAME = "FreeCamera";
     // sensitivity of rotation (left mouse drag)
