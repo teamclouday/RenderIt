@@ -5,4 +5,4 @@
 A realtime solution for accumulative sine waves for water surface simulation
 
 
-![screenshot](assets/screenshot.png)
+![screenshot](misc/screenshot.png)

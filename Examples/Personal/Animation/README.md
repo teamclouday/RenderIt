@@ -2,4 +2,4 @@
 
 `RenderIt` skeletal animation
 
-![demo](assets/demo.gif)
+![demo](misc/demo.gif)

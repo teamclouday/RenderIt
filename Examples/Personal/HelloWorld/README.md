@@ -2,4 +2,4 @@
 
 A triangle rendered in `RenderIt`
 
-![screenshot](assets/screenshot.png)
+![screenshot](misc/screenshot.png)

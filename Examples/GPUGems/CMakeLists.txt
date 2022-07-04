@@ -23,6 +23,12 @@ function(buildExample EXAMPLE_NAME)
         )
         add_dependencies(${EXAMPLE_NAME} ${EXAMPLE_NAME}_copy_shaders)
     endif()
+    if(EXISTS ${EXAMPLE_FOLDER}/assets)
+        add_custom_target(${EXAMPLE_NAME}_copy_assets
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${EXAMPLE_FOLDER}/assets ${EXAMPLE_FOLDER}/bin/assets
+        )
+        add_dependencies(${EXAMPLE_NAME} ${EXAMPLE_NAME}_copy_assets)
+    endif()
 endfunction(buildExample)
 
 # all example
