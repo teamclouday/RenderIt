@@ -49,7 +49,7 @@ void main()
         normDir = normalize(vertOut.normalWS);
     }
 
-    vec3 viewDir = normalize(cameraPosWS - vertOut.fragPosWS.xyx);
+    vec3 viewDir = normalize(cameraPosWS - vertOut.fragPosWS.xyz);
 
     const vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
     const vec3 lightColor = vec3(1.0, 1.0, 1.0);
