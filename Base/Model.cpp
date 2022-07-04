@@ -1,5 +1,3 @@
-#define STB_IMAGE_IMPLEMENTATION
-
 #include "Model.hpp"
 #include "Material.hpp"
 #include "Tools.hpp"
