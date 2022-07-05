@@ -58,20 +58,23 @@ struct PointLight
 /// Spot Light
 struct SpotLight
 {
-    SpotLight(const glm::vec3 &lPos = glm::vec3(0.0f), float lRange = 1.0f, float lAngle = 45.0f,
-              const glm::vec3 &lColor = glm::vec3(1.0f), float lIntensity = 1.0f, bool lCastShadow = false)
+    SpotLight(const glm::vec3 &lPos = glm::vec3(0.0f), const glm::vec3 &lDir = glm::vec3(-1.0f), float lRange = 1.0f,
+              float lCutoff = 0.8f, const glm::vec3 &lColor = glm::vec3(1.0f), float lIntensity = 1.0f,
+              bool lCastShadow = false)
     {
         pos = lPos;
+        dir = lDir;
         range = lRange;
-        angle = lAngle;
+        cutoff = lCutoff;
         color = lColor;
         intensity = lIntensity;
         castShadow = static_cast<int>(lCastShadow);
     }
 
     glm::vec3 pos;
+    glm::vec3 dir;
     float range;
-    float angle;
+    float cutoff;
     glm::vec3 color;
     float intensity;
     int castShadow;

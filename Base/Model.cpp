@@ -47,6 +47,10 @@ bool Model::Load(const std::string &path, unsigned flags)
     auto sceneName = std::string(scene->mName.C_Str());
     modelName = sceneName.length() > 0 ? sceneName : fs::path(path).filename().string();
 
+    //! Temp fix: pre-transform if no animation
+    if (!scene->HasAnimations())
+        importer.ApplyPostProcessing(aiProcess_PreTransformVertices);
+
     // process nodes
     std::queue<aiNode *> nodes;
     nodes.push(scene->mRootNode);

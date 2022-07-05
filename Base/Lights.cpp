@@ -240,8 +240,8 @@ void LightManager::updateSSBOs()
     }
     if (!_spotLightsSSBOUpdated)
     {
-        auto offset =
-            2 * sizeof(unsigned) + LIGHTS_MAX_DIR_LIGHTS * sizeof(DirLight) + _pointLights.size() * sizeof(PointLight);
+        auto offset = 2 * sizeof(unsigned) + LIGHTS_MAX_DIR_LIGHTS * sizeof(DirLight) +
+                      LIGHTS_MAX_POINT_LIGHTS * sizeof(PointLight);
         _lightsSSBO->Bind();
         auto sizePtr = reinterpret_cast<unsigned *>(
             glMapBufferRange(_lightsSSBO->type, offset, sizeof(unsigned), GL_MAP_WRITE_BIT));

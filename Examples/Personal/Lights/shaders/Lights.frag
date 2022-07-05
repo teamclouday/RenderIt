@@ -52,8 +52,9 @@ struct PointLight
 struct SpotLight
 {
     float pos[3];
+    float dir[3];
     float range;
-    float angle;
+    float cutoff;
     float color[3];
     float intensity;
     int castShadow;
@@ -121,7 +122,7 @@ void ComputeDirLight(DirLight light, vec3 normDir, vec3 viewDir, out float diff,
     spec = pow(max(dot(reflect(-lightDir, normDir), viewDir), 0.0), val_SHININESS);
 }
 
-float ComputePointLightAttenuation(float range, vec3 fragToLight)
+float ComputeLightAttenuation(float range, vec3 fragToLight)
 {
     float distSqr = dot(fragToLight, fragToLight);
     float invRSqr = (range == 0.0) ? 1.0 : (1.0 / (range * range));
@@ -140,7 +141,22 @@ void ComputePointLight(PointLight light, vec3 normDir, vec3 viewDir, vec3 fragPo
     // specular
     spec = pow(max(dot(reflect(-lightDir, normDir), viewDir), 0.0), val_SHININESS);
     // attenuation
-    atten = ComputePointLightAttenuation(light.range, fragToLight);
+    atten = ComputeLightAttenuation(light.range, fragToLight);
+}
+
+void ComputeSpotLight(SpotLight light, vec3 normDir, vec3 viewDir, vec3 fragPos, out float diff, out float spec,
+                      out float atten)
+{
+    vec3 fragToLight = vec3(light.pos[0], light.pos[1], light.pos[2]) - fragPos;
+    vec3 toLight = normalize(fragToLight);
+    vec3 lightDir = normalize(vec3(light.dir[0], light.dir[1], light.dir[2]));
+    // diffuse
+    diff = max(dot(normDir, toLight), 0.0);
+    // specular
+    spec = pow(max(dot(reflect(-toLight, normDir), viewDir), 0.0), val_SHININESS);
+    // compute intensity
+    float theta = dot(toLight, -lightDir);
+    atten = clamp((theta - light.cutoff) / 0.09, 0.0, 1.0) * ComputeLightAttenuation(light.range, fragToLight);
 }
 
 void main()
@@ -169,6 +185,15 @@ void main()
         vec3 lightColor = vec3(light.color[0], light.color[1], light.color[2]);
         float diff, spec, atten;
         ComputePointLight(light, normDir, viewDir, vertOut.fragPosWS.xyz, diff, spec, atten);
+        accColor += (colAmbient + colDiffuse * diff + colSpecular * spec) * light.intensity * lightColor * atten;
+    }
+    // apply spot lights
+    for (uint i = 0; i < spotLightsLen; i++)
+    {
+        SpotLight light = spotLights[i];
+        vec3 lightColor = vec3(light.color[0], light.color[1], light.color[2]);
+        float diff, spec, atten;
+        ComputeSpotLight(light, normDir, viewDir, vertOut.fragPosWS.xyz, diff, spec, atten);
         accColor += (colAmbient + colDiffuse * diff + colSpecular * spec) * light.intensity * lightColor * atten;
     }
 

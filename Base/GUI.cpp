@@ -565,8 +565,9 @@ bool UIEditSpotLight(SpotLight &light)
 {
     bool updated = false;
     updated |= ImGui::DragFloat3("Position", glm::value_ptr(light.pos), 0.01f);
+    updated |= ImGui::DragFloat3("Direction", glm::value_ptr(light.dir), 0.01f);
     updated |= ImGui::DragFloat("Range", &light.range, 0.01f, 0.0f);
-    updated |= ImGui::DragFloat("Angle", &light.angle, 0.01f, 0.0f, 180.0f);
+    updated |= ImGui::DragFloat("Cutoff", &light.cutoff, 0.001f, 0.0f, 1.0f, "%.3f");
     updated |= ImGui::ColorEdit3("Color", glm::value_ptr(light.color));
     updated |= ImGui::DragFloat("Intensity", &light.intensity, 0.01f, 0.0f);
     bool castShadow = static_cast<bool>(light.castShadow);
