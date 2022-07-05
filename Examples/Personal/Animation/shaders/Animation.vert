@@ -18,14 +18,12 @@ layout(location = 0) out VERTOUT
 }
 vertOut;
 
-#define MAX_NUM_BONES 300
-
-layout(std140, binding = 0) uniform BoneMatrices
+layout(std430, binding = 0) readonly buffer BoneMatrices
 {
-    mat4 boneMats[MAX_NUM_BONES];
+    mat4 boneMats[];
 };
 
-uniform mat4 mat_VP;
+uniform mat4 mat_ProjView;
 uniform mat4 mat_model;
 uniform mat3 mat_modelInv;
 
@@ -53,5 +51,5 @@ void main()
     vertOut.bitangentWS = normalize(inBiTangent * normInvMat * mat_modelInv);
     vertOut.texCoords = inTexCoords;
     vertOut.fragPosWS = mat_model * boneTransform * vec4(inPos, 1.0);
-    gl_Position = mat_VP * vertOut.fragPosWS;
+    gl_Position = mat_ProjView * vertOut.fragPosWS;
 }

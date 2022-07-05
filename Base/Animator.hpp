@@ -35,12 +35,12 @@ class Animator
     const std::string NAME = "Animator";
 
   private:
-    /// Update uniform buffer
-    void updateUniformBuffer();
+    /// Update shader storage buffer
+    void updateSSBO(unsigned size = ANIMATION_MAX_BONES);
 
   private:
     std::array<glm::mat4, ANIMATION_MAX_BONES> _boneMatrices;
-    std::unique_ptr<SBuffer> _boneUBO;
+    std::unique_ptr<SBuffer> _boneSSBO;
 
     float _deltaT;
 };

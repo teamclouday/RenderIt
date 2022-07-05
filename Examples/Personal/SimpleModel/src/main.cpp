@@ -104,8 +104,8 @@ int main()
         mProj = cam->GetProj();
         shader->UniformMat4("mat_model", model->transform.matrix);
         shader->UniformMat3("mat_modelInv", glm::mat3(model->transform.matrixInv));
-        shader->UniformMat4("mat_VP", mProj * mView);
-        shader->UniformVec3("cameraPosWS", cam->GetPosition());
+        shader->UniformMat4("mat_ProjView", mProj * mView);
+        shader->UniformVec3("vec_cameraPos", cam->GetPosition());
 
         model->Draw(shader);
         shader->UnBind();

@@ -16,7 +16,7 @@ layout(location = 0) out VERTOUT
 }
 vertOut;
 
-uniform mat4 mat_VP;
+uniform mat4 mat_ProjView;
 uniform mat4 mat_model;
 uniform mat3 mat_modelInv;
 
@@ -27,5 +27,5 @@ void main()
     vertOut.bitangentWS = normalize(inBiTangent * mat_modelInv);
     vertOut.texCoords = inTexCoords;
     vertOut.fragPosWS = mat_model * vec4(inPos, 1.0);
-    gl_Position = mat_VP * vertOut.fragPosWS;
+    gl_Position = mat_ProjView * vertOut.fragPosWS;
 }

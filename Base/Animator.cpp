@@ -15,11 +15,11 @@ Animator::Animator()
     for (auto i = 0; i < ANIMATION_MAX_BONES; ++i)
         _boneMatrices[i] = glm::mat4(1.0f);
 
-    _boneUBO = std::make_unique<SBuffer>(GL_UNIFORM_BUFFER);
-    _boneUBO->Bind();
-    glBufferData(_boneUBO->type, ANIMATION_MAX_BONES * sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
-    _boneUBO->UnBind();
-    updateUniformBuffer();
+    _boneSSBO = std::make_unique<SBuffer>(GL_SHADER_STORAGE_BUFFER);
+    _boneSSBO->Bind();
+    glBufferData(_boneSSBO->type, ANIMATION_MAX_BONES * sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
+    _boneSSBO->UnBind();
+    updateSSBO();
 
     _deltaT = 0.0f;
 }
@@ -47,6 +47,7 @@ void Animator::UpdateAnimation(std::shared_ptr<Model> model)
     // compute bone transforms
     std::queue<std::pair<std::shared_ptr<Animation::Node>, glm::mat4>> nodes;
     nodes.push({model->_animNodeRoot, glm::mat4(1.0f)});
+    unsigned maxMatIdx{0};
     while (!nodes.empty())
     {
         // unpack data
@@ -70,28 +71,29 @@ void Animator::UpdateAnimation(std::shared_ptr<Model> model)
             auto matIdx = model->_boneInfo[boneName].first;
             auto matOffset = model->_boneInfo[boneName].second;
             _boneMatrices[matIdx] = currT * matOffset;
+            maxMatIdx = std::max(maxMatIdx, matIdx);
         }
         // recurse
         for (auto child : node->children)
             nodes.push({child, currT});
     }
-    updateUniformBuffer();
+    updateSSBO(maxMatIdx + 1);
 }
 
 void Animator::BindBones(unsigned bindingID) const
 {
-    _boneUBO->BindBase(bindingID);
+    _boneSSBO->BindBase(bindingID);
 }
 
 void Animator::UnBindBones(unsigned bindingID) const
 {
-    _boneUBO->UnBindBase(bindingID);
+    _boneSSBO->UnBindBase(bindingID);
 }
 
-void Animator::updateUniformBuffer()
+void Animator::updateSSBO(unsigned size)
 {
-    _boneUBO->Bind();
-    glBufferSubData(_boneUBO->type, 0, ANIMATION_MAX_BONES * sizeof(glm::mat4), _boneMatrices.data());
-    _boneUBO->UnBind();
+    _boneSSBO->Bind();
+    glBufferSubData(_boneSSBO->type, 0, size * sizeof(glm::mat4), _boneMatrices.data());
+    _boneSSBO->UnBind();
 }
 } // namespace RenderIt
