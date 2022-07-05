@@ -42,6 +42,7 @@ set(EXAMPLES
     HelloWorld
     SimpleModel
     Animation
+    Lights
 )
 
 buildExamples()

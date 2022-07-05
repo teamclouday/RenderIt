@@ -4,6 +4,7 @@
 #include "Camera.hpp"
 #include "Context.hpp"
 #include "GLStructs.hpp"
+#include "Lights.hpp"
 #include "Material.hpp"
 #include "Mesh.hpp"
 #include "Model.hpp"
@@ -177,6 +178,7 @@ void UIShowMaterial(const std::shared_ptr<Material> &mat)
         }
         ImGui::TreePop();
     }
+    ImGui::Text("Two Sided: %s", mat->twoSided ? "true" : "false");
 }
 
 void UIShowBounds(const Bounds &b)
@@ -524,6 +526,131 @@ void Model::UI()
         }
         ImGui::TreePop();
     }
+
+    ImGui::PopID();
+}
+
+bool UIEditDirLight(DirLight &light)
+{
+    bool updated = false;
+    updated |= ImGui::DragFloat3("Direction", glm::value_ptr(light.dir), 0.01f);
+    updated |= ImGui::ColorEdit3("Color", glm::value_ptr(light.color));
+    updated |= ImGui::DragFloat("Intensity", &light.intensity, 0.01f, 0.0f);
+    bool castShadow = static_cast<bool>(light.castShadow);
+    if (ImGui::Checkbox("Cast Shadow", &castShadow))
+    {
+        light.castShadow = static_cast<int>(castShadow);
+        updated = true;
+    }
+    return updated;
+}
+
+bool UIEditPointLight(PointLight &light)
+{
+    bool updated = false;
+    updated |= ImGui::DragFloat3("Position", glm::value_ptr(light.pos), 0.01f);
+    updated |= ImGui::DragFloat("Range", &light.range, 0.01f, 0.0f);
+    updated |= ImGui::ColorEdit3("Color", glm::value_ptr(light.color));
+    updated |= ImGui::DragFloat("Intensity", &light.intensity, 0.01f, 0.0f);
+    bool castShadow = static_cast<bool>(light.castShadow);
+    if (ImGui::Checkbox("Cast Shadow", &castShadow))
+    {
+        light.castShadow = static_cast<int>(castShadow);
+        updated = true;
+    }
+    return updated;
+}
+
+bool UIEditSpotLight(SpotLight &light)
+{
+    bool updated = false;
+    updated |= ImGui::DragFloat3("Position", glm::value_ptr(light.pos), 0.01f);
+    updated |= ImGui::DragFloat("Range", &light.range, 0.01f, 0.0f);
+    updated |= ImGui::DragFloat("Angle", &light.angle, 0.01f, 0.0f, 180.0f);
+    updated |= ImGui::ColorEdit3("Color", glm::value_ptr(light.color));
+    updated |= ImGui::DragFloat("Intensity", &light.intensity, 0.01f, 0.0f);
+    bool castShadow = static_cast<bool>(light.castShadow);
+    if (ImGui::Checkbox("Cast Shadow", &castShadow))
+    {
+        light.castShadow = static_cast<int>(castShadow);
+        updated = true;
+    }
+    return updated;
+}
+
+void LightManager::UI()
+{
+    ImGui::PushID(NAME.c_str());
+
+    ImGui::PushID("DirLight");
+    if (ImGui::TreeNode("Directional"))
+    {
+        for (unsigned i = 0; i < _dirLights.size(); i++)
+        {
+            ImGui::PushID(i);
+            if (ImGui::TreeNode(("Light " + std::to_string(i)).c_str()))
+            {
+                _dirLightsSSBOUpdated &= !UIEditDirLight(_dirLights[i]);
+                ImGui::TreePop();
+            }
+            ImGui::PopID();
+        }
+        ImGui::TreePop();
+    }
+    if (ImGui::Button("Push"))
+        PushLight(LightType::Directional);
+    ImGui::SameLine();
+    if (ImGui::Button("Pop"))
+        PopLight(LightType::Directional);
+    ImGui::PopID();
+
+    ImGui::Separator();
+
+    ImGui::PushID("PointLight");
+    if (ImGui::TreeNode("Point"))
+    {
+        for (unsigned i = 0; i < _pointLights.size(); i++)
+        {
+            ImGui::PushID(i);
+            if (ImGui::TreeNode(("Light " + std::to_string(i)).c_str()))
+            {
+                _pointLightsSSBOUpdated &= !UIEditPointLight(_pointLights[i]);
+                ImGui::TreePop();
+            }
+            ImGui::PopID();
+        }
+        ImGui::TreePop();
+    }
+    if (ImGui::Button("Push"))
+        PushLight(LightType::Point);
+    ImGui::SameLine();
+    if (ImGui::Button("Pop"))
+        PopLight(LightType::Point);
+    ImGui::PopID();
+
+    ImGui::Separator();
+
+    ImGui::PushID("SpotLightLight");
+    if (ImGui::TreeNode("Spot"))
+    {
+        for (unsigned i = 0; i < _spotLights.size(); i++)
+        {
+            ImGui::PushID(i);
+            if (ImGui::TreeNode(("Light " + std::to_string(i)).c_str()))
+            {
+                _spotLightsSSBOUpdated &= !UIEditSpotLight(_spotLights[i]);
+                ImGui::TreePop();
+            }
+            ImGui::PopID();
+        }
+        ImGui::TreePop();
+    }
+    if (ImGui::Button("Push"))
+        PushLight(LightType::Spot);
+    ImGui::SameLine();
+    if (ImGui::Button("Pop"))
+        PopLight(LightType::Spot);
+    ImGui::PopID();
 
     ImGui::PopID();
 }
