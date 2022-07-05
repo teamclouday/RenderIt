@@ -5,6 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 
+#include <cstring>
 #include <memory>
 #include <string>
 #include <vector>

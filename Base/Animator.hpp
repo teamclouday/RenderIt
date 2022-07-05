@@ -26,10 +26,10 @@ class Animator
     void UpdateAnimation(std::shared_ptr<Model> model);
 
     /// Bind bone matrices uniform buffer
-    void Bind(unsigned bindingID = 0) const;
+    void BindBones(unsigned bindingID = 0) const;
 
     /// UnBind uniform buffer
-    void UnBind(unsigned bindingID = 0) const;
+    void UnBindBones(unsigned bindingID = 0) const;
 
   public:
     const std::string NAME = "Animator";

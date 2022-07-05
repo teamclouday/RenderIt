@@ -135,11 +135,11 @@ int main()
         shader->UniformVec3("cameraPosWS", cam->GetPosition());
 
         shader->UboBinding("BoneMatrices", 0);
-        anim->Bind(0);
+        anim->BindBones(0);
 
         model->Draw(shader);
 
-        anim->UnBind();
+        anim->UnBindBones(0);
         shader->UnBind();
 
         app->LoopEndFrame(renderUI);

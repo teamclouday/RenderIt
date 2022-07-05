@@ -78,12 +78,12 @@ void Animator::UpdateAnimation(std::shared_ptr<Model> model)
     updateUniformBuffer();
 }
 
-void Animator::Bind(unsigned bindingID) const
+void Animator::BindBones(unsigned bindingID) const
 {
     _boneUBO->BindBase(bindingID);
 }
 
-void Animator::UnBind(unsigned bindingID) const
+void Animator::UnBindBones(unsigned bindingID) const
 {
     _boneUBO->UnBindBase(bindingID);
 }
