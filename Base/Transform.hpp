@@ -20,7 +20,7 @@ struct Transform
         SRT
     };
 
-    Transform(Type t = Type::SRT);
+    Transform(Type t = Type::TRS);
 
     Transform(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, Type t = Type::TRS);
 

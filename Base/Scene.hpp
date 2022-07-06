@@ -23,7 +23,7 @@ class Scene
     void AttachObject(std::shared_ptr<Model> model);
 
     /// Draw scene
-    void Draw(std::shared_ptr<Shader> shader) const;
+    void Draw(const Shader *shader) const;
 
     /// UI calls
     void UI();

@@ -23,13 +23,16 @@ class Animator
     void Update(float deltaSeconds);
 
     /// Read model animation & prepare bone matrices
-    void UpdateAnimation(std::shared_ptr<Model> model);
+    void UpdateAnimation(const Model *model);
 
     /// Bind bone matrices uniform buffer
     void BindBones(unsigned bindingID = 0) const;
 
     /// UnBind uniform buffer
     void UnBindBones(unsigned bindingID = 0) const;
+
+    /// Get reference to bone matrices
+    std::array<glm::mat4, ANIMATION_MAX_BONES> &AccessBoneMatrices();
 
   public:
     const std::string NAME = "Animator";

@@ -106,14 +106,14 @@ GLuint Shader::GetProgram() const
     return _program;
 }
 
-void Shader::ConfigMaterialTextures(std::shared_ptr<Material> mat) const
+void Shader::ConfigMaterialTextures(const Material *mat) const
 {
     if (!_compiled)
         return;
 
     // bind textures
     int texIdx = 0;
-    auto bindTexture = [&](std::shared_ptr<STexture> &tex, const std::string &name) {
+    auto bindTexture = [&](const std::shared_ptr<STexture> &tex, const std::string &name) {
         if (tex)
         {
             glActiveTexture(GL_TEXTURE0 + texIdx);

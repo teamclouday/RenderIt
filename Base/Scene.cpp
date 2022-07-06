@@ -19,7 +19,7 @@ void Scene::AttachObject(std::shared_ptr<Model> model)
     _models.insert(model);
 }
 
-void Scene::Draw(std::shared_ptr<Shader> shader) const
+void Scene::Draw(const Shader *shader) const
 {
     for (auto &m : _models)
         m->Draw(shader);

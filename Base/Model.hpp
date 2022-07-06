@@ -1,5 +1,6 @@
 #pragma once
 #include <assimp/postprocess.h>
+#include <assimp/scene.h>
 
 #include <memory>
 #include <optional>
@@ -37,10 +38,10 @@ class Model
     ~Model();
 
     /// Load from local file with assimp
-    bool Load(const std::string &path, unsigned flags = MODEL_LOAD_FLAGS);
+    bool Load(const std::string &path, unsigned flags = MODEL_LOAD_FLAGS, bool computeDynamicMeshBounds = true);
 
     /// Load gltf models from local file with tinygltf
-    bool LoadGLTF(const std::string &path);
+    bool LoadGLTF(const std::string &path, bool computeDynamicMeshBounds = true);
 
     /// Load with simple shape
     bool Load(MeshShape shape);
@@ -49,7 +50,7 @@ class Model
     bool LoadAnimation(const std::string &path);
 
     /// Draw all meshes
-    void Draw(std::shared_ptr<Shader> shader) const;
+    void Draw(const Shader *shader) const;
 
     /// Reset model data
     void Reset();
@@ -90,6 +91,15 @@ class Model
 
     /// Load texture from memory
     std::shared_ptr<STexture> LoadTexture(unsigned char *pixels, int width, int height, const std::string &name);
+
+    /// Update bounds of dynamic meshes (using Animator)
+    bool updateDynamicBounds(const aiScene *scene);
+
+    /// Load & add animations from scene
+    bool updateAnimations(const aiScene *scene);
+
+    /// Load animation tree from scene
+    bool loadAnimationTree(const aiScene *scene);
 
   private:
 #pragma region model_meshes

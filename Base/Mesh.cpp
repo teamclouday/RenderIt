@@ -15,11 +15,11 @@ Mesh::~Mesh()
     Reset();
 }
 
-void Mesh::Draw(std::shared_ptr<Shader> shader) const
+void Mesh::Draw(const Shader *shader) const
 {
     if (_mat)
     {
-        shader->ConfigMaterialTextures(_mat);
+        shader->ConfigMaterialTextures(_mat.get());
         if (_mat->twoSided)
             glDisable(GL_CULL_FACE);
         else
@@ -56,16 +56,17 @@ void Mesh::Load(const std::vector<Vertex> &vertices, const std::vector<unsigned>
     _vbo = std::make_unique<SBuffer>(GL_ARRAY_BUFFER);
     _ebo = std::make_unique<SBuffer>(GL_ELEMENT_ARRAY_BUFFER);
     _mat = material;
-    _indicesCount = static_cast<GLsizei>(indices.size());
+    _indicesCount = indices.size();
+    _verticesCount = vertices.size();
     _primType = primType;
 
     _vao->Bind();
 
     _vbo->Bind();
-    glBufferData(_vbo->type, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(_vbo->type, _verticesCount * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
     _ebo->Bind();
-    glBufferData(_ebo->type, indices.size() * sizeof(unsigned), indices.data(), GL_STATIC_DRAW);
+    glBufferData(_ebo->type, _indicesCount * sizeof(unsigned), indices.data(), GL_STATIC_DRAW);
 
     // position
     glEnableVertexAttribArray(0);
@@ -98,6 +99,31 @@ void Mesh::Reset()
     _vbo = nullptr;
     _ebo = nullptr;
     _mat = nullptr;
+}
+
+std::optional<GLuint> Mesh::GetVertexArray()
+{
+    return _vao ? _vao->Get() : std::optional<GLuint>{std::nullopt};
+}
+
+std::optional<GLuint> Mesh::GetVertexBuffer()
+{
+    return _vbo ? _vbo->Get() : std::optional<GLuint>{std::nullopt};
+}
+
+std::optional<GLuint> Mesh::GetIndexBuffer()
+{
+    return _ebo ? _ebo->Get() : std::optional<GLuint>{std::nullopt};
+}
+
+size_t Mesh::GetNumVertices() const
+{
+    return _verticesCount;
+}
+
+size_t Mesh::GetNumIndices() const
+{
+    return _indicesCount;
 }
 
 } // namespace RenderIt

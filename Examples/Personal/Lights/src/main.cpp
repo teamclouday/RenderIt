@@ -108,7 +108,7 @@ int main()
         if (doAnimation)
         {
             anim->Update(app->GetDeltaTime());
-            anim->UpdateAnimation(model);
+            anim->UpdateAnimation(model.get());
         }
 
         lights->Update();
@@ -134,7 +134,7 @@ int main()
         lights->BindLights(1);
         shader->UniformVec3("vec_CameraPosWS", cam->GetPosition());
 
-        model->Draw(shader);
+        model->Draw(shader.get());
 
         lights->UnBindLights(1);
         anim->UnBindBones(0);

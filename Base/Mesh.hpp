@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -32,7 +33,7 @@ class Mesh
     ~Mesh();
 
     /// Draw mesh data
-    void Draw(std::shared_ptr<Shader> shader) const;
+    void Draw(const Shader *shader) const;
 
     /// Load simple shape
     void Load(MeshShape shape);
@@ -43,6 +44,21 @@ class Mesh
 
     /// Reset mesh data
     void Reset();
+
+    /// Get vertex array
+    std::optional<GLuint> GetVertexArray();
+
+    /// Get vertex buffer
+    std::optional<GLuint> GetVertexBuffer();
+
+    /// Get index buffer
+    std::optional<GLuint> GetIndexBuffer();
+
+    /// Get number of vertices
+    size_t GetNumVertices() const;
+
+    /// Get number of indices
+    size_t GetNumIndices() const;
 
     /// UI calls
     void UI();
@@ -55,7 +71,7 @@ class Mesh
     std::unique_ptr<SBuffer> _vbo;
     std::unique_ptr<SBuffer> _ebo;
     std::shared_ptr<Material> _mat;
-    GLsizei _indicesCount;
+    size_t _indicesCount, _verticesCount;
     GLenum _primType;
 };
 

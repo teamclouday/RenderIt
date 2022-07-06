@@ -35,7 +35,7 @@ void Animator::Update(float deltaSeconds)
     _deltaT = deltaSeconds;
 }
 
-void Animator::UpdateAnimation(std::shared_ptr<Model> model)
+void Animator::UpdateAnimation(const Model *model)
 {
     if (!model->HasAnimation() || !_deltaT)
         return;
@@ -68,8 +68,8 @@ void Animator::UpdateAnimation(std::shared_ptr<Model> model)
         auto currT = parentT * nodeT;
         if (model->_boneInfo.count(boneName))
         {
-            auto matIdx = model->_boneInfo[boneName].first;
-            auto matOffset = model->_boneInfo[boneName].second;
+            auto matIdx = model->_boneInfo.at(boneName).first;
+            auto matOffset = model->_boneInfo.at(boneName).second;
             _boneMatrices[matIdx] = matOffset.has_value() ? currT * matOffset.value() : currT;
             maxMatIdx = std::max(maxMatIdx, matIdx);
         }
@@ -88,6 +88,11 @@ void Animator::BindBones(unsigned bindingID) const
 void Animator::UnBindBones(unsigned bindingID) const
 {
     _boneSSBO->UnBindBase(bindingID);
+}
+
+std::array<glm::mat4, ANIMATION_MAX_BONES> &Animator::AccessBoneMatrices()
+{
+    return _boneMatrices;
 }
 
 void Animator::updateSSBO(unsigned size)

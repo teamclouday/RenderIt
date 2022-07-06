@@ -116,7 +116,7 @@ int main()
         if (doAnimation)
         {
             anim->Update(app->GetDeltaTime());
-            anim->UpdateAnimation(model);
+            anim->UpdateAnimation(model.get());
         }
 
         // render
@@ -137,7 +137,7 @@ int main()
         shader->SsboBinding("BoneMatrices", 0);
         anim->BindBones(0);
 
-        model->Draw(shader);
+        model->Draw(shader.get());
 
         anim->UnBindBones(0);
         shader->UnBind();

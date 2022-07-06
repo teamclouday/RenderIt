@@ -57,10 +57,26 @@ void Transform::TransformToUnitOrigin(const Bounds &b)
     auto len = b.Diagonal();
     if (!b.IsValid() || !len)
         return;
-    // position
-    position = -b.center;
-    // scale
-    scale = glm::vec3(1.0f / len);
+    switch (type)
+    {
+    case Type::SRT: {
+        // position
+        position = -b.center;
+        // scale
+        scale = glm::vec3(1.0f / len);
+        break;
+    }
+    case Type::TRS:
+    default: {
+        float k = 1.0f / len;
+        // scale
+        scale = glm::vec3(k);
+        // position
+        position = -b.center * k;
+        break;
+    }
+    }
+
     UpdateMatrix();
 }
 

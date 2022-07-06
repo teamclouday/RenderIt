@@ -44,7 +44,7 @@ class Shader
     GLuint GetProgram() const;
 
     /// Configure material textures
-    void ConfigMaterialTextures(std::shared_ptr<Material> mat) const;
+    void ConfigMaterialTextures(const Material *mat) const;
 
 #pragma region uniform_methods
 

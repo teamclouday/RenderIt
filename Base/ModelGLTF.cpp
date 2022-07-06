@@ -29,7 +29,7 @@ namespace RenderIt
 // especially for gltf models
 // therefore we try tinygltf
 
-bool Model::LoadGLTF(const std::string &path)
+bool Model::LoadGLTF(const std::string &path, bool computeDynamicMeshBounds)
 {
     throw std::runtime_error("Model::LoadGLTF not implemented!");
 

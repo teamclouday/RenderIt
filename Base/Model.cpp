@@ -1,11 +1,10 @@
 #include "Model.hpp"
+#include "Animator.hpp"
 #include "Material.hpp"
 #include "Tools.hpp"
 #include "Vertex.hpp"
 
 #include <assimp/Importer.hpp>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
 #include <glm/glm.hpp>
 #include <stb_image.h>
 
@@ -22,7 +21,7 @@ namespace RenderIt
 {
 
 Model::Model()
-    : modelName(MODEL_NAME_DEFAULT), transform(Transform::Type::SRT), _animationActive(0), _animNodeRoot(nullptr),
+    : modelName(MODEL_NAME_DEFAULT), transform(Transform::Type::TRS), _animationActive(0), _animNodeRoot(nullptr),
       _parent(nullptr)
 {
 }
@@ -32,7 +31,7 @@ Model::~Model()
     Reset();
 }
 
-bool Model::Load(const std::string &path, unsigned flags)
+bool Model::Load(const std::string &path, unsigned flags, bool computeDynamicMeshBounds)
 {
     if (_meshes.size())
         Reset();
@@ -49,35 +48,8 @@ bool Model::Load(const std::string &path, unsigned flags)
     modelName = sceneName.length() > 0 ? sceneName : fs::path(path).filename().string();
 
     // prepare animations
-    if (scene->HasAnimations())
-    {
-        // read animation structure
-        std::queue<std::pair<aiNode *, std::shared_ptr<Animation::Node>>> animNodes;
-        animNodes.push({scene->mRootNode, nullptr});
-        while (!animNodes.empty())
-        {
-            // get next pair
-            auto data = animNodes.front();
-            animNodes.pop();
-            auto node = data.first;
-            auto animNodeParent = data.second;
-            // init current node
-            auto animNode = std::make_shared<Animation::Node>();
-            animNode->transform = Tools::convertAssimpMatrix(node->mTransformation);
-            animNode->name = node->mName.C_Str();
-            // add to parent node
-            if (!animNodeParent)
-                _animNodeRoot = animNode;
-            else
-                animNodeParent->children.push_back(animNode);
-            // solve children nodes
-            for (auto nodeIdx = 0; nodeIdx < node->mNumChildren; ++nodeIdx)
-                animNodes.push({node->mChildren[nodeIdx], animNode});
-        }
-        // load animatins
-        for (auto animIdx = 0; animIdx < scene->mNumAnimations; ++animIdx)
-            _animations.push_back(std::make_shared<Animation>(scene->mAnimations[animIdx], _boneInfo));
-    }
+    loadAnimationTree(scene);
+    updateAnimations(scene);
 
     // process nodes
     std::queue<std::tuple<aiNode *, int, glm::mat4, glm::mat4>> nodes;
@@ -302,6 +274,9 @@ bool Model::Load(const std::string &path, unsigned flags)
             nodes.push({node->mChildren[nodeIdx], nodeParentBoneID, nodeParentBoneT, nodeGlobalT});
     }
 
+    if (computeDynamicMeshBounds)
+        updateDynamicBounds(scene);
+
     bounds.Validate();
 
     return true;
@@ -330,36 +305,14 @@ bool Model::LoadAnimation(const std::string &path)
         return false;
 
     // read animation structure
-    std::queue<std::pair<aiNode *, std::shared_ptr<Animation::Node>>> animNodes;
-    animNodes.push({scene->mRootNode, nullptr});
-    while (!animNodes.empty())
-    {
-        // get next pair
-        auto data = animNodes.front();
-        animNodes.pop();
-        auto node = data.first;
-        auto animNodeParent = data.second;
-        // init current node
-        auto animNode = std::make_shared<Animation::Node>();
-        animNode->transform = Tools::convertAssimpMatrix(node->mTransformation);
-        animNode->name = node->mName.C_Str();
-        // add to parent node
-        if (!animNodeParent)
-            _animNodeRoot = animNode;
-        else
-            animNodeParent->children.push_back(animNode);
-        // solve children nodes
-        for (auto nodeIdx = 0; nodeIdx < node->mNumChildren; ++nodeIdx)
-            animNodes.push({node->mChildren[nodeIdx], animNode});
-    }
+    loadAnimationTree(scene);
     // load animatins
-    for (auto animIdx = 0; animIdx < scene->mNumAnimations; ++animIdx)
-        _animations.push_back(std::make_shared<Animation>(scene->mAnimations[animIdx], _boneInfo));
+    updateAnimations(scene);
 
     return true;
 }
 
-void Model::Draw(std::shared_ptr<Shader> shader) const
+void Model::Draw(const Shader *shader) const
 {
     for (auto &mesh : _meshes)
         mesh->Draw(shader);
@@ -491,6 +444,83 @@ std::shared_ptr<STexture> Model::LoadTexture(unsigned char *pixels, int width, i
 
     stbi_image_free(data);
     return _textures[name] = tex;
+}
+
+bool Model::updateDynamicBounds(const aiScene *scene)
+{
+    if (!scene->HasAnimations() || _animations.empty() || _meshes.empty())
+        return false;
+    // first let animator play full animation
+    auto anim = Animator::Instance();
+    anim->Update(_animations[_animationActive]->duration);
+    anim->UpdateAnimation(this);
+    // read access bones
+    auto boneMatrices = anim->AccessBoneMatrices();
+    // iterate meshes & read transformed data
+    for (auto &mesh : _meshes)
+    {
+        auto VBO = mesh->GetVertexBuffer();
+        if (!VBO.has_value())
+            continue;
+        auto vertexCount = mesh->GetNumVertices();
+        // map vertices
+        auto dataPtr = reinterpret_cast<Vertex *>(glMapNamedBuffer(VBO.value(), GL_READ_ONLY));
+        for (auto vertexIdx = 0; vertexIdx < vertexCount; vertexIdx++, dataPtr++)
+        {
+            auto pos = (*dataPtr).position;
+            auto boneIDs = (*dataPtr).boneIDs;
+            auto boneWs = (*dataPtr).boneWeights;
+            // check if has bone
+            if (boneWs[0] + boneWs[1] + boneWs[2] + boneWs[3])
+            {
+                auto mat = glm::mat4(0.0f);
+                for (auto i = 0; i < 4; i++)
+                    mat += boneMatrices[boneIDs[i]] * boneWs[i];
+                bounds.Update(Tools::matrixMultiplyPoint(mat, pos));
+            }
+        }
+        glUnmapNamedBuffer(VBO.value());
+    }
+    anim->Update(0.0f);
+    return true;
+}
+
+bool Model::updateAnimations(const aiScene *scene)
+{
+    if (!scene || !scene->HasAnimations())
+        return false;
+    for (auto animIdx = 0; animIdx < scene->mNumAnimations; ++animIdx)
+        _animations.push_back(std::make_shared<Animation>(scene->mAnimations[animIdx], _boneInfo));
+    return true;
+}
+
+bool Model::loadAnimationTree(const aiScene *scene)
+{
+    if (!scene || _animNodeRoot)
+        return false;
+    std::queue<std::pair<aiNode *, std::shared_ptr<Animation::Node>>> animNodes;
+    animNodes.push({scene->mRootNode, nullptr});
+    while (!animNodes.empty())
+    {
+        // get next pair
+        auto data = animNodes.front();
+        animNodes.pop();
+        auto node = data.first;
+        auto animNodeParent = data.second;
+        // init current node
+        auto animNode = std::make_shared<Animation::Node>();
+        animNode->transform = Tools::convertAssimpMatrix(node->mTransformation);
+        animNode->name = node->mName.C_Str();
+        // add to parent node
+        if (!animNodeParent)
+            _animNodeRoot = animNode;
+        else
+            animNodeParent->children.push_back(animNode);
+        // solve children nodes
+        for (auto nodeIdx = 0; nodeIdx < node->mNumChildren; ++nodeIdx)
+            animNodes.push({node->mChildren[nodeIdx], animNode});
+    }
+    return true;
 }
 
 } // namespace RenderIt

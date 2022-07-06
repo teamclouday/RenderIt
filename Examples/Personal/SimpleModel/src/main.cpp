@@ -107,7 +107,7 @@ int main()
         shader->UniformMat4("mat_ProjView", mProj * mView);
         shader->UniformVec3("vec_cameraPos", cam->GetPosition());
 
-        model->Draw(shader);
+        model->Draw(shader.get());
         shader->UnBind();
 
         app->LoopEndFrame(renderUI);
