@@ -2,6 +2,8 @@
 
 #include <glm/glm.hpp>
 
+/** @file */
+
 namespace RenderIt
 {
 

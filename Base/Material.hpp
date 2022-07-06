@@ -6,6 +6,7 @@
 #include "GLStructs.hpp"
 
 /** @file */
+
 namespace RenderIt
 {
 

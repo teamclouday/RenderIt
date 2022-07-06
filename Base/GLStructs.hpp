@@ -116,7 +116,7 @@ struct STexture
     GLenum type;
 };
 
-// Structure for Frame Buffer Object (FBO)
+/// Structure for Frame Buffer Object (FBO)
 struct SFBO
 {
     SFBO(size_t size = 1)

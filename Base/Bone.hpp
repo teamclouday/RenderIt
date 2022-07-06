@@ -9,9 +9,12 @@
 
 #include "Transform.hpp"
 
+/** @file */
+
 namespace RenderIt
 {
 
+/// Bone definition
 struct Bone
 {
     Bone(const std::string &boneName, unsigned boneID, const aiNodeAnim *animNode);
@@ -28,7 +31,7 @@ struct Bone
     /// Interpolate to get scale
     glm::vec3 InterpolateScale(float time);
 
-    // Interpolate between prev, next, and current time
+    /// Interpolate between prev, next, and current time
     float Interpolate(float prevTime, float nextTime, float currTime);
 
     std::vector<std::pair<glm::vec3, float>> positions;

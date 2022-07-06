@@ -13,7 +13,7 @@ namespace RenderIt
 /// Transform info
 struct Transform
 {
-    // Define combination types for computing matrix
+    /// Transform matrix combination order
     enum class Type
     {
         TRS,

@@ -14,6 +14,8 @@
 #define LIGHTS_MAX_SPOT_LIGHTS 4
 #define LIGHTS_SHADOW_MAP_SIZE 256
 
+/** @file */
+
 namespace RenderIt
 {
 
@@ -80,6 +82,7 @@ struct SpotLight
     int castShadow;
 };
 
+/// Light type
 enum class LightType
 {
     Directional,
@@ -95,34 +98,45 @@ class LightManager
   public:
     LightManager();
 
+    /// Get instance
     static std::shared_ptr<LightManager> Instance();
 
+    /// Update light data (SSBO)
     void Update(bool updateAllLights = false);
 
+    /// Bind light data
     void BindLights(unsigned binding = 0) const;
 
+    /// Unbine light data
     void UnBindLights(unsigned binding = 0) const;
 
+    /// Push new light of given type
     bool PushLight(LightType type);
 
+    /// Pop last light of type
     bool PopLight(LightType type);
 
+    /// Remove light at index
     bool RemoveLight(LightType type, unsigned idx);
 
     // IMPORTANT: this method provides reference, but SSBOs won't auto-update
     // To update SSBOs, please Update(updateAllLights = true)
 
+    /// Get light at index
     template <typename T> std::optional<T &> GetLight(LightType type, unsigned idx);
 
+    /// Get number of lights of type
     size_t GetNumLights(LightType type) const;
 
+    /// UI calls
     void UI();
 
   public:
     const std::string NAME = "LightManager";
 
   private:
-    void updateSSBOs();
+    /// Update lights SSBO
+    void updateSSBO();
 
   private:
     // light data

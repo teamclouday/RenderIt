@@ -33,7 +33,7 @@ void LightManager::Update(bool updateAllLights)
     _dirLightsSSBOUpdated &= !updateAllLights;
     _pointLightsSSBOUpdated &= !updateAllLights;
     _spotLightsSSBOUpdated &= !updateAllLights;
-    updateSSBOs();
+    updateSSBO();
 }
 
 void LightManager::BindLights(unsigned binding) const
@@ -200,7 +200,7 @@ size_t LightManager::GetNumLights(LightType type) const
     }
 }
 
-void LightManager::updateSSBOs()
+void LightManager::updateSSBO()
 {
     if (!_dirLightsSSBOUpdated)
     {

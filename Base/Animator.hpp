@@ -8,9 +8,12 @@
 #include "GLStructs.hpp"
 #include "Model.hpp"
 
+/** @file */
+
 namespace RenderIt
 {
 
+/// Animator that updates bones
 class Animator
 {
   public:
