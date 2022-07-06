@@ -12,7 +12,6 @@
 #include "Material.hpp"
 #include "Mesh.hpp"
 #include "Model.hpp"
-#include "Renderer.hpp"
 #include "Scene.hpp"
 #include "Shader.hpp"
 #include "Transform.hpp"
