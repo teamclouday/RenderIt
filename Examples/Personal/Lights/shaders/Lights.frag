@@ -119,7 +119,7 @@ void ComputeDirLight(DirLight light, vec3 normDir, vec3 viewDir, out float diff,
     // diffuse
     diff = max(dot(normDir, lightDir), 0.0);
     // specular
-    spec = pow(max(dot(reflect(-lightDir, normDir), viewDir), 0.0), val_SHININESS);
+    spec = val_SHININESS > 0.0 ? pow(max(dot(reflect(-lightDir, normDir), viewDir), 0.0), val_SHININESS) : 0.0;
 }
 
 float ComputeLightAttenuation(float range, vec3 fragToLight)
@@ -139,7 +139,7 @@ void ComputePointLight(PointLight light, vec3 normDir, vec3 viewDir, vec3 fragPo
     // diffuse
     diff = max(dot(normDir, lightDir), 0.0);
     // specular
-    spec = pow(max(dot(reflect(-lightDir, normDir), viewDir), 0.0), val_SHININESS);
+    spec = val_SHININESS > 0.0 ? pow(max(dot(reflect(-lightDir, normDir), viewDir), 0.0), val_SHININESS) : 0.0;
     // attenuation
     atten = ComputeLightAttenuation(light.range, fragToLight);
 }
@@ -153,7 +153,7 @@ void ComputeSpotLight(SpotLight light, vec3 normDir, vec3 viewDir, vec3 fragPos,
     // diffuse
     diff = max(dot(normDir, toLight), 0.0);
     // specular
-    spec = pow(max(dot(reflect(-toLight, normDir), viewDir), 0.0), val_SHININESS);
+    spec = val_SHININESS > 0.0 ? pow(max(dot(reflect(-toLight, normDir), viewDir), 0.0), val_SHININESS) : 0.0;
     // compute intensity
     float theta = dot(toLight, -lightDir);
     atten = clamp((theta - light.cutoff) / 0.09, 0.0, 1.0) * ComputeLightAttenuation(light.range, fragToLight);
