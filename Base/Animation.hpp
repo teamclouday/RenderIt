@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -24,7 +25,8 @@ struct Animation
         std::vector<std::shared_ptr<Node>> children;
     };
 
-    Animation(const aiAnimation *anim, std::unordered_map<std::string, std::pair<unsigned, glm::mat4>> &infoMap);
+    Animation(const aiAnimation *anim,
+              std::unordered_map<std::string, std::pair<unsigned, std::optional<glm::mat4>>> &infoMap);
 
     bool HasBone(const std::string &name) const;
 

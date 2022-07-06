@@ -2,6 +2,7 @@
 #include <assimp/postprocess.h>
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -105,7 +106,7 @@ class Model
     // animations
     std::vector<std::shared_ptr<Animation>> _animations;
     // map bone name -> (bone ID, transform matrix)
-    std::unordered_map<std::string, std::pair<unsigned, glm::mat4>> _boneInfo;
+    std::unordered_map<std::string, std::pair<unsigned, std::optional<glm::mat4>>> _boneInfo;
     // animation node
     std::shared_ptr<Animation::Node> _animNodeRoot;
 

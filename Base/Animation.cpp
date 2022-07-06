@@ -5,7 +5,8 @@
 namespace RenderIt
 {
 
-Animation::Animation(const aiAnimation *anim, std::unordered_map<std::string, std::pair<unsigned, glm::mat4>> &infoMap)
+Animation::Animation(const aiAnimation *anim,
+                     std::unordered_map<std::string, std::pair<unsigned, std::optional<glm::mat4>>> &infoMap)
 {
     assert(anim);
     duration = anim->mDuration;
@@ -21,7 +22,7 @@ Animation::Animation(const aiAnimation *anim, std::unordered_map<std::string, st
         if (!infoMap.count(boneName))
         {
             unsigned boneID = infoMap.size();
-            infoMap[boneName] = {boneID, glm::mat4(1.0f)};
+            infoMap[boneName] = {boneID, std::nullopt};
         }
         // assert no overwrite
         assert(!bones.count(boneName));

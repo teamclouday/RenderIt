@@ -16,6 +16,7 @@
 #include <cassert>
 #include <filesystem>
 #include <queue>
+#include <stdexcept>
 
 namespace fs = std::filesystem;
 
@@ -30,6 +31,8 @@ namespace RenderIt
 
 bool Model::LoadGLTF(const std::string &path)
 {
+    throw std::runtime_error("Model::LoadGLTF not implemented!");
+
     if (_meshes.size())
         Reset();
 

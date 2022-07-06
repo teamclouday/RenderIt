@@ -27,6 +27,9 @@ struct Transform
     /// Update model matrix
     void UpdateMatrix();
 
+    /// Reset to default values
+    void Reset();
+
     /// Given model bounds, compute transformation for unit square around origin
     void TransformToUnitOrigin(const Bounds &b);
 

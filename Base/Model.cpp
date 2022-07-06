@@ -12,6 +12,7 @@
 #include <cassert>
 #include <filesystem>
 #include <queue>
+#include <tuple>
 
 namespace fs = std::filesystem;
 
@@ -47,17 +48,61 @@ bool Model::Load(const std::string &path, unsigned flags)
     auto sceneName = std::string(scene->mName.C_Str());
     modelName = sceneName.length() > 0 ? sceneName : fs::path(path).filename().string();
 
-    //! Temp fix: pre-transform if no animation
-    if (!scene->HasAnimations())
-        importer.ApplyPostProcessing(aiProcess_PreTransformVertices);
+    // prepare animations
+    if (scene->HasAnimations())
+    {
+        // read animation structure
+        std::queue<std::pair<aiNode *, std::shared_ptr<Animation::Node>>> animNodes;
+        animNodes.push({scene->mRootNode, nullptr});
+        while (!animNodes.empty())
+        {
+            // get next pair
+            auto data = animNodes.front();
+            animNodes.pop();
+            auto node = data.first;
+            auto animNodeParent = data.second;
+            // init current node
+            auto animNode = std::make_shared<Animation::Node>();
+            animNode->transform = Tools::convertAssimpMatrix(node->mTransformation);
+            animNode->name = node->mName.C_Str();
+            // add to parent node
+            if (!animNodeParent)
+                _animNodeRoot = animNode;
+            else
+                animNodeParent->children.push_back(animNode);
+            // solve children nodes
+            for (auto nodeIdx = 0; nodeIdx < node->mNumChildren; ++nodeIdx)
+                animNodes.push({node->mChildren[nodeIdx], animNode});
+        }
+        // load animatins
+        for (auto animIdx = 0; animIdx < scene->mNumAnimations; ++animIdx)
+            _animations.push_back(std::make_shared<Animation>(scene->mAnimations[animIdx], _boneInfo));
+    }
 
     // process nodes
-    std::queue<aiNode *> nodes;
-    nodes.push(scene->mRootNode);
+    std::queue<std::tuple<aiNode *, int, glm::mat4, glm::mat4>> nodes;
+    nodes.push({scene->mRootNode, -1, glm::mat4(1.0f), glm::mat4(1.0f)});
     while (!nodes.empty())
     {
-        auto node = nodes.front();
+        auto data = nodes.front();
+        // current node
+        auto node = std::get<0>(data);
+        // parent node that has bone ID, but without mesh, -1 if invalid
+        auto nodeParentBoneID = std::get<1>(data);
+        // relative transform from nodeParentBoneID
+        auto nodeParentBoneT = std::get<2>(data);
+        // global transform
+        auto nodeGlobalT = std::get<3>(data);
         nodes.pop();
+
+        auto nodeName = std::string(node->mName.C_Str());
+        auto nodeHasMesh = node->mNumMeshes > 0;
+        auto nodeHasBoneInTree = _boneInfo.count(nodeName) > 0;
+        auto nodeCurrT = Tools::convertAssimpMatrix(node->mTransformation);
+
+        nodeGlobalT = nodeGlobalT * nodeCurrT;
+        nodeParentBoneT = nodeParentBoneT * nodeCurrT;
+
         // create meshes
         for (auto meshIdx = 0; meshIdx < node->mNumMeshes; ++meshIdx)
         {
@@ -85,11 +130,31 @@ bool Model::Load(const std::string &path, unsigned flags)
                                      : glm::vec3(0.0f);
                 auto defaultBoneID = glm::uvec4(0);
                 auto defaultBoneWeights = glm::vec4(0.0f);
+
+                // transform mesh if no bone attached
+                if (!mesh->mNumBones)
+                {
+                    // if parent bone exist, use relative transform
+                    if (nodeParentBoneID >= 0)
+                    {
+                        position = Tools::matrixMultiplyPoint(nodeParentBoneT, position);
+                        normal = Tools::matrixMultiplyVector(nodeParentBoneT, normal);
+                        tangent = Tools::matrixMultiplyVector(nodeParentBoneT, tangent);
+                        bitangent = Tools::matrixMultiplyVector(nodeParentBoneT, bitangent);
+                    }
+                    else
+                    {
+                        position = Tools::matrixMultiplyPoint(nodeGlobalT, position);
+                        normal = Tools::matrixMultiplyVector(nodeGlobalT, normal);
+                        tangent = Tools::matrixMultiplyVector(nodeGlobalT, tangent);
+                        bitangent = Tools::matrixMultiplyVector(nodeGlobalT, bitangent);
+                        // update bounds for static meshes
+                        bounds.Update(position);
+                    }
+                }
+
                 vertices.push_back(
                     {position, normal, texcoords, tangent, bitangent, defaultBoneID, defaultBoneWeights});
-
-                // update bounds
-                bounds.Update(position);
             }
 
             // indices data
@@ -176,7 +241,11 @@ bool Model::Load(const std::string &path, unsigned flags)
                     _boneInfo[boneName] = {boneID, Tools::convertAssimpMatrix(mesh->mBones[boneIdx]->mOffsetMatrix)};
                 }
                 else
+                {
                     boneID = _boneInfo[boneName].first;
+                    if (!_boneInfo[boneName].second.has_value())
+                        _boneInfo[boneName].second = Tools::convertAssimpMatrix(mesh->mBones[boneIdx]->mOffsetMatrix);
+                }
                 assert(boneID >= 0);
 
                 auto weights = mesh->mBones[boneIdx]->mWeights;
@@ -200,47 +269,40 @@ bool Model::Load(const std::string &path, unsigned flags)
                 }
             }
 
+            // map bone ID if parent (bone, no mesh) & curr node (no bone, mesh)
+            if (nodeParentBoneID >= 0 && !mesh->mNumBones)
+            {
+                auto boneID = static_cast<unsigned>(nodeParentBoneID);
+                for (auto &vertex : vertices)
+                {
+                    vertex.boneIDs[0] = boneID;
+                    vertex.boneWeights[0] = 1.0f;
+                }
+            }
+
             newMesh->Load(vertices, indices, material, GL_TRIANGLES);
         }
+
+        if (nodeHasBoneInTree)
+        {
+            if (!nodeHasMesh)
+            {
+                nodeParentBoneID = static_cast<int>(_boneInfo[nodeName].first);
+                nodeParentBoneT = glm::mat4(1.0f);
+            }
+            else
+            {
+                nodeParentBoneID = -1;
+                nodeParentBoneT = nodeGlobalT;
+            }
+        }
+
         // add sub nodes
         for (auto nodeIdx = 0; nodeIdx < node->mNumChildren; ++nodeIdx)
-            nodes.push(node->mChildren[nodeIdx]);
+            nodes.push({node->mChildren[nodeIdx], nodeParentBoneID, nodeParentBoneT, nodeGlobalT});
     }
 
-    // prepare animations
-    if (scene->HasAnimations())
-    {
-        // read animation structure
-        std::queue<std::pair<aiNode *, std::shared_ptr<Animation::Node>>> animNodes;
-        animNodes.push({scene->mRootNode, nullptr});
-        while (!animNodes.empty())
-        {
-            // get next pair
-            auto data = animNodes.front();
-            animNodes.pop();
-            auto node = data.first;
-            auto animNodeParent = data.second;
-            // init current node
-            auto animNode = std::make_shared<Animation::Node>();
-            animNode->transform = Tools::convertAssimpMatrix(node->mTransformation);
-            animNode->name = node->mName.C_Str();
-            // a fix for wierd model scaling near root level
-            // neutralize scales for root node & its direct children
-            if (!_animNodeRoot || animNodeParent == _animNodeRoot)
-                Tools::neutralizeTRSMatrixScale(animNode->transform);
-            // add to parent node
-            if (!animNodeParent)
-                _animNodeRoot = animNode;
-            else
-                animNodeParent->children.push_back(animNode);
-            // solve children nodes
-            for (auto nodeIdx = 0; nodeIdx < node->mNumChildren; ++nodeIdx)
-                animNodes.push({node->mChildren[nodeIdx], animNode});
-        }
-        // load animatins
-        for (auto animIdx = 0; animIdx < scene->mNumAnimations; ++animIdx)
-            _animations.push_back(std::make_shared<Animation>(scene->mAnimations[animIdx], _boneInfo));
-    }
+    bounds.Validate();
 
     return true;
 }
@@ -281,9 +343,6 @@ bool Model::LoadAnimation(const std::string &path)
         auto animNode = std::make_shared<Animation::Node>();
         animNode->transform = Tools::convertAssimpMatrix(node->mTransformation);
         animNode->name = node->mName.C_Str();
-        // neutralize scales for root node & its direct children
-        if (!_animNodeRoot || animNodeParent == _animNodeRoot)
-            Tools::neutralizeTRSMatrixScale(animNode->transform);
         // add to parent node
         if (!animNodeParent)
             _animNodeRoot = animNode;

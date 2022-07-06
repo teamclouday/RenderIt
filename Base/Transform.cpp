@@ -44,6 +44,14 @@ void Transform::UpdateMatrix()
     matrixInv = glm::inverse(matrix);
 }
 
+void Transform::Reset()
+{
+    position = glm::vec3(0.0f);
+    rotation = glm::vec3(0.0f);
+    scale = glm::vec3(1.0f);
+    UpdateMatrix();
+}
+
 void Transform::TransformToUnitOrigin(const Bounds &b)
 {
     auto len = b.Diagonal();

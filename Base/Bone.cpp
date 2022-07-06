@@ -70,6 +70,9 @@ Bone::Bone(const std::string &boneName, unsigned boneID, const aiNodeAnim *animN
                   return v1.second < v2.second;
               });
     duplicates.clear();
+
+    // init matrix
+    Update(0.0f);
 }
 
 void Bone::Update(float time)

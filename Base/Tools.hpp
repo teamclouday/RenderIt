@@ -71,6 +71,12 @@ struct Tools
 
     /// Neutralize transformation matrix scale (assuming TRS)
     static void neutralizeTRSMatrixScale(glm::mat4 &mat);
+
+    /// Multiply a matrix with a positional vector
+    static glm::vec3 matrixMultiplyPoint(const glm::mat4 &mat, const glm::vec3 &v);
+
+    /// Multiply a matrix with a directional vector
+    static glm::vec3 matrixMultiplyVector(const glm::mat4 &mat, const glm::vec3 &v);
 };
 
 } // namespace RenderIt

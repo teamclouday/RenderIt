@@ -70,7 +70,7 @@ void Animator::UpdateAnimation(std::shared_ptr<Model> model)
         {
             auto matIdx = model->_boneInfo[boneName].first;
             auto matOffset = model->_boneInfo[boneName].second;
-            _boneMatrices[matIdx] = currT * matOffset;
+            _boneMatrices[matIdx] = matOffset.has_value() ? currT * matOffset.value() : currT;
             maxMatIdx = std::max(maxMatIdx, matIdx);
         }
         // recurse

@@ -46,6 +46,16 @@ bool Bounds::IsValid() const
     return valid;
 }
 
+void Bounds::Validate()
+{
+    if (IsValid())
+        return;
+    // if not valid, set to default values
+    max = glm::vec3(0.0f);
+    min = glm::vec3(0.0f);
+    center = glm::vec3(0.0f);
+}
+
 std::ostream &operator<<(std::ostream &os, const Bounds &b)
 {
     os << "B(" << b.max << "|" << b.min << "|" << b.center << ")";

@@ -26,6 +26,9 @@ struct Bounds
     /// Check if bounding is valid
     bool IsValid() const;
 
+    /// Check & convert to valid values
+    void Validate();
+
     friend std::ostream &operator<<(std::ostream &os, const Bounds &b);
 
     glm::vec3 max;

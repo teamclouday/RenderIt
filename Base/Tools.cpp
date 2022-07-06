@@ -248,4 +248,14 @@ void Tools::neutralizeTRSMatrixScale(glm::mat4 &mat)
     mat[2] = glm::normalize(mat[2]);
 }
 
+glm::vec3 Tools::matrixMultiplyPoint(const glm::mat4 &mat, const glm::vec3 &v)
+{
+    return glm::vec3(mat * glm::vec4(v, 1.0f));
+}
+
+glm::vec3 Tools::matrixMultiplyVector(const glm::mat4 &mat, const glm::vec3 &v)
+{
+    return glm::vec3(mat * glm::vec4(v, 0.0f));
+}
+
 } // namespace RenderIt
