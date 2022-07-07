@@ -18,7 +18,7 @@ Bone::Bone(const std::string &boneName, unsigned boneID, const aiNodeAnim *animN
     std::unordered_set<float> duplicates;
 
     assert(animNode->mNumPositionKeys);
-    for (auto i = 0; i < animNode->mNumPositionKeys; ++i)
+    for (auto i = 0u; i < animNode->mNumPositionKeys; ++i)
     {
         auto position = animNode->mPositionKeys[i].mValue;
         auto timestamp = static_cast<float>(std::abs(animNode->mPositionKeys[i].mTime));
@@ -36,7 +36,7 @@ Bone::Bone(const std::string &boneName, unsigned boneID, const aiNodeAnim *animN
     duplicates.clear();
 
     assert(animNode->mNumRotationKeys);
-    for (auto i = 0; i < animNode->mNumRotationKeys; ++i)
+    for (auto i = 0u; i < animNode->mNumRotationKeys; ++i)
     {
         auto rotation = animNode->mRotationKeys[i].mValue;
         auto timestamp = static_cast<float>(std::abs(animNode->mRotationKeys[i].mTime));
@@ -54,7 +54,7 @@ Bone::Bone(const std::string &boneName, unsigned boneID, const aiNodeAnim *animN
     duplicates.clear();
 
     assert(animNode->mNumScalingKeys);
-    for (auto i = 0; i < animNode->mNumScalingKeys; ++i)
+    for (auto i = 0u; i < animNode->mNumScalingKeys; ++i)
     {
         auto scale = animNode->mScalingKeys[i].mValue;
         auto timestamp = static_cast<float>(std::abs(animNode->mScalingKeys[i].mTime));

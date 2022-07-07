@@ -208,7 +208,7 @@ void LightManager::updateSSBO()
         _lightsSSBO->Bind();
         auto sizePtr = reinterpret_cast<unsigned *>(
             glMapBufferRange(_lightsSSBO->type, offset, sizeof(unsigned), GL_MAP_WRITE_BIT));
-        *sizePtr = _dirLights.size();
+        *sizePtr = static_cast<unsigned>(_dirLights.size());
         glUnmapBuffer(_lightsSSBO->type);
         if (!_dirLights.empty())
         {
@@ -226,7 +226,7 @@ void LightManager::updateSSBO()
         _lightsSSBO->Bind();
         auto sizePtr = reinterpret_cast<unsigned *>(
             glMapBufferRange(_lightsSSBO->type, offset, sizeof(unsigned), GL_MAP_WRITE_BIT));
-        *sizePtr = _pointLights.size();
+        *sizePtr = static_cast<unsigned>(_pointLights.size());
         glUnmapBuffer(_lightsSSBO->type);
         if (!_pointLights.empty())
         {
@@ -245,7 +245,7 @@ void LightManager::updateSSBO()
         _lightsSSBO->Bind();
         auto sizePtr = reinterpret_cast<unsigned *>(
             glMapBufferRange(_lightsSSBO->type, offset, sizeof(unsigned), GL_MAP_WRITE_BIT));
-        *sizePtr = _spotLights.size();
+        *sizePtr = static_cast<unsigned>(_spotLights.size());
         glUnmapBuffer(_lightsSSBO->type);
         if (!_spotLights.empty())
         {

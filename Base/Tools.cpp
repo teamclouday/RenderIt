@@ -25,16 +25,20 @@ void Tools::display_message(const std::string &title, const std::string &message
 {
     switch (type)
     {
-    case MessageType::INFO:
+    case MessageType::INFO: {
         std::cout << "I[" << termcolor::green << title << termcolor::reset << "]: " << message << '\n';
         break;
-    case MessageType::WARN:
+    }
+    case MessageType::WARN: {
         std::cout << "W[" << termcolor::yellow << title << termcolor::reset << "]: " << message << '\n';
         break;
+    }
     case MessageType::ERROR:
+    default: {
         std::cout << "E[" << termcolor::red << termcolor::blink << title << termcolor::reset << "]: " << message
                   << '\n';
         break;
+    }
     }
 }
 

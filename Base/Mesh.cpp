@@ -27,7 +27,7 @@ void Mesh::Draw(const Shader *shader) const
     }
     glActiveTexture(GL_TEXTURE0);
     _vao->Bind();
-    glDrawElements(_primType, _indicesCount, GL_UNSIGNED_INT, 0);
+    glDrawElements(_primType, static_cast<GLsizei>(_indicesCount), GL_UNSIGNED_INT, 0);
     _vao->UnBind();
 }
 

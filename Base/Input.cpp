@@ -176,8 +176,8 @@ void InputManager::handle_glfw_wheel(double xoffset, double yoffset)
     LOCKIT
     if (_resetMouseWheel)
     {
-        _wheelData[0] = xoffset;
-        _wheelData[1] = yoffset;
+        _wheelData[0] = static_cast<float>(xoffset);
+        _wheelData[1] = static_cast<float>(yoffset);
         _resetMouseWheel = false;
     }
     else

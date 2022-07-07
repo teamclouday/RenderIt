@@ -9,19 +9,19 @@ Animation::Animation(const aiAnimation *anim,
                      std::unordered_map<std::string, std::pair<unsigned, std::optional<glm::mat4>>> &infoMap)
 {
     assert(anim);
-    duration = anim->mDuration;
+    duration = static_cast<float>(anim->mDuration);
     ticksPerSecond = !anim->mTicksPerSecond ? 1.0f : static_cast<float>(anim->mTicksPerSecond);
     currTime = 0.0f;
     name = anim->mName.C_Str();
     assert(duration > 0.0f);
     // collect bones
-    for (auto channelIdx = 0; channelIdx < anim->mNumChannels; ++channelIdx)
+    for (auto channelIdx = 0u; channelIdx < anim->mNumChannels; ++channelIdx)
     {
         auto channel = anim->mChannels[channelIdx];
         std::string boneName = channel->mNodeName.C_Str();
         if (!infoMap.count(boneName))
         {
-            unsigned boneID = infoMap.size();
+            unsigned boneID = static_cast<unsigned>(infoMap.size());
             infoMap[boneName] = {boneID, std::nullopt};
         }
         // assert no overwrite
