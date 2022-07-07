@@ -43,6 +43,7 @@ set(EXAMPLES
     SimpleModel
     Animation
     Lights
+    Mandelbulb
 )
 
 buildExamples()
