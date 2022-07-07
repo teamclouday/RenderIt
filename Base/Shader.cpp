@@ -3,8 +3,6 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include <cassert>
-
 namespace RenderIt
 {
 

@@ -1,6 +1,5 @@
 #include "RenderIt.hpp"
 
-#include <cassert>
 #include <memory>
 
 using namespace RenderIt;
@@ -33,8 +32,8 @@ int main()
     auto shader = std::make_shared<Shader>();
     shader->AddSource(vertShader, GL_VERTEX_SHADER);
     shader->AddSource(fragShader, GL_FRAGMENT_SHADER);
-    shader->Compile();
-    assert(shader->IsCompiled());
+    if (!shader->Compile())
+        return -1;
 
     // clang-format off
     float vertexData[] {

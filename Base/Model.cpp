@@ -8,7 +8,6 @@
 #include <glm/glm.hpp>
 #include <stb_image.h>
 
-#include <cassert>
 #include <filesystem>
 #include <queue>
 #include <tuple>
@@ -133,7 +132,13 @@ bool Model::Load(const std::string &path, unsigned flags, bool computeDynamicMes
             for (auto faceIdx = 0u; faceIdx < mesh->mNumFaces; ++faceIdx)
             {
                 auto face = mesh->mFaces[faceIdx];
-                assert(face.mNumIndices == 3);
+                if (face.mNumIndices != 3)
+                {
+                    Tools::display_message(
+                        NAME, "invalid number of vertices on a face (" + std::to_string(face.mNumIndices) + ")",
+                        Tools::MessageType::WARN);
+                    continue;
+                }
                 indices.push_back(face.mIndices[0]);
                 indices.push_back(face.mIndices[1]);
                 indices.push_back(face.mIndices[2]);
@@ -218,7 +223,6 @@ bool Model::Load(const std::string &path, unsigned flags, bool computeDynamicMes
                     if (!_boneInfo[boneName].second.has_value())
                         _boneInfo[boneName].second = Tools::convertAssimpMatrix(mesh->mBones[boneIdx]->mOffsetMatrix);
                 }
-                assert(boneID >= 0);
 
                 auto weights = mesh->mBones[boneIdx]->mWeights;
                 auto numWeights = mesh->mBones[boneIdx]->mNumWeights;
@@ -226,7 +230,13 @@ bool Model::Load(const std::string &path, unsigned flags, bool computeDynamicMes
                 for (auto weightIdx = 0u; weightIdx < numWeights; ++weightIdx)
                 {
                     auto vertexId = weights[weightIdx].mVertexId;
-                    assert(vertexId <= vertices.size());
+                    if (vertexId >= vertices.size())
+                    {
+                        Tools::display_message(
+                            NAME, "invalid vertex index for bone weight (" + std::to_string(vertexId) + ")",
+                            Tools::MessageType::WARN);
+                        continue;
+                    }
                     // set vertex info
                     auto &vertex = vertices[vertexId];
                     for (auto i = 0; i < 4; ++i)

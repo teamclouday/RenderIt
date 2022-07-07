@@ -3,7 +3,6 @@
 
 #include <imgui.h>
 
-#include <cassert>
 #include <memory>
 
 using namespace RenderIt;
@@ -52,7 +51,8 @@ int main()
     shader->AddSource(Tools::read_file_content("./shaders/wave.tese"), GL_TESS_EVALUATION_SHADER);
     shader->AddSource(Tools::read_file_content("./shaders/wave.geom"), GL_GEOMETRY_SHADER);
     shader->AddSource(Tools::read_file_content("./shaders/wave.frag"), GL_FRAGMENT_SHADER);
-    assert(shader->Compile());
+    if (!shader->Compile())
+        return -1;
 
     // define quad with 2 triangles
     // clang-format off

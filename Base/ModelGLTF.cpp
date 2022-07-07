@@ -13,7 +13,6 @@
 #include <tiny_gltf.h>
 
 #include <algorithm>
-#include <cassert>
 #include <filesystem>
 #include <queue>
 #include <stdexcept>

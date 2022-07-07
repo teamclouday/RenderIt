@@ -1,6 +1,5 @@
 #include "RenderIt.hpp"
 
-#include <cassert>
 #include <memory>
 #include <string>
 
@@ -39,7 +38,8 @@ int main()
     auto shader = std::make_shared<Shader>();
     shader->AddSource(vertSource, GL_VERTEX_SHADER);
     shader->AddSource(fragSource, GL_FRAGMENT_SHADER);
-    assert(shader->Compile());
+    if (!shader->Compile())
+        return -1;
 
     // setup camera
     cam->SetPosition(glm::vec3(0.0f, 0.0f, -2.0f));

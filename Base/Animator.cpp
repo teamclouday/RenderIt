@@ -1,9 +1,9 @@
 #include "Animator.hpp"
+#include "Tools.hpp"
 
 #include <GL/glew.h>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <cassert>
 #include <cmath>
 #include <queue>
 #include <utility>
@@ -40,7 +40,12 @@ void Animator::UpdateAnimation(const Model *model)
     if (!model->HasAnimation() || !_deltaT)
         return;
     auto anim = model->_animations[model->_animationActive];
-    assert(anim);
+    if (!anim)
+    {
+        Tools::display_message(NAME, model->modelName + " does not have valid animation data",
+                               Tools::MessageType::WARN);
+        return;
+    }
     // update animation time
     anim->currTime += anim->ticksPerSecond * _deltaT;
     anim->currTime = std::fmod(anim->currTime, anim->duration);

@@ -1,6 +1,5 @@
 #include "RenderIt.hpp"
 
-#include <cassert>
 #include <memory>
 #include <string>
 
@@ -43,8 +42,8 @@ int main()
     auto shader = std::make_shared<Shader>();
     shader->AddSource(vertShader, GL_VERTEX_SHADER);
     shader->AddSource(fragShader, GL_FRAGMENT_SHADER);
-    shader->Compile();
-    assert(shader->IsCompiled());
+    if (!shader->Compile())
+        return -1;
 
     // load model
     auto modelPath = Tools::select_file_in_explorer("Select Model File");
