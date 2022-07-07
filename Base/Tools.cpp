@@ -11,6 +11,7 @@
 #if defined(WIN32) || defined(_WIN32)
 #include <Windows.h>
 #include <commdlg.h>
+#undef ERROR // remove ERROR in windows headers
 #elif defined(__linux__)
 #include <cstdio>
 #include <cstring>
