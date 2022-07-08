@@ -46,14 +46,14 @@ void Mesh::Load(MeshShape shape)
             // pos                 normal              texcoords     tangent             bitangent            boneIDs           boneWeights
             {{-1.0f, 0.0f,  1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0u, 0u, 0u, 0u}, {0.0f, 0.0f, 0.0f, 0.0f}},
             {{ 1.0f, 0.0f,  1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0u, 0u, 0u, 0u}, {0.0f, 0.0f, 0.0f, 0.0f}},
-            {{ 1.0f, 0.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0u, 0u, 0u, 0u}, {0.0f, 0.0f, 0.0f, 0.0f}},
             {{-1.0f, 0.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0u, 0u, 0u, 0u}, {0.0f, 0.0f, 0.0f, 0.0f}},
+            {{ 1.0f, 0.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0u, 0u, 0u, 0u}, {0.0f, 0.0f, 0.0f, 0.0f}},
         };
         const unsigned indices[] = {0u, 1u, 2u, 3u};
         // clang-format on
         _indicesCount = 4;
         _verticesCount = 4;
-        _primType = GL_QUADS;
+        _primType = GL_TRIANGLE_STRIP;
         // allocate buffers
         _vao = std::make_unique<SVAO>();
         _vbo = std::make_unique<SBuffer>(GL_ARRAY_BUFFER);
@@ -69,6 +69,7 @@ void Mesh::Load(MeshShape shape)
         _mat->colorDiffuse = glm::vec3(1.0f);
         _mat->colorSpecular = glm::vec3(1.0f);
         _mat->valShininess = 32.0f;
+        _mat->twoSided = true;
         break;
     }
     case MeshShape::Cube: {

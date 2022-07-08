@@ -51,8 +51,8 @@ int main()
     {
         -1.0f,  1.0f, 0.0f, 1.0f,
         -1.0f, -1.0f, 0.0f, 0.0f,
-         1.0f, -1.0f, 1.0f, 0.0f,
          1.0f,  1.0f, 1.0f, 1.0f,
+         1.0f, -1.0f, 1.0f, 0.0f,
     };
     // clang-format on
 
@@ -118,7 +118,7 @@ int main()
         shader->UniformInt("val_MSteps", configs.mandelbulbSteps);
         shader->UniformFloat("val_Time", app->GetFrameEndTime() / ImGui::GetIO().Framerate);
         vao.Bind();
-        glDrawArrays(GL_QUADS, 0, 4);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         vao.UnBind();
         shader->Bind();
 
