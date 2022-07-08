@@ -32,7 +32,7 @@ class Scene
 
     /// Draw scene, and configure shader for each model
     void Draw(const Shader *shader,
-              std::function<void(const Model *, const Shader *shader)> configModelShader = nullptr) const;
+              std::function<void(const Model *, const Shader *)> configModelShader = nullptr) const;
 
     /// UI calls
     void UI();
