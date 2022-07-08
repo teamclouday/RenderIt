@@ -87,6 +87,12 @@ int main()
         ImGui::End();
     };
 
+    // define shader configure
+    auto configModelShader = [&](const Model *model, const Shader *shader) {
+        shader->UniformMat4("mat_Model", model->transform.matrix);
+        shader->UniformMat3("mat_ModelInv", glm::mat3(model->transform.matrixInv));
+    };
+
     app->Start();
 
     while (!app->WindowShouldClose())
@@ -101,8 +107,9 @@ int main()
 
         mView = cam->GetView();
         mProj = cam->GetProj();
+        shader->UniformMat4("mat_ProjView", mProj * mView);
 
-        scene->Draw(shader.get());
+        scene->Draw(shader.get(), configModelShader);
 
         shader->UnBind();
 

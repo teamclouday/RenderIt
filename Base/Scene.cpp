@@ -1,5 +1,7 @@
 #include "Scene.hpp"
 
+#include <queue>
+
 namespace RenderIt
 {
 
@@ -29,11 +31,21 @@ bool Scene::RemoveObject(const std::shared_ptr<Model> &model)
 
 void Scene::Draw(const Shader *shader, std::function<void(const Model *, const Shader *)> configModelShader) const
 {
-    for (auto &m : models)
+    std::queue<const Model *> ms;
+    for (auto m : models)
+        ms.push(m.get());
+
+    while (!ms.empty())
     {
+        auto m = ms.front();
+        ms.pop();
+        // draw model
         if (configModelShader)
-            configModelShader(m.get(), shader);
+            configModelShader(m, shader);
         m->Draw(shader);
+        // get children
+        for (auto child : m->_children)
+            ms.push(child.get());
     }
 }
 

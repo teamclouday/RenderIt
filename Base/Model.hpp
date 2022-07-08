@@ -32,6 +32,7 @@ class Model
 {
   public:
     friend class Animator;
+    friend class Scene;
 
     Model();
 
