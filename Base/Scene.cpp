@@ -27,8 +27,7 @@ bool Scene::RemoveObject(const std::shared_ptr<Model> &model)
     return true;
 }
 
-void Scene::Draw(const Shader *shader,
-                 std::function<void(const Model *, const Shader *shader)> configModelShader = nullptr) const
+void Scene::Draw(const Shader *shader, std::function<void(const Model *, const Shader *shader)> configModelShader) const
 {
     for (auto &m : models)
     {
