@@ -35,9 +35,6 @@ class InputManager
     /// Get mouse positions
     void GetMousePos(float &posX, float &posY);
 
-    /// Get mouse position offsets
-    void GetMousePosOffsets(float &offsetX, float &offsetY);
-
     /// Get mouse wheel offsets
     void GetWheelOffsets(float &offsetX, float &offsetY);
 
@@ -61,8 +58,8 @@ class InputManager
 #pragma endregion glfw_callback_handlers
 
   private:
-    bool _resetMouseOffset, _resetMouseWheel;
-    std::array<float, 4> _mousePosData; // x, y, xoffset, yoffset
+    bool _resetMouseWheel;
+    std::array<float, 2> _mousePosData; // x, y
     std::array<bool, 3> _mouseDown;     // left, middle, right
     std::array<bool, 3> _mouseDown_acc; // left, middle, right
     std::array<float, 2> _wheelData;    // x, y

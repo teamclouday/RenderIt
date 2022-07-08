@@ -9,8 +9,8 @@ namespace RenderIt
 {
 
 InputManager::InputManager()
-    : ignoreUI(true), _resetMouseOffset(true), _resetMouseWheel(true), _mousePosData({0.0f}), _mouseDown({false}),
-      _mouseDown_acc({false}), _wheelData({0.0f})
+    : ignoreUI(true), _resetMouseWheel(true), _mousePosData({0.0f}), _mouseDown({false}), _mouseDown_acc({false}),
+      _wheelData({0.0f})
 {
 }
 
@@ -77,13 +77,6 @@ void InputManager::GetMousePos(float &posX, float &posY)
     posY = _mousePosData[1];
 }
 
-void InputManager::GetMousePosOffsets(float &offsetX, float &offsetY)
-{
-    LOCKIT
-    offsetX = _mousePosData[2];
-    offsetY = _mousePosData[3];
-}
-
 void InputManager::GetWheelOffsets(float &offsetX, float &offsetY)
 {
     LOCKIT
@@ -101,7 +94,6 @@ void InputManager::Update()
     _mouseDown_acc[0] = _mouseDown[0];
     _mouseDown_acc[1] = _mouseDown[1];
     _mouseDown_acc[2] = _mouseDown[2];
-    _resetMouseOffset = true;
     _resetMouseWheel = true;
 }
 
@@ -117,29 +109,12 @@ void InputManager::handle_glfw_key(int key, int action)
 
 void InputManager::handle_glfw_mouse_pos(double posX, double posY)
 {
-    LOCKIT
     if (ignoreUI && ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow))
-    {
-        _mousePosData[2] = _mousePosData[3] = 0.0f;
         return;
-    }
 
-    float posXf = static_cast<float>(posX);
-    float posYf = static_cast<float>(posY);
-    if (_resetMouseOffset)
-    {
-        _mousePosData[0] = posXf;
-        _mousePosData[1] = posYf;
-        _mousePosData[2] = _mousePosData[3] = 0.0f;
-        _resetMouseOffset = false;
-    }
-    else
-    {
-        _mousePosData[2] += posXf - _mousePosData[0];
-        _mousePosData[3] += posYf - _mousePosData[1];
-        _mousePosData[0] = posXf;
-        _mousePosData[1] = posYf;
-    }
+    LOCKIT
+    _mousePosData[0] = static_cast<float>(posX);
+    _mousePosData[1] = static_cast<float>(posY);
 }
 
 void InputManager::handle_glfw_mouse_click(int button, int action)

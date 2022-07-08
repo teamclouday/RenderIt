@@ -13,6 +13,8 @@ namespace RenderIt
 class FreeCamera : public Camera
 {
   public:
+    FreeCamera();
+
     /// Get singleton
     static std::shared_ptr<FreeCamera> Instance();
 
@@ -37,6 +39,9 @@ class FreeCamera : public Camera
 
     /// Process WASD key press
     void ProcessWASDKeys();
+
+  private:
+    glm::vec2 _prevMousePos;
 };
 
 } // namespace RenderIt

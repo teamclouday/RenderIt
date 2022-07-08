@@ -8,6 +8,11 @@
 namespace RenderIt
 {
 
+OrbitCamera::OrbitCamera()
+    : sensRotateM(1.0f), sensMoveM(0.01f), sensMoveK(0.1f), wheelZoomMinDist(0.1f), _prevMousePos(0.0f)
+{
+}
+
 std::shared_ptr<OrbitCamera> OrbitCamera::Instance()
 {
     static auto cam = std::make_shared<OrbitCamera>();
@@ -30,8 +35,13 @@ void OrbitCamera::ProcessMouseMovements()
 {
     auto input = InputManager::Instance();
 
-    float offX{0.0f}, offY{0.0f};
-    input->GetMousePosOffsets(offX, offY);
+    float posX{0.0f}, posY{0.0f};
+    input->GetMousePos(posX, posY);
+
+    float offX = posX - _prevMousePos.x;
+    float offY = posY - _prevMousePos.y;
+
+    _prevMousePos = glm::vec2(posX, posY);
 
     bool downLeft = input->GetMouseDown(GLFW_MOUSE_BUTTON_LEFT);
     bool downRight = input->GetMouseDown(GLFW_MOUSE_BUTTON_RIGHT);

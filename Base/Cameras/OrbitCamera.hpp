@@ -4,6 +4,8 @@
 
 #include "Camera.hpp"
 
+#include <glm/glm.hpp>
+
 /** @file */
 
 namespace RenderIt
@@ -13,6 +15,8 @@ namespace RenderIt
 class OrbitCamera : public Camera
 {
   public:
+    OrbitCamera();
+
     /// Get singleton
     static std::shared_ptr<OrbitCamera> Instance();
 
@@ -25,13 +29,13 @@ class OrbitCamera : public Camera
   public:
     const std::string NAME = "OrbitCamera";
     // sensitivity of rotation (left mouse drag)
-    float sensRotateM = 1.0f;
+    float sensRotateM;
     // sensitivity of move (right mouse drag)
-    float sensMoveM = 0.01f;
+    float sensMoveM;
     // sensitivity of move (key down)
-    float sensMoveK = 0.1f;
+    float sensMoveK;
     // minimum distance for wheel zoom
-    float wheelZoomMinDist = 0.1f;
+    float wheelZoomMinDist;
 
   private:
     /// Process mouse click & drag
@@ -42,6 +46,9 @@ class OrbitCamera : public Camera
 
     /// Process WASD key press
     void ProcessWASDKeys();
+
+  private:
+    glm::vec2 _prevMousePos;
 };
 
 } // namespace RenderIt
