@@ -9,20 +9,33 @@ std::shared_ptr<Scene> Scene::Instance()
     return scene;
 }
 
-void Scene::AttachObject(std::shared_ptr<Model> model)
+bool Scene::AttachObject(std::shared_ptr<Model> model)
 {
     if (!model)
-        return;
+        return false;
     // find the ultimate parent of model
     while (model->GetParent())
         model = model->GetParent();
-    _models.insert(model);
+    return models.insert(model).second;
 }
 
-void Scene::Draw(const Shader *shader) const
+bool Scene::RemoveObject(const std::shared_ptr<Model> &model)
 {
-    for (auto &m : _models)
+    if (!models.count(model))
+        return false;
+    models.erase(model);
+    return true;
+}
+
+void Scene::Draw(const Shader *shader,
+                 std::function<void(const Model *, const Shader *shader)> configModelShader = nullptr) const
+{
+    for (auto &m : models)
+    {
+        if (configModelShader)
+            configModelShader(m.get(), shader);
         m->Draw(shader);
+    }
 }
 
 } // namespace RenderIt

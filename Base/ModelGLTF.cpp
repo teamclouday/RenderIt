@@ -30,6 +30,8 @@ namespace RenderIt
 
 bool Model::LoadGLTF(const std::string &path, bool computeDynamicMeshBounds)
 {
+    //! This function is not yet implemented
+    //! because animation loading issue is solved
     throw std::runtime_error("Model::LoadGLTF not implemented!");
 
     if (_meshes.size())
@@ -55,9 +57,9 @@ bool Model::LoadGLTF(const std::string &path, bool computeDynamicMeshBounds)
     bool loadRes = binary ? loader.LoadBinaryFromFile(&gltfModel, &loadErr, &loadWarn, path)
                           : loader.LoadASCIIFromFile(&gltfModel, &loadErr, &loadWarn, path);
     if (!loadErr.empty())
-        Tools::display_message(NAME, "tinygltf " + loadErr, Tools::MessageType::WARN);
+        Tools::display_message(LOGNAME, "tinygltf " + loadErr, Tools::MessageType::WARN);
     if (!loadWarn.empty())
-        Tools::display_message(NAME, "tinygltf " + loadWarn, Tools::MessageType::WARN);
+        Tools::display_message(LOGNAME, "tinygltf " + loadWarn, Tools::MessageType::WARN);
     if (!loadRes || !gltfModel.scenes.size())
         return false;
 

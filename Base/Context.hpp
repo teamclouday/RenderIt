@@ -56,7 +56,7 @@ class AppContext
     void UI();
 
   public:
-    const std::string NAME = "AppContext";
+    const std::string LOGNAME = "AppContext";
     bool displayUI;
 
   private:

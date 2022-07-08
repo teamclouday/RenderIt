@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <string>
 
 #if defined(WIN32) || defined(_WIN32)
 #include <Windows.h>
@@ -55,7 +56,7 @@ std::string Tools::read_file_content(const std::string &path)
 
 std::string Tools::select_file_in_explorer(const std::string &title)
 {
-    const char *NAME = "Tools";
+    const char *LOGNAME = "Tools";
     char filepath[1024];
     memset(filepath, sizeof(filepath), 0);
 #if defined(WIN32) || defined(_WIN32)
@@ -70,7 +71,7 @@ std::string Tools::select_file_in_explorer(const std::string &title)
     f.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
     if (!GetOpenFileNameA(&f))
     {
-        display_message(NAME, "No file selected", MessageType::WARN);
+        display_message(LOGNAME, "No file selected", MessageType::WARN);
         return "";
     }
 #elif defined(__linux__)
@@ -79,7 +80,7 @@ std::string Tools::select_file_in_explorer(const std::string &title)
     filepath[strlen(filepath) - 1] = 0;
     pclose(f);
 #else
-    display_message(NAME, "Unsupported platform for file selection", MessageType::WARN);
+    display_message(LOGNAME, "Unsupported platform for file selection", MessageType::WARN);
     filepath[sizeof(filepath) - 1] = 0;
 #endif
     return std::string(filepath);
@@ -104,7 +105,7 @@ void Tools::ensure_path_separators(std::string &path)
 void GLAPIENTRY GLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
                                 const GLchar *message, const void *userParam)
 {
-    const char *NAME = "GL Callback";
+    const std::string LOGNAME = "GL Callback";
     std::stringstream sstr;
     sstr << "\n(";
 
@@ -178,7 +179,7 @@ void GLAPIENTRY GLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum se
     }
     sstr << "]\n";
     sstr << message;
-    Tools::display_message(NAME, sstr.str(), Tools::MessageType::INFO);
+    Tools::display_message(LOGNAME, sstr.str(), Tools::MessageType::INFO);
 }
 
 void Tools::set_gl_debug(bool enable, bool filterNotifications)

@@ -44,7 +44,7 @@ void UIShowTexture(const std::shared_ptr<STexture> &tex)
     ImGui::Text("ID (%d)", tex->Get());
 }
 
-void UIShowMaterial(const std::shared_ptr<Material> &mat)
+void UIEditMaterial(std::shared_ptr<Material> &mat)
 {
     if (!mat)
     {
@@ -144,41 +144,17 @@ void UIShowMaterial(const std::shared_ptr<Material> &mat)
         }
         ImGui::TreePop();
     }
-    if (ImGui::TreeNode("Constants"))
+    if (ImGui::TreeNode("Values"))
     {
-        if (ImGui::TreeNode(Material::valNameColorAmbient.c_str()))
-        {
-            UIShowVector(mat->colorAmbient);
-            ImGui::TreePop();
-        }
-        if (ImGui::TreeNode(Material::valNameColorDiffuse.c_str()))
-        {
-            UIShowVector(mat->colorDiffuse);
-            ImGui::TreePop();
-        }
-        if (ImGui::TreeNode(Material::valNameColorSpecular.c_str()))
-        {
-            UIShowVector(mat->colorSpecular);
-            ImGui::TreePop();
-        }
-        if (ImGui::TreeNode(Material::valNameColorEmissive.c_str()))
-        {
-            UIShowVector(mat->colorEmissive);
-            ImGui::TreePop();
-        }
-        if (ImGui::TreeNode(Material::valNameColorShininess.c_str()))
-        {
-            ImGui::Text("%.2f", mat->valShininess);
-            ImGui::TreePop();
-        }
-        if (ImGui::TreeNode(Material::valNameColorOpacity.c_str()))
-        {
-            ImGui::Text("%.2f", mat->valOpacity);
-            ImGui::TreePop();
-        }
+        ImGui::ColorEdit3(Material::valNameColorAmbient.c_str(), glm::value_ptr(mat->colorAmbient));
+        ImGui::ColorEdit3(Material::valNameColorDiffuse.c_str(), glm::value_ptr(mat->colorDiffuse));
+        ImGui::ColorEdit3(Material::valNameColorSpecular.c_str(), glm::value_ptr(mat->colorSpecular));
+        ImGui::ColorEdit3(Material::valNameColorEmissive.c_str(), glm::value_ptr(mat->colorEmissive));
+        ImGui::DragFloat(Material::valNameColorShininess.c_str(), &mat->valShininess, 0.01f, 0.0f, 1000.0f, "%.2f");
+        ImGui::DragFloat(Material::valNameColorOpacity.c_str(), &mat->valOpacity, 0.001f, 0.0f, 1.0f, "%.3f");
+        ImGui::Checkbox("Two Sided", &mat->twoSided);
         ImGui::TreePop();
     }
-    ImGui::Text("Two Sided: %s", mat->twoSided ? "true" : "false");
 }
 
 void UIShowBounds(const Bounds &b)
@@ -291,7 +267,7 @@ void UIShowAnimNode(const Animation::Node &node)
 
 void AppContext::UI()
 {
-    ImGui::PushID(NAME.c_str());
+    ImGui::PushID(LOGNAME.c_str());
 
     ImGui::Text("App [%s]", _winTitle.c_str());
     ImGui::Text("Window Size: (%dx%d)", _winW, _winH);
@@ -305,7 +281,7 @@ void AppContext::UI()
 
 void Camera::UI()
 {
-    ImGui::PushID(NAME.c_str());
+    ImGui::PushID(LOGNAME.c_str());
 
     ImGui::ColorEdit4("Clear Color", glm::value_ptr(clearColor));
     ImGui::Text("View Type");
@@ -377,7 +353,7 @@ void Camera::UI()
 void OrbitCamera::UI()
 {
     Camera::UI();
-    ImGui::PushID(NAME.c_str());
+    ImGui::PushID(LOGNAME.c_str());
 
     ImGui::Separator();
     ImGui::Text("Input Controls");
@@ -409,7 +385,7 @@ void OrbitCamera::UI()
 void FreeCamera::UI()
 {
     Camera::UI();
-    ImGui::PushID(NAME.c_str());
+    ImGui::PushID(LOGNAME.c_str());
 
     ImGui::Separator();
     ImGui::Text("Input Controls");
@@ -435,7 +411,7 @@ void FreeCamera::UI()
 
 void Mesh::UI()
 {
-    ImGui::PushID(NAME.c_str());
+    ImGui::PushID(LOGNAME.c_str());
 
     ImGui::Text("VAO ID (%d)", _vao ? _vao->Get() : 0);
     ImGui::Text("VBO ID (%d)", _vbo ? _vbo->Get() : 0);
@@ -444,7 +420,7 @@ void Mesh::UI()
 
     if (ImGui::TreeNode("Material"))
     {
-        UIShowMaterial(_mat);
+        UIEditMaterial(_mat);
         ImGui::TreePop();
     }
 
@@ -453,7 +429,7 @@ void Mesh::UI()
 
 void Model::UI()
 {
-    ImGui::PushID(NAME.c_str());
+    ImGui::PushID(LOGNAME.c_str());
 
     ImGui::Text("Name: %s", modelName.c_str());
 
@@ -581,7 +557,7 @@ bool UIEditSpotLight(SpotLight &light)
 
 void LightManager::UI()
 {
-    ImGui::PushID(NAME.c_str());
+    ImGui::PushID(LOGNAME.c_str());
 
     ImGui::PushID("DirLight");
     if (ImGui::TreeNode("Directional"))

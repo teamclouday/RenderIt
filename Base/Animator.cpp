@@ -42,7 +42,7 @@ void Animator::UpdateAnimation(const Model *model)
     auto anim = model->_animations[model->_animationActive];
     if (!anim)
     {
-        Tools::display_message(NAME, model->modelName + " does not have valid animation data",
+        Tools::display_message(LOGNAME, model->modelName + " does not have valid animation data",
                                Tools::MessageType::WARN);
         return;
     }

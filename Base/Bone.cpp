@@ -12,17 +12,17 @@ namespace RenderIt
 
 Bone::Bone(const std::string &boneName, unsigned boneID, const aiNodeAnim *animNode) : name(boneName), ID(boneID)
 {
-    const std::string NAME = "Bone";
+    const std::string LOGNAME = "Bone";
     if (!animNode)
     {
-        Tools::display_message(NAME, "invalid animation node", Tools::MessageType::WARN);
+        Tools::display_message(LOGNAME, "invalid animation node", Tools::MessageType::WARN);
         return;
     }
 
     std::unordered_set<float> duplicates;
 
     if (!animNode->mNumPositionKeys)
-        Tools::display_message(NAME, "invalid number of position keys", Tools::MessageType::WARN);
+        Tools::display_message(LOGNAME, "invalid number of position keys", Tools::MessageType::WARN);
     for (auto i = 0u; i < animNode->mNumPositionKeys; ++i)
     {
         auto position = animNode->mPositionKeys[i].mValue;
@@ -41,7 +41,7 @@ Bone::Bone(const std::string &boneName, unsigned boneID, const aiNodeAnim *animN
     duplicates.clear();
 
     if (!animNode->mNumRotationKeys)
-        Tools::display_message(NAME, "invalid number of rotation keys", Tools::MessageType::WARN);
+        Tools::display_message(LOGNAME, "invalid number of rotation keys", Tools::MessageType::WARN);
     for (auto i = 0u; i < animNode->mNumRotationKeys; ++i)
     {
         auto rotation = animNode->mRotationKeys[i].mValue;
@@ -60,7 +60,7 @@ Bone::Bone(const std::string &boneName, unsigned boneID, const aiNodeAnim *animN
     duplicates.clear();
 
     if (!animNode->mNumScalingKeys)
-        Tools::display_message(NAME, "invalid number of scaling keys", Tools::MessageType::WARN);
+        Tools::display_message(LOGNAME, "invalid number of scaling keys", Tools::MessageType::WARN);
     for (auto i = 0u; i < animNode->mNumScalingKeys; ++i)
     {
         auto scale = animNode->mScalingKeys[i].mValue;

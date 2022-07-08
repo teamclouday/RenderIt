@@ -36,7 +36,7 @@ bool Shader::AddSource(const std::string &source, GLenum type)
 
         std::string message = "Failed to compile shader\n" + std::string(infoLog.data());
         message += "\n" + source;
-        Tools::display_message(NAME, message, Tools::MessageType::ERROR);
+        Tools::display_message(LOGNAME, message, Tools::MessageType::ERROR);
 
         return false;
     }
@@ -64,7 +64,7 @@ bool Shader::Compile()
         glGetProgramInfoLog(_program, infoLen, nullptr, infoLog.data());
 
         std::string message = "Failed to link shaders\n" + std::string(infoLog.data());
-        Tools::display_message(NAME, message, Tools::MessageType::ERROR);
+        Tools::display_message(LOGNAME, message, Tools::MessageType::ERROR);
         Reset();
 
         return false;

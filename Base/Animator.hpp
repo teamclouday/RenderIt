@@ -38,7 +38,7 @@ class Animator
     std::array<glm::mat4, ANIMATION_MAX_BONES> &AccessBoneMatrices();
 
   public:
-    const std::string NAME = "Animator";
+    const std::string LOGNAME = "Animator";
 
   private:
     /// Update shader storage buffer

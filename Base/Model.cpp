@@ -135,7 +135,7 @@ bool Model::Load(const std::string &path, unsigned flags, bool computeDynamicMes
                 if (face.mNumIndices != 3)
                 {
                     Tools::display_message(
-                        NAME, "invalid number of vertices on a face (" + std::to_string(face.mNumIndices) + ")",
+                        LOGNAME, "invalid number of vertices on a face (" + std::to_string(face.mNumIndices) + ")",
                         Tools::MessageType::WARN);
                     continue;
                 }
@@ -155,12 +155,12 @@ bool Model::Load(const std::string &path, unsigned flags, bool computeDynamicMes
                     if (auto tex = scene->GetEmbeddedTexture(texturePath.C_Str()))
                     {
                         unsigned char *data = reinterpret_cast<unsigned char *>(tex->pcData);
-                        target = LoadTexture(data, tex->mWidth, tex->mHeight, texturePath.C_Str());
+                        target = loadTexture(data, tex->mWidth, tex->mHeight, texturePath.C_Str());
                     }
                     else
                     {
                         auto path = directory / fs::path(texturePath.C_Str());
-                        target = LoadTexture(path.string());
+                        target = loadTexture(path.string());
                     }
                 }
             };
@@ -233,7 +233,7 @@ bool Model::Load(const std::string &path, unsigned flags, bool computeDynamicMes
                     if (vertexId >= vertices.size())
                     {
                         Tools::display_message(
-                            NAME, "invalid vertex index for bone weight (" + std::to_string(vertexId) + ")",
+                            LOGNAME, "invalid vertex index for bone weight (" + std::to_string(vertexId) + ")",
                             Tools::MessageType::WARN);
                         continue;
                     }
@@ -352,9 +352,23 @@ bool Model::AddChild(std::shared_ptr<Model> child)
             return false;
         tmp = tmp->GetParent();
     }
+    // update child transform
+    child->transform.parentMatrix = transform.matrix;
+    child->transform.UpdateMatrix();
     _children.push_back(child);
     child->_parent = std::shared_ptr<Model>(this);
     return true;
+}
+
+std::shared_ptr<Model> Model::RemoveChild(unsigned idx)
+{
+    if (idx >= _children.size())
+        return nullptr;
+    auto child = _children[idx];
+    // update transform
+    child->transform.parentMatrix = glm::mat4(1.0f);
+    child->transform.UpdateMatrix();
+    return child;
 }
 
 std::shared_ptr<Model> Model::GetParent() const
@@ -390,7 +404,19 @@ bool Model::HasAnimation() const
     return _animations.size() > 0;
 }
 
-std::shared_ptr<STexture> Model::LoadTexture(const std::string &path)
+std::shared_ptr<Mesh> Model::GetMesh(unsigned idx) const
+{
+    if (idx >= _meshes.size())
+        return nullptr;
+    return _meshes[idx];
+}
+
+size_t Model::GetNumMeshes() const
+{
+    return _meshes.size();
+}
+
+std::shared_ptr<STexture> Model::loadTexture(const std::string &path)
 {
     auto p = path;
     Tools::ensure_path_separators(p);
@@ -402,7 +428,7 @@ std::shared_ptr<STexture> Model::LoadTexture(const std::string &path)
     unsigned char *data = stbi_load(p.c_str(), &w, &h, &n, STBI_rgb_alpha);
     if (!data)
     {
-        Tools::display_message(NAME, "Failed to load texture file " + p + "\n" + std::string(stbi_failure_reason()),
+        Tools::display_message(LOGNAME, "Failed to load texture file " + p + "\n" + std::string(stbi_failure_reason()),
                                Tools::MessageType::WARN);
         return nullptr;
     }
@@ -422,7 +448,7 @@ std::shared_ptr<STexture> Model::LoadTexture(const std::string &path)
     return _textures[p] = tex;
 }
 
-std::shared_ptr<STexture> Model::LoadTexture(unsigned char *pixels, int width, int height, const std::string &name)
+std::shared_ptr<STexture> Model::loadTexture(unsigned char *pixels, int width, int height, const std::string &name)
 {
     if (_textures.count(name))
         return _textures[name];
@@ -435,7 +461,7 @@ std::shared_ptr<STexture> Model::LoadTexture(unsigned char *pixels, int width, i
         data = stbi_load_from_memory(pixels, width * height, &w, &h, &n, STBI_rgb_alpha);
     if (!data)
     {
-        Tools::display_message(NAME,
+        Tools::display_message(LOGNAME,
                                "Failed to load embedded texture " + name + "\n" + std::string(stbi_failure_reason()),
                                Tools::MessageType::WARN);
         return nullptr;

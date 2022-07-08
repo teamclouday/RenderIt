@@ -80,7 +80,7 @@ class Camera
     void UI();
 
   public:
-    const std::string NAME = "Camera";
+    const std::string LOGNAME = "Camera";
     glm::vec4 clearColor;
 
   protected:

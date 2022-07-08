@@ -9,7 +9,7 @@
 namespace RenderIt
 {
 
-Transform::Transform(Type t) : position(0.0f), rotation(0.0f), scale(1.0f), type(t)
+Transform::Transform(Type t) : position(0.0f), rotation(0.0f), scale(1.0f), parentMatrix(1.0f), type(t)
 {
     UpdateMatrix();
 }
@@ -28,20 +28,22 @@ void Transform::UpdateMatrix()
     switch (type)
     {
     case Type::SRT: {
-        matrix = glm::scale(glm::mat4(1.0f), scale) *
-                 glm::eulerAngleYXZ(glm::radians(rotation.y), glm::radians(rotation.x), glm::radians(rotation.z)) *
-                 glm::translate(glm::mat4(1.0f), position);
+        localMatrix = glm::scale(glm::mat4(1.0f), scale) *
+                      glm::eulerAngleYXZ(glm::radians(rotation.y), glm::radians(rotation.x), glm::radians(rotation.z)) *
+                      glm::translate(glm::mat4(1.0f), position);
         break;
     }
     case Type::TRS:
     default: {
-        matrix = glm::translate(glm::mat4(1.0f), position) *
-                 glm::eulerAngleYXZ(glm::radians(rotation.y), glm::radians(rotation.x), glm::radians(rotation.z)) *
-                 glm::scale(glm::mat4(1.0f), scale);
+        localMatrix = glm::translate(glm::mat4(1.0f), position) *
+                      glm::eulerAngleYXZ(glm::radians(rotation.y), glm::radians(rotation.x), glm::radians(rotation.z)) *
+                      glm::scale(glm::mat4(1.0f), scale);
         break;
     }
     }
+    matrix = parentMatrix * localMatrix;
     matrixInv = glm::inverse(matrix);
+    localMatrixInv = glm::inverse(localMatrix);
 }
 
 void Transform::Reset()

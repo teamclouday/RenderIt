@@ -27,7 +27,7 @@ class OrbitCamera : public Camera
     void UI();
 
   public:
-    const std::string NAME = "OrbitCamera";
+    const std::string LOGNAME = "OrbitCamera";
     // sensitivity of rotation (left mouse drag)
     float sensRotateM;
     // sensitivity of move (right mouse drag)

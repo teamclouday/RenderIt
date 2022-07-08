@@ -132,7 +132,7 @@ class LightManager
     void UI();
 
   public:
-    const std::string NAME = "LightManager";
+    const std::string LOGNAME = "LightManager";
 
   private:
     /// Update lights SSBO

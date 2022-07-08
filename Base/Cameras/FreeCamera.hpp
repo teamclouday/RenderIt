@@ -25,7 +25,7 @@ class FreeCamera : public Camera
     void UI();
 
   public:
-    const std::string NAME = "FreeCamera";
+    const std::string LOGNAME = "FreeCamera";
     // sensitivity of rotation (left mouse drag)
     float sensRotateM = 1.0f;
     // sensitivity of move (key down)

@@ -79,7 +79,7 @@ class Shader
 #pragma endregion uniform_methods
 
   public:
-    const std::string NAME = "Shader";
+    const std::string LOGNAME = "Shader";
 
   private:
     bool _compiled;

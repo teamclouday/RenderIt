@@ -55,8 +55,13 @@ class Model
     /// Reset model data
     void Reset();
 
+#pragma region recursive_structure
+
     /// Add Model instance as child, returns true if successful
     bool AddChild(std::shared_ptr<Model> child);
+
+    /// Remove Model child by index, returns nullptr if failed
+    std::shared_ptr<Model> RemoveChild(unsigned idx);
 
     /// Get parent of current model
     std::shared_ptr<Model> GetParent() const;
@@ -67,6 +72,10 @@ class Model
     /// Get number of children of current model
     size_t GetNumChildren() const;
 
+#pragma endregion recursive_structure
+
+#pragma region animations
+
     /// Set current active animation
     void SetActiveAnimation(unsigned idx);
 
@@ -76,21 +85,33 @@ class Model
     /// Whether model has animation
     bool HasAnimation() const;
 
+#pragma endregion animations
+
+#pragma region meshes
+
+    /// Get mesh by index
+    std::shared_ptr<Mesh> GetMesh(unsigned idx) const;
+
+    /// Get number of meshes in the model
+    size_t GetNumMeshes() const;
+
+#pragma endregion meshes
+
     /// UI calls
     void UI();
 
   public:
-    const std::string NAME = "Model";
+    const std::string LOGNAME = "Model";
     Transform transform;
     Bounds bounds;
     std::string modelName;
 
   private:
     /// Load texture from local path
-    std::shared_ptr<STexture> LoadTexture(const std::string &path);
+    std::shared_ptr<STexture> loadTexture(const std::string &path);
 
     /// Load texture from memory
-    std::shared_ptr<STexture> LoadTexture(unsigned char *pixels, int width, int height, const std::string &name);
+    std::shared_ptr<STexture> loadTexture(unsigned char *pixels, int width, int height, const std::string &name);
 
     /// Update bounds of dynamic meshes (using Animator)
     bool updateDynamicBounds(const aiScene *scene);

@@ -1,8 +1,9 @@
 #pragma once
 
+#include <functional>
 #include <memory>
-#include <set>
 #include <string>
+#include <unordered_set>
 
 #include "Model.hpp"
 #include "Shader.hpp"
@@ -19,20 +20,26 @@ class Scene
     /// Get singleton
     static std::shared_ptr<Scene> Instance();
 
-    /// Add object to scene
-    void AttachObject(std::shared_ptr<Model> model);
+#pragma region object_management
 
-    /// Draw scene
-    void Draw(const Shader *shader) const;
+    /// Add object to scene, returns true if successful
+    bool AttachObject(std::shared_ptr<Model> model);
+
+    /// Remove object, returns true if successful
+    bool RemoveObject(const std::shared_ptr<Model> &model);
+
+#pragma endregion object_management
+
+    /// Draw scene, and configure shader for each model
+    void Draw(const Shader *shader,
+              std::function<void(const Model *, const Shader *shader)> configModelShader = nullptr) const;
 
     /// UI calls
     void UI();
 
   public:
-    const std::string NAME = "Scene";
-
-  private:
-    std::set<std::shared_ptr<Model>> _models;
+    const std::string LOGNAME = "Scene";
+    std::unordered_set<std::shared_ptr<Model>> models;
 };
 
 } // namespace RenderIt

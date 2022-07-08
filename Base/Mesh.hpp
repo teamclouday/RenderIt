@@ -21,7 +21,8 @@ enum class MeshShape
     None,
     Plane,
     Cube,
-    Sphere
+    Sphere,
+    Torus
 };
 
 /// A general mesh
@@ -64,7 +65,11 @@ class Mesh
     void UI();
 
   public:
-    const std::string NAME = "Mesh";
+    const std::string LOGNAME = "Mesh";
+
+  private:
+    /// Configure VAO attribute points
+    void setupVAOAttributes() const;
 
   private:
     std::unique_ptr<SVAO> _vao;
@@ -91,6 +96,8 @@ inline string to_string(const RenderIt::MeshShape &type)
         return "Cube";
     case RenderIt::MeshShape::Sphere:
         return "Sphere";
+    case RenderIt::MeshShape::Torus:
+        return "Torus";
     default:
         return "";
     }

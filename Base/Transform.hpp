@@ -39,6 +39,11 @@ struct Transform
     glm::vec3 rotation;
     glm::vec3 scale;
 
+    glm::mat4 parentMatrix;
+
+    glm::mat4 localMatrix;
+    glm::mat4 localMatrixInv;
+
     glm::mat4 matrix;
     glm::mat4 matrixInv;
 
