@@ -8,6 +8,7 @@
 #include "Material.hpp"
 #include "Mesh.hpp"
 #include "Model.hpp"
+#include "Scene.hpp"
 #include "Transform.hpp"
 
 #include "Cameras/FreeCamera.hpp"
@@ -562,7 +563,7 @@ void LightManager::UI()
     ImGui::PushID("DirLight");
     if (ImGui::TreeNode("Directional"))
     {
-        for (unsigned i = 0; i < _dirLights.size(); i++)
+        for (auto i = 0u; i < _dirLights.size(); ++i)
         {
             ImGui::PushID(i);
             if (ImGui::TreeNode(("Light " + std::to_string(i)).c_str()))
@@ -586,7 +587,7 @@ void LightManager::UI()
     ImGui::PushID("PointLight");
     if (ImGui::TreeNode("Point"))
     {
-        for (unsigned i = 0; i < _pointLights.size(); i++)
+        for (auto i = 0u; i < _pointLights.size(); ++i)
         {
             ImGui::PushID(i);
             if (ImGui::TreeNode(("Light " + std::to_string(i)).c_str()))
@@ -610,7 +611,7 @@ void LightManager::UI()
     ImGui::PushID("SpotLightLight");
     if (ImGui::TreeNode("Spot"))
     {
-        for (unsigned i = 0; i < _spotLights.size(); i++)
+        for (auto i = 0u; i < _spotLights.size(); ++i)
         {
             ImGui::PushID(i);
             if (ImGui::TreeNode(("Light " + std::to_string(i)).c_str()))
@@ -629,6 +630,25 @@ void LightManager::UI()
         PopLight(LightType::Spot);
     ImGui::PopID();
 
+    ImGui::PopID();
+}
+
+void Scene::UI()
+{
+    ImGui::PushID(LOGNAME.c_str());
+    auto iter = models.begin();
+    auto index = 0u;
+    while (iter != models.end())
+    {
+        ImGui::PushID(index);
+        if (ImGui::TreeNode(("Model " + std::to_string(index)).c_str()))
+        {
+            (*iter)->UI();
+            ImGui::TreePop();
+        }
+        ImGui::PopID();
+        iter++;
+    }
     ImGui::PopID();
 }
 

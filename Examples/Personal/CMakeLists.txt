@@ -44,6 +44,7 @@ set(EXAMPLES
     Animation
     Lights
     Mandelbulb
+    SimpleShapes
 )
 
 buildExamples()

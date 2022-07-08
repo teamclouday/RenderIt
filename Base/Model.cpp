@@ -300,6 +300,7 @@ bool Model::Load(MeshShape shape)
     _meshes.push_back(newMesh);
     newMesh->Load(shape);
     modelName = std::to_string(shape);
+    bounds.Validate();
     return true;
 }
 
@@ -501,7 +502,7 @@ bool Model::updateDynamicBounds(const aiScene *scene)
         auto vertexCount = mesh->GetNumVertices();
         // map vertices
         auto dataPtr = reinterpret_cast<Vertex *>(glMapNamedBuffer(VBO.value(), GL_READ_ONLY));
-        for (auto vertexIdx = 0; vertexIdx < vertexCount; vertexIdx++, dataPtr++)
+        for (auto vertexIdx = 0u; vertexIdx < vertexCount; ++vertexIdx, ++dataPtr)
         {
             auto pos = (*dataPtr).position;
             auto boneIDs = (*dataPtr).boneIDs;
@@ -510,7 +511,7 @@ bool Model::updateDynamicBounds(const aiScene *scene)
             if (boneWs[0] + boneWs[1] + boneWs[2] + boneWs[3])
             {
                 auto mat = glm::mat4(0.0f);
-                for (auto i = 0; i < 4; i++)
+                for (auto i = 0; i < 4; ++i)
                     mat += boneMatrices[boneIDs[i]] * boneWs[i];
                 bounds.Update(Tools::matrixMultiplyPoint(mat, pos));
             }

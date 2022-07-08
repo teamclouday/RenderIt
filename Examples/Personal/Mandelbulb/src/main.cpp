@@ -81,6 +81,11 @@ int main()
                 configs.UI();
                 ImGui::EndTabItem();
             }
+            if (app && ImGui::BeginTabItem("Application"))
+            {
+                app->UI();
+                ImGui::EndTabItem();
+            }
             if (cam && ImGui::BeginTabItem("Camera"))
             {
                 cam->UI();
