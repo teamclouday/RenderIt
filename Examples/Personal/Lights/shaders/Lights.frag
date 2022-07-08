@@ -54,7 +54,8 @@ struct SpotLight
     float pos[3];
     float dir[3];
     float range;
-    float cutoff;
+    float cutoffInner;
+    float cutoffOuter;
     float color[3];
     float intensity;
     int castShadow;
@@ -156,7 +157,8 @@ void ComputeSpotLight(SpotLight light, vec3 normDir, vec3 viewDir, vec3 fragPos,
     spec = val_SHININESS > 0.0 ? pow(max(dot(reflect(-toLight, normDir), viewDir), 0.0), val_SHININESS) : 0.0;
     // compute intensity
     float theta = dot(toLight, -lightDir);
-    atten = clamp((theta - light.cutoff) / 0.09, 0.0, 1.0) * ComputeLightAttenuation(light.range, fragToLight);
+    atten = clamp((theta - light.cutoffOuter) / (light.cutoffOuter - light.cutoffInner), 0.0, 1.0) *
+            ComputeLightAttenuation(light.range, fragToLight);
 }
 
 void main()

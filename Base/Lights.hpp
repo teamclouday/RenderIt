@@ -61,13 +61,14 @@ struct PointLight
 struct SpotLight
 {
     SpotLight(const glm::vec3 &lPos = glm::vec3(0.0f), const glm::vec3 &lDir = glm::vec3(-1.0f), float lRange = 1.0f,
-              float lCutoff = 0.8f, const glm::vec3 &lColor = glm::vec3(1.0f), float lIntensity = 1.0f,
-              bool lCastShadow = false)
+              float lCutoffIn = 0.7f, float lCutoffOut = 0.8f, const glm::vec3 &lColor = glm::vec3(1.0f),
+              float lIntensity = 1.0f, bool lCastShadow = false)
     {
         pos = lPos;
         dir = lDir;
         range = lRange;
-        cutoff = lCutoff;
+        cutoffInner = lCutoffIn;
+        cutoffOuter = lCutoffOut;
         color = lColor;
         intensity = lIntensity;
         castShadow = static_cast<int>(lCastShadow);
@@ -76,7 +77,8 @@ struct SpotLight
     glm::vec3 pos;
     glm::vec3 dir;
     float range;
-    float cutoff;
+    float cutoffInner;
+    float cutoffOuter;
     glm::vec3 color;
     float intensity;
     int castShadow;
@@ -87,7 +89,8 @@ enum class LightType
 {
     Directional,
     Point,
-    Spot
+    Spot,
+    Area
 };
 
 /// Global light manager
