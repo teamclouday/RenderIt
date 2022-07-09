@@ -48,9 +48,11 @@ int main()
     auto shapePlane = std::make_shared<Model>();
     if (shapePlane->Load(MeshShape::Plane))
     {
-        shapePlane->transform.position.y = -1.0f;
+        shapePlane->transform.position.y = -0.5f;
+        shapePlane->transform.scale = glm::vec3(2.0f);
         shapePlane->transform.UpdateMatrix();
         auto mat = shapePlane->GetMesh(0)->GetMaterial();
+        mat->colorAmbient = glm::vec3(0.25f);
         mat->colorDiffuse = glm::vec3(0.0f, 1.0f, 1.0f);
         mat->colorSpecular = glm::vec3(1.0f);
         mat->valShininess = 32.0f;
@@ -65,6 +67,7 @@ int main()
         shapeCube->transform.scale = glm::vec3(0.2f);
         shapeCube->transform.UpdateMatrix();
         auto mat = shapeCube->GetMesh(0)->GetMaterial();
+        mat->colorAmbient = glm::vec3(0.25f);
         mat->colorDiffuse = glm::vec3(1.0f, 0.0f, 1.0f);
         mat->colorSpecular = glm::vec3(1.0f);
         mat->valShininess = 32.0f;
@@ -79,6 +82,7 @@ int main()
         shapeSphere->transform.scale = glm::vec3(0.2f);
         shapeSphere->transform.UpdateMatrix();
         auto mat = shapeSphere->GetMesh(0)->GetMaterial();
+        mat->colorAmbient = glm::vec3(0.25f);
         mat->colorDiffuse = glm::vec3(1.0f, 0.0f, 0.0f);
         mat->colorSpecular = glm::vec3(1.0f);
         mat->valShininess = 32.0f;
@@ -93,6 +97,7 @@ int main()
         shapeCylinder->transform.scale = glm::vec3(0.2f);
         shapeCylinder->transform.UpdateMatrix();
         auto mat = shapeCylinder->GetMesh(0)->GetMaterial();
+        mat->colorAmbient = glm::vec3(0.25f);
         mat->colorDiffuse = glm::vec3(0.0f, 1.0f, 0.0f);
         mat->colorSpecular = glm::vec3(1.0f);
         mat->valShininess = 32.0f;
@@ -107,6 +112,7 @@ int main()
         shapeCone->transform.scale = glm::vec3(0.2f);
         shapeCone->transform.UpdateMatrix();
         auto mat = shapeCone->GetMesh(0)->GetMaterial();
+        mat->colorAmbient = glm::vec3(0.25f);
         mat->colorDiffuse = glm::vec3(0.0f, 0.0f, 1.0f);
         mat->colorSpecular = glm::vec3(1.0f);
         mat->valShininess = 32.0f;
@@ -120,6 +126,7 @@ int main()
         shapeTorus->transform.scale = glm::vec3(0.4f);
         shapeTorus->transform.UpdateMatrix();
         auto mat = shapeTorus->GetMesh(0)->GetMaterial();
+        mat->colorAmbient = glm::vec3(0.25f);
         mat->colorDiffuse = glm::vec3(1.0f, 1.0f, 0.0f);
         mat->colorSpecular = glm::vec3(1.0f);
         mat->valShininess = 32.0f;
@@ -183,6 +190,7 @@ int main()
         mView = cam->GetView();
         mProj = cam->GetProj();
         shader->UniformMat4("mat_ProjView", mProj * mView);
+        shader->UniformVec3("vec_CameraPosWS", cam->GetPosition());
 
         scene->Draw(shader.get(), configModelShader);
 

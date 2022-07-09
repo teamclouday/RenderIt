@@ -111,7 +111,7 @@ vec3 GetSpecularColor()
 
 vec3 GetEmissiveColor()
 {
-    return val_EMISSIVE * (map_EMISSIVE_exists ? texture(map_EMISSIVE, vertOut.texCoords).rgb : vec3(0.0));
+    return val_EMISSIVE * (map_EMISSIVE_exists ? texture(map_EMISSIVE, vertOut.texCoords).rgb : vec3(1.0));
 }
 
 void ComputeDirLight(DirLight light, vec3 normDir, vec3 viewDir, out float diff, out float spec)
