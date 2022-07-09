@@ -649,6 +649,7 @@ void Scene::UI()
         }
         ImGui::PopID();
         iter++;
+        index++;
     }
     ImGui::PopID();
 }

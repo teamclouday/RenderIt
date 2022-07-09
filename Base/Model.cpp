@@ -1,3 +1,5 @@
+#define STB_IMAGE_IMPLEMENTATION
+
 #include "Model.hpp"
 #include "Animator.hpp"
 #include "Material.hpp"
@@ -30,21 +32,23 @@ Model::~Model()
     Reset();
 }
 
-bool Model::Load(const std::string &path, unsigned flags, bool computeDynamicMeshBounds)
+bool Model::Load(const std::string &modelSource, bool isFile, unsigned flags, bool computeDynamicMeshBounds)
 {
     if (_meshes.size())
         Reset();
 
-    auto directory = fs::path(path).parent_path();
+    auto directory = isFile ? fs::path(modelSource).parent_path() : fs::path(".");
 
     // load file
     Assimp::Importer importer;
-    const auto scene = importer.ReadFile(path, flags);
+    const auto scene = isFile ? importer.ReadFile(modelSource, flags)
+                              : importer.ReadFileFromMemory(modelSource.c_str(), modelSource.length(), flags);
     if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         return false;
 
     auto sceneName = std::string(scene->mName.C_Str());
-    modelName = sceneName.length() > 0 ? sceneName : fs::path(path).filename().string();
+    modelName =
+        sceneName.length() > 0 ? sceneName : (isFile ? fs::path(modelSource).filename().string() : MODEL_NAME_DEFAULT);
 
     // prepare animations
     loadAnimationTree(scene);
@@ -296,22 +300,52 @@ bool Model::Load(MeshShape shape)
 {
     if (_meshes.size())
         Reset();
-    std::shared_ptr<Mesh> newMesh = std::make_shared<Mesh>();
-    _meshes.push_back(newMesh);
-    newMesh->Load(shape);
+    bool res = true;
+    switch (shape)
+    {
+    case MeshShape::Plane: {
+        res = Load(MeshShapePlaneSource, false);
+        break;
+    }
+    case MeshShape::Cube: {
+        res = Load(MeshShapeCubeSource, false);
+        break;
+    }
+    case MeshShape::Sphere: {
+        res = Load(MeshShapeSphereSource, false);
+        break;
+    }
+    case MeshShape::Cylinder: {
+        res = Load(MeshShapeCylinderSource, false);
+        break;
+    }
+    case MeshShape::Cone: {
+        res = Load(MeshShapeConeSource, false);
+        break;
+    }
+    case MeshShape::Torus: {
+        res = Load(MeshShapeTorusSource, false);
+        break;
+    }
+    case MeshShape::None:
+    default: {
+        bounds.Validate();
+        break;
+    }
+    }
     modelName = std::to_string(shape);
-    bounds.Validate();
-    return true;
+    return res;
 }
 
-bool Model::LoadAnimation(const std::string &path)
+bool Model::LoadAnimation(const std::string &modelSource, bool isFile)
 {
     if (!_meshes.size())
         return false;
 
     // load file
     Assimp::Importer importer;
-    const auto scene = importer.ReadFile(path, 0);
+    const auto scene = isFile ? importer.ReadFile(modelSource, 0)
+                              : importer.ReadFileFromMemory(modelSource.c_str(), modelSource.length(), 0);
     if (!scene || !scene->mRootNode || !scene->HasAnimations())
         return false;
 

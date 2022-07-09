@@ -46,10 +46,85 @@ int main()
 
     // shape 1 plane
     auto shapePlane = std::make_shared<Model>();
-    shapePlane->Load(MeshShape::Plane);
-    shapePlane->transform.position.y = -1.0f;
-    shapePlane->transform.UpdateMatrix();
-    scene->AttachObject(shapePlane);
+    if (shapePlane->Load(MeshShape::Plane))
+    {
+        shapePlane->transform.position.y = -1.0f;
+        shapePlane->transform.UpdateMatrix();
+        auto mat = shapePlane->GetMesh(0)->GetMaterial();
+        mat->colorDiffuse = glm::vec3(0.0f, 1.0f, 1.0f);
+        mat->colorSpecular = glm::vec3(1.0f);
+        mat->valShininess = 32.0f;
+        scene->AttachObject(shapePlane);
+    }
+
+    // shape 2 cube
+    auto shapeCube = std::make_shared<Model>();
+    if (shapeCube->Load(MeshShape::Cube))
+    {
+        shapeCube->transform.position.x = 1.0f;
+        shapeCube->transform.scale = glm::vec3(0.2f);
+        shapeCube->transform.UpdateMatrix();
+        auto mat = shapeCube->GetMesh(0)->GetMaterial();
+        mat->colorDiffuse = glm::vec3(1.0f, 0.0f, 1.0f);
+        mat->colorSpecular = glm::vec3(1.0f);
+        mat->valShininess = 32.0f;
+        scene->AttachObject(shapeCube);
+    }
+
+    // shape 3 sphere
+    auto shapeSphere = std::make_shared<Model>();
+    if (shapeSphere->Load(MeshShape::Sphere))
+    {
+        shapeSphere->transform.position.x = -1.0f;
+        shapeSphere->transform.scale = glm::vec3(0.2f);
+        shapeSphere->transform.UpdateMatrix();
+        auto mat = shapeSphere->GetMesh(0)->GetMaterial();
+        mat->colorDiffuse = glm::vec3(1.0f, 0.0f, 0.0f);
+        mat->colorSpecular = glm::vec3(1.0f);
+        mat->valShininess = 32.0f;
+        scene->AttachObject(shapeSphere);
+    }
+
+    // shape 4 cylinder
+    auto shapeCylinder = std::make_shared<Model>();
+    if (shapeCylinder->Load(MeshShape::Cylinder))
+    {
+        shapeCylinder->transform.position.z = 1.0f;
+        shapeCylinder->transform.scale = glm::vec3(0.2f);
+        shapeCylinder->transform.UpdateMatrix();
+        auto mat = shapeCylinder->GetMesh(0)->GetMaterial();
+        mat->colorDiffuse = glm::vec3(0.0f, 1.0f, 0.0f);
+        mat->colorSpecular = glm::vec3(1.0f);
+        mat->valShininess = 32.0f;
+        scene->AttachObject(shapeCylinder);
+    }
+
+    // shape 5 cone
+    auto shapeCone = std::make_shared<Model>();
+    if (shapeCone->Load(MeshShape::Cone))
+    {
+        shapeCone->transform.position.z = -1.0f;
+        shapeCone->transform.scale = glm::vec3(0.2f);
+        shapeCone->transform.UpdateMatrix();
+        auto mat = shapeCone->GetMesh(0)->GetMaterial();
+        mat->colorDiffuse = glm::vec3(0.0f, 0.0f, 1.0f);
+        mat->colorSpecular = glm::vec3(1.0f);
+        mat->valShininess = 32.0f;
+        scene->AttachObject(shapeCone);
+    }
+
+    // shape 6 torus
+    auto shapeTorus = std::make_shared<Model>();
+    if (shapeTorus->Load(MeshShape::Torus))
+    {
+        shapeTorus->transform.scale = glm::vec3(0.4f);
+        shapeTorus->transform.UpdateMatrix();
+        auto mat = shapeTorus->GetMesh(0)->GetMaterial();
+        mat->colorDiffuse = glm::vec3(1.0f, 1.0f, 0.0f);
+        mat->colorSpecular = glm::vec3(1.0f);
+        mat->valShininess = 32.0f;
+        scene->AttachObject(shapeTorus);
+    }
 
     // setup camera
     cam->SetPosition(glm::vec3(1.0f, 1.0f, 1.0f));

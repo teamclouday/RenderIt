@@ -96,7 +96,7 @@ vec3 ComputeNormal()
 
 vec3 GetAmbientColor()
 {
-    return val_AMBIENT * (map_AMBIENT_exists ? texture(map_AMBIENT, vertOut.texCoords).rgb : vec3(0.1));
+    return val_AMBIENT * (map_AMBIENT_exists ? texture(map_AMBIENT, vertOut.texCoords).rgb : vec3(0.25));
 }
 
 vec3 GetDiffuseColor()
@@ -178,7 +178,7 @@ void main()
         vec3 lightColor = vec3(light.color[0], light.color[1], light.color[2]);
         float diff, spec;
         ComputeDirLight(light, normDir, viewDir, diff, spec);
-        accColor += (colAmbient + colDiffuse * diff + colSpecular * spec) * light.intensity * lightColor;
+        accColor += colAmbient + (colDiffuse * diff + colSpecular * spec) * light.intensity * lightColor;
     }
     // apply point lights
     for (uint i = 0; i < pointLightsLen; i++)
@@ -187,7 +187,7 @@ void main()
         vec3 lightColor = vec3(light.color[0], light.color[1], light.color[2]);
         float diff, spec, atten;
         ComputePointLight(light, normDir, viewDir, vertOut.fragPosWS.xyz, diff, spec, atten);
-        accColor += (colAmbient + colDiffuse * diff + colSpecular * spec) * light.intensity * lightColor * atten;
+        accColor += colAmbient + (colDiffuse * diff + colSpecular * spec) * light.intensity * lightColor * atten;
     }
     // apply spot lights
     for (uint i = 0; i < spotLightsLen; i++)
@@ -196,7 +196,7 @@ void main()
         vec3 lightColor = vec3(light.color[0], light.color[1], light.color[2]);
         float diff, spec, atten;
         ComputeSpotLight(light, normDir, viewDir, vertOut.fragPosWS.xyz, diff, spec, atten);
-        accColor += (colAmbient + colDiffuse * diff + colSpecular * spec) * light.intensity * lightColor * atten;
+        accColor += colAmbient + (colDiffuse * diff + colSpecular * spec) * light.intensity * lightColor * atten;
     }
 
     vec3 colEmissive = GetEmissiveColor();

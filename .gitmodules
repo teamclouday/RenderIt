@@ -16,6 +16,6 @@
 [submodule "External/glm"]
 	path = External/glm
 	url = https://github.com/g-truc/glm.git
-[submodule "External/tinygltf"]
-	path = External/tinygltf
-	url = https://github.com/syoyo/tinygltf.git
+[submodule "External/stb"]
+	path = External/stb
+	url = https://github.com/nothings/stb.git

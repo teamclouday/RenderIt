@@ -16,6 +16,8 @@
 #include "Shader.hpp"
 #include "Transform.hpp"
 
+#include "Shapes/MeshShapes.hpp"
+
 /** @file */
 
 namespace RenderIt
@@ -38,17 +40,15 @@ class Model
 
     ~Model();
 
-    /// Load from local file with assimp
-    bool Load(const std::string &path, unsigned flags = MODEL_LOAD_FLAGS, bool computeDynamicMeshBounds = true);
-
-    /// Load gltf models from local file with tinygltf
-    bool LoadGLTF(const std::string &path, bool computeDynamicMeshBounds = true);
+    /// Load from model source with assimp
+    bool Load(const std::string &modelSource, bool isFile = true, unsigned flags = MODEL_LOAD_FLAGS,
+              bool computeDynamicMeshBounds = true);
 
     /// Load with simple shape
     bool Load(MeshShape shape);
 
-    /// Load animation from local file
-    bool LoadAnimation(const std::string &path);
+    /// Load animation from model source
+    bool LoadAnimation(const std::string &modelSource, bool isFile = true);
 
     /// Draw all meshes
     void Draw(const Shader *shader) const;

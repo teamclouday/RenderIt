@@ -14,7 +14,7 @@ target_include_directories(RenderItLib PRIVATE
     ${CMAKE_SOURCE_DIR}/External/glm
     ${CMAKE_SOURCE_DIR}/External/assimp/include
     ${CMAKE_SOURCE_DIR}/External/termcolor/include
-    ${CMAKE_SOURCE_DIR}/External/tinygltf
+    ${CMAKE_SOURCE_DIR}/External/stb
     ${CMAKE_SOURCE_DIR}/Base
 )
 

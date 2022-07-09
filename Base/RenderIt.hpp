@@ -20,6 +20,8 @@
 #include "Cameras/FreeCamera.hpp"
 #include "Cameras/OrbitCamera.hpp"
 
+#include "Shapes/MeshShapes.hpp"
+
 #include "Tools.hpp"
 
 /** @file */

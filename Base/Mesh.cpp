@@ -33,63 +33,6 @@ void Mesh::Draw(const Shader *shader) const
     _vao->UnBind();
 }
 
-void Mesh::Load(MeshShape shape)
-{
-    if (_vao || _vbo || _ebo || _mat)
-        Reset();
-    switch (shape)
-    {
-    case MeshShape::Plane: {
-        // prepare buffer data
-        // clang-format off
-        const Vertex vertices[] = {
-            // pos                 normal              texcoords     tangent             bitangent            boneIDs           boneWeights
-            {{-1.0f, 0.0f,  1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0u, 0u, 0u, 0u}, {0.0f, 0.0f, 0.0f, 0.0f}},
-            {{ 1.0f, 0.0f,  1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0u, 0u, 0u, 0u}, {0.0f, 0.0f, 0.0f, 0.0f}},
-            {{-1.0f, 0.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0u, 0u, 0u, 0u}, {0.0f, 0.0f, 0.0f, 0.0f}},
-            {{ 1.0f, 0.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0u, 0u, 0u, 0u}, {0.0f, 0.0f, 0.0f, 0.0f}},
-        };
-        const unsigned indices[] = {0u, 1u, 2u, 3u};
-        // clang-format on
-        _indicesCount = 4;
-        _verticesCount = 4;
-        _primType = GL_TRIANGLE_STRIP;
-        // allocate buffers
-        _vao = std::make_unique<SVAO>();
-        _vbo = std::make_unique<SBuffer>(GL_ARRAY_BUFFER);
-        _ebo = std::make_unique<SBuffer>(GL_ELEMENT_ARRAY_BUFFER);
-        _mat = std::make_shared<Material>();
-        _vao->Bind();
-        _vbo->Bind();
-        glBufferData(_vbo->type, sizeof(Vertex) * _verticesCount, vertices, GL_STATIC_DRAW);
-        _ebo->Bind();
-        glBufferData(_ebo->type, sizeof(unsigned) * _indicesCount, indices, GL_STATIC_DRAW);
-        setupVAOAttributes();
-        _vao->UnBind();
-        _mat->colorDiffuse = glm::vec3(1.0f);
-        _mat->colorSpecular = glm::vec3(1.0f);
-        _mat->valShininess = 32.0f;
-        _mat->twoSided = true;
-        break;
-    }
-    case MeshShape::Cube: {
-
-        break;
-    }
-    case MeshShape::Sphere: {
-
-        break;
-    }
-    case MeshShape::Torus: {
-
-        break;
-    }
-    case MeshShape::None:
-    default:
-        break;
-    }
-}
-
 void Mesh::Load(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices,
                 std::shared_ptr<Material> material, GLenum primType)
 {
@@ -133,6 +76,11 @@ std::optional<GLuint> Mesh::GetVertexBuffer()
 std::optional<GLuint> Mesh::GetIndexBuffer()
 {
     return _ebo ? _ebo->Get() : std::optional<GLuint>{std::nullopt};
+}
+
+std::shared_ptr<Material> Mesh::GetMaterial()
+{
+    return _mat;
 }
 
 size_t Mesh::GetNumVertices() const

@@ -44,7 +44,7 @@ int main()
     // load model
     auto modelPath = Tools::select_file_in_explorer();
     auto model = std::make_shared<Model>();
-    if (!model->Load(modelPath, MODEL_LOAD_FLAGS | aiProcess_PreTransformVertices))
+    if (!model->Load(modelPath, true, MODEL_LOAD_FLAGS | aiProcess_PreTransformVertices))
     {
         Tools::display_message("Program", "Failed to load model " + modelPath, Tools::MessageType::ERROR);
         return -1;

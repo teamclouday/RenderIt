@@ -15,16 +15,6 @@
 namespace RenderIt
 {
 
-/// Simple mesh shapes
-enum class MeshShape
-{
-    None,
-    Plane,
-    Cube,
-    Sphere,
-    Torus
-};
-
 /// A general mesh
 class Mesh
 {
@@ -35,9 +25,6 @@ class Mesh
 
     /// Draw mesh data
     void Draw(const Shader *shader) const;
-
-    /// Load simple shape
-    void Load(MeshShape shape);
 
     /// Load with mesh data
     void Load(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices,
@@ -54,6 +41,9 @@ class Mesh
 
     /// Get index buffer
     std::optional<GLuint> GetIndexBuffer();
+
+    /// Get material
+    std::shared_ptr<Material> GetMaterial();
 
     /// Get number of vertices
     size_t GetNumVertices() const;
@@ -81,25 +71,3 @@ class Mesh
 };
 
 } // namespace RenderIt
-
-namespace std
-{
-inline string to_string(const RenderIt::MeshShape &type)
-{
-    switch (type)
-    {
-    case RenderIt::MeshShape::None:
-        return "None";
-    case RenderIt::MeshShape::Plane:
-        return "Plane";
-    case RenderIt::MeshShape::Cube:
-        return "Cube";
-    case RenderIt::MeshShape::Sphere:
-        return "Sphere";
-    case RenderIt::MeshShape::Torus:
-        return "Torus";
-    default:
-        return "";
-    }
-}
-} // namespace std
