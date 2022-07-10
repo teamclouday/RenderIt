@@ -45,6 +45,7 @@ set(EXAMPLES
     Lights
     Mandelbulb
     SimpleShapes
+    ParallaxMapping
 )
 
 buildExamples()
