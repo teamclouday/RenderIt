@@ -88,6 +88,9 @@ void AppContext::EnableCommonGLFeatures() const
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void AppContext::SetVsync(bool enable) const
