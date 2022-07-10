@@ -3,7 +3,6 @@
 layout(location = 0) out vec4 outColor;
 layout(location = 0) in VERTOUT
 {
-    vec3 normalWS;
     vec4 fragPosWS;
     vec2 texCoords;
 }

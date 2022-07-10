@@ -140,7 +140,6 @@ int main()
             waveGroundShader->UniformInt("lightMap", 0);
             waveGroundShader->UniformMat4("mat_ProjView", mProjView);
             waveGroundShader->UniformMat4("mat_Model", waveGround->transform.matrix);
-            waveGroundShader->UniformMat3("mat_ModelInv", glm::mat3(waveGround->transform.matrixInv));
 
             waveGroundShader->UniformFloat("val_K", waveConfigs->powerConstant);
             waveGroundShader->UniformFloat("val_Time", app->GetFrameEndTime());
