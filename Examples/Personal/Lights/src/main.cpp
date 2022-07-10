@@ -119,13 +119,14 @@ int main()
         cam->PrepareFrame(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         mView = cam->GetView();
         mProj = cam->GetProj();
+        auto mProjView = mProj * mView;
 
         shader->Bind();
 
         // vertex stage uniforms
         shader->UniformMat4("mat_Model", model->transform.matrix);
         shader->UniformMat3("mat_ModelInv", glm::mat3(model->transform.matrixInv));
-        shader->UniformMat4("mat_ProjView", mProj * mView);
+        shader->UniformMat4("mat_ProjView", mProjView);
         shader->SsboBinding("BoneMatrices", 0);
         anim->BindBones(0);
         // fragment stage uniforms
@@ -138,6 +139,8 @@ int main()
         lights->UnBindLights(1);
         anim->UnBindBones(0);
         shader->UnBind();
+
+        lights->DrawLights(mProjView, cam->GetPosition());
 
         app->LoopEndFrame(renderUI);
 

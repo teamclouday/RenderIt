@@ -7,7 +7,8 @@ namespace RenderIt
 {
 
 LightManager::LightManager()
-    : _dirLightsSSBOUpdated(false), _pointLightsSSBOUpdated(false), _spotLightsSSBOUpdated(false)
+    : lightDrawScale(0.05f), drawDirLights(true), drawPointLights(true), drawSpotLights(true),
+      _dirLightsSSBOUpdated(false), _pointLightsSSBOUpdated(false), _spotLightsSSBOUpdated(false)
 {
     _dirLights.reserve(LIGHTS_MAX_DIR_LIGHTS);
     _pointLights.reserve(LIGHTS_MAX_POINT_LIGHTS);
@@ -20,6 +21,8 @@ LightManager::LightManager()
                      LIGHTS_MAX_SPOT_LIGHTS * sizeof(SpotLight) + 3 * sizeof(unsigned),
                  nullptr, GL_DYNAMIC_DRAW);
     _lightsSSBO->UnBind();
+
+    prepareDrawData();
 }
 
 std::shared_ptr<LightManager> LightManager::Instance()
@@ -34,6 +37,43 @@ void LightManager::Update(bool updateAllLights)
     _pointLightsSSBOUpdated &= !updateAllLights;
     _spotLightsSSBOUpdated &= !updateAllLights;
     updateSSBO();
+}
+
+void LightManager::DrawLights(const glm::mat4 &matProjView, const glm::vec3 &cameraPos) const
+{
+    std::shared_ptr<Mesh> mesh = _drawModel->GetMesh(0);
+    if (!mesh)
+        return;
+    _drawShader->Bind();
+    _drawShader->UniformMat4("mProjView", matProjView);
+    _drawShader->UniformFloat("vLightScale", lightDrawScale);
+    _drawShader->UniformVec3("vCameraPos", cameraPos);
+    BindLights(0);
+    auto VAO = mesh->GetVertexArray().value();
+    auto count = mesh->GetNumIndices();
+    glBindVertexArray(VAO);
+    // dir lights
+    if (drawDirLights && !_dirLights.empty() && mesh)
+    {
+        _drawShader->UniformInt("vLightType", 0);
+        glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(count), GL_UNSIGNED_INT, 0,
+                                static_cast<GLsizei>(_dirLights.size()));
+    }
+    if (drawPointLights && !_pointLights.empty() && mesh)
+    {
+        _drawShader->UniformInt("vLightType", 1);
+        glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(count), GL_UNSIGNED_INT, 0,
+                                static_cast<GLsizei>(_pointLights.size()));
+    }
+    if (drawSpotLights && !_spotLights.empty() && mesh)
+    {
+        _drawShader->UniformInt("vLightType", 2);
+        glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(count), GL_UNSIGNED_INT, 0,
+                                static_cast<GLsizei>(_spotLights.size()));
+    }
+    glBindVertexArray(0);
+    UnBindLights(0);
+    _drawShader->UnBind();
 }
 
 void LightManager::BindLights(unsigned binding) const
@@ -257,6 +297,108 @@ void LightManager::updateSSBO()
         _lightsSSBO->UnBind();
         _spotLightsSSBOUpdated = true;
     }
+}
+
+void LightManager::prepareDrawData()
+{
+    // load shaders
+    std::string vertSource = R"(
+        #version 450 core
+        layout(location = 0) in vec3 inPos;
+        layout(location = 0) out vec3 vertColor;
+
+        uniform mat4 mProjView;
+        uniform int vLightType;
+        uniform float vLightScale;
+        uniform vec3 vCameraPos;
+
+        struct DirLight
+        {
+            float dir[3];
+            float color[3];
+            float intensity;
+            int castShadow;
+        };
+
+        struct PointLight
+        {
+            float pos[3];
+            float range;
+            float color[3];
+            float intensity;
+            int castShadow;
+        };
+
+        struct SpotLight
+        {
+            float pos[3];
+            float dir[3];
+            float range;
+            float cutoffInner;
+            float cutoffOuter;
+            float color[3];
+            float intensity;
+            int castShadow;
+        };
+
+        #define LIGHTS_MAX_DIR_LIGHTS 4
+        #define LIGHTS_MAX_POINT_LIGHTS 4
+        #define LIGHTS_MAX_SPOT_LIGHTS 4
+
+        layout(std430, binding = 0) buffer LightsData
+        {
+            uint dirLightsLen;
+            DirLight dirLights[LIGHTS_MAX_DIR_LIGHTS];
+            uint pointLightsLen;
+            PointLight pointLights[LIGHTS_MAX_POINT_LIGHTS];
+            uint spotLightsLen;
+            SpotLight spotLights[LIGHTS_MAX_SPOT_LIGHTS];
+        };
+
+        #define LIGHT_TYPE_DIR 0
+        #define LIGHT_TYPE_POINT 1
+        #define LIGHT_TYPE_SPOT 2
+
+        void main()
+        {
+            vec4 pos = vec4(vLightScale * inPos, 1.0);
+            if (vLightType == LIGHT_TYPE_DIR)
+            {
+                pos.xyz += vCameraPos + vec3(dirLights[gl_InstanceID].dir[0], dirLights[gl_InstanceID].dir[1],
+                                            dirLights[gl_InstanceID].dir[2]);
+                vertColor = vec3(dirLights[gl_InstanceID].color[0], dirLights[gl_InstanceID].color[1],
+                                dirLights[gl_InstanceID].color[2]);
+            }
+            else if (vLightType == LIGHT_TYPE_POINT)
+            {
+                pos.xyz += vec3(pointLights[gl_InstanceID].pos[0], pointLights[gl_InstanceID].pos[1],
+                                pointLights[gl_InstanceID].pos[2]);
+                vertColor = vec3(pointLights[gl_InstanceID].color[0], pointLights[gl_InstanceID].color[1],
+                                pointLights[gl_InstanceID].color[2]);
+            }
+            else
+            {
+                pos.xyz +=
+                    vec3(spotLights[gl_InstanceID].pos[0], spotLights[gl_InstanceID].pos[1], spotLights[gl_InstanceID].pos[2]);
+                vertColor = vec3(spotLights[gl_InstanceID].color[0], spotLights[gl_InstanceID].color[1],
+                                spotLights[gl_InstanceID].color[2]);
+            }
+            gl_Position = mProjView * pos;
+        }
+    )";
+    std::string fragSource = R"(
+        #version 450 core
+        layout(location = 0) out vec4 outColor;
+        layout(location = 0) in vec3 vertColor;
+        void main(){outColor = vec4(vertColor, 1.0);}
+    )";
+    _drawShader = std::make_unique<Shader>();
+    _drawShader->AddSource(vertSource, GL_VERTEX_SHADER);
+    _drawShader->AddSource(fragSource, GL_FRAGMENT_SHADER);
+    _drawShader->Compile();
+    // load models
+    _drawModel = std::make_unique<Model>();
+    _drawModel->Load(MeshShape::Cube);
 }
 
 } // namespace RenderIt

@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "GLStructs.hpp"
+#include "Model.hpp"
 #include "Shader.hpp"
 
 #define LIGHTS_MAX_DIR_LIGHTS 4
@@ -107,6 +108,9 @@ class LightManager
     /// Update light data (SSBO)
     void Update(bool updateAllLights = false);
 
+    /// Render positions of lights into scene
+    void DrawLights(const glm::mat4 &matProjView, const glm::vec3 &cameraPos) const;
+
     /// Bind light data
     void BindLights(unsigned binding = 0) const;
 
@@ -136,10 +140,15 @@ class LightManager
 
   public:
     const std::string LOGNAME = "LightManager";
+    float lightDrawScale;
+    bool drawDirLights, drawPointLights, drawSpotLights;
 
   private:
     /// Update lights SSBO
     void updateSSBO();
+
+    /// Load & prepare lights draw data
+    void prepareDrawData();
 
   private:
     // light data
@@ -159,6 +168,10 @@ class LightManager
     std::unique_ptr<STexture> _dirLightsShadowMaps;
     std::unique_ptr<STexture> _pointLightsShadowMaps;
     std::unique_ptr<STexture> _spotLightsShadowMaps;
+
+    // light draw related
+    std::shared_ptr<Shader> _drawShader;
+    std::unique_ptr<Model> _drawModel;
 };
 
 } // namespace RenderIt

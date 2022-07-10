@@ -561,9 +561,14 @@ void LightManager::UI()
 {
     ImGui::PushID(LOGNAME.c_str());
 
+    ImGui::DragFloat("Draw Scale", &lightDrawScale, 0.001f, 0.001f, 1.0f, "%.3f");
+    ImGui::Separator();
+
     ImGui::PushID("DirLight");
     if (ImGui::TreeNode("Directional"))
     {
+        ImGui::Checkbox("Draw", &drawDirLights);
+        ImGui::Text("Max Count: %d", LIGHTS_MAX_DIR_LIGHTS);
         for (auto i = 0u; i < _dirLights.size(); ++i)
         {
             ImGui::PushID(i);
@@ -588,6 +593,8 @@ void LightManager::UI()
     ImGui::PushID("PointLight");
     if (ImGui::TreeNode("Point"))
     {
+        ImGui::Checkbox("Draw", &drawPointLights);
+        ImGui::Text("Max Count: %d", LIGHTS_MAX_POINT_LIGHTS);
         for (auto i = 0u; i < _pointLights.size(); ++i)
         {
             ImGui::PushID(i);
@@ -612,6 +619,8 @@ void LightManager::UI()
     ImGui::PushID("SpotLightLight");
     if (ImGui::TreeNode("Spot"))
     {
+        ImGui::Checkbox("Draw", &drawSpotLights);
+        ImGui::Text("Max Count: %d", LIGHTS_MAX_SPOT_LIGHTS);
         for (auto i = 0u; i < _spotLights.size(); ++i)
         {
             ImGui::PushID(i);
