@@ -119,6 +119,9 @@ int main()
         ImGui::End();
     };
 
+    bool doWireframe = false;
+    glLineWidth(2.0f);
+
     app->Start();
 
     while (!app->WindowShouldClose())
@@ -186,6 +189,14 @@ int main()
             break;
         if (input->GetKeyPressed(GLFW_KEY_F11))
             app->displayUI = !app->displayUI;
+        if (input->GetKeyPressed(GLFW_KEY_SPACE))
+        {
+            doWireframe = !doWireframe;
+            if (doWireframe)
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            else
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
         input->Update();
     }
 

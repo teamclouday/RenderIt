@@ -14,7 +14,6 @@ struct WaveRenderer
         shader->AddSource(Tools::read_file_content("./shaders/waves/wave.vert"), GL_VERTEX_SHADER);
         shader->AddSource(Tools::read_file_content("./shaders/waves/wave.tesc"), GL_TESS_CONTROL_SHADER);
         shader->AddSource(Tools::read_file_content("./shaders/waves/wave.tese"), GL_TESS_EVALUATION_SHADER);
-        shader->AddSource(Tools::read_file_content("./shaders/waves/wave.geom"), GL_GEOMETRY_SHADER);
         shader->AddSource(Tools::read_file_content("./shaders/waves/wave.frag"), GL_FRAGMENT_SHADER);
         shader->Compile();
 
@@ -23,9 +22,7 @@ struct WaveRenderer
             -1.0f, -1.0f,
              1.0f, -1.0f,
             -1.0f,  1.0f,
-            -1.0f,  1.0f,
-             1.0f, -1.0f,
-             1.0f,  1.0f
+             1.0f,  1.0f,
         };
         // clang-format on
         VAO = std::make_unique<SVAO>();
@@ -40,8 +37,9 @@ struct WaveRenderer
 
     inline void Draw()
     {
+        glPatchParameteri(GL_PATCH_VERTICES, 4);
         VAO->Bind();
-        glDrawArrays(GL_PATCHES, 0, 6);
+        glDrawArrays(GL_PATCHES, 0, 4);
         VAO->UnBind();
     }
 
