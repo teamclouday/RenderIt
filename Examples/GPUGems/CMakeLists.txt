@@ -40,6 +40,7 @@ endfunction(buildExamples)
 
 set(EXAMPLES
     Chapter1
+    Chapter2
 )
 
 buildExamples()
