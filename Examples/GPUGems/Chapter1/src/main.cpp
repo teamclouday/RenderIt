@@ -49,7 +49,6 @@ int main()
     shader->AddSource(Tools::read_file_content("./shaders/wave.vert"), GL_VERTEX_SHADER);
     shader->AddSource(Tools::read_file_content("./shaders/wave.tesc"), GL_TESS_CONTROL_SHADER);
     shader->AddSource(Tools::read_file_content("./shaders/wave.tese"), GL_TESS_EVALUATION_SHADER);
-    shader->AddSource(Tools::read_file_content("./shaders/wave.geom"), GL_GEOMETRY_SHADER);
     shader->AddSource(Tools::read_file_content("./shaders/wave.frag"), GL_FRAGMENT_SHADER);
     if (!shader->Compile())
         return -1;
@@ -60,9 +59,7 @@ int main()
         -0.5f, -0.5f,
          0.5f, -0.5f,
         -0.5f,  0.5f,
-        -0.5f,  0.5f,
-         0.5f, -0.5f,
-         0.5f,  0.5f
+         0.5f,  0.5f,
     };
     // clang-format on
     // setup VAO
@@ -74,6 +71,7 @@ int main()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
     VAO.UnBind();
+    glPatchParameteri(GL_PATCH_VERTICES, 4);
 
     // wave configs
     auto configs = std::make_unique<WaveConfigs>();
@@ -141,7 +139,7 @@ int main()
         configs->wavesBuffer->BindBase(0);
 
         VAO.Bind();
-        glDrawArrays(GL_PATCHES, 0, 6);
+        glDrawArrays(GL_PATCHES, 0, 4);
         VAO.UnBind();
 
         configs->wavesBuffer->UnBindBase(0);
