@@ -137,6 +137,30 @@ struct SFBO
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
+    void BindRead(size_t idx = 0) const
+    {
+        if (idx < IDs.size())
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, IDs[idx]);
+    }
+    void UnBindRead() const
+    {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    }
+    void BindDraw(size_t idx = 0) const
+    {
+        if (idx < IDs.size())
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, IDs[idx]);
+    }
+    void UnBindDraw() const
+    {
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    }
+    bool Validate(size_t idx = 0) const
+    {
+        if (idx >= IDs.size())
+            return false;
+        return glCheckNamedFramebufferStatus(IDs[idx], GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+    }
     GLuint Get(size_t idx = 0) const
     {
         if (IDs.size() > idx)
