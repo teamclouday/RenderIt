@@ -117,8 +117,8 @@ float ComputeHeightNormalAll(vec2 pos, inout vec3 norm)
 void main()
 {
     vec2 uv = gl_TessCoord.xy;
-    vec4 p0 = mix(gl_in[0].gl_Position, gl_in[1].gl_Position, uv.x);
-    vec4 p1 = mix(gl_in[2].gl_Position, gl_in[3].gl_Position, uv.x);
+    vec4 p0 = mix(gl_in[0].gl_Position, gl_in[3].gl_Position, uv.x);
+    vec4 p1 = mix(gl_in[1].gl_Position, gl_in[2].gl_Position, uv.x);
     vec4 pos = mix(p0, p1, uv.y);
 
     vec3 norm = vec3(0.0, 0.0, 1.0);

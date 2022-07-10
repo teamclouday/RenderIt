@@ -21,8 +21,8 @@ struct WaveRenderer
         const float vertices[] = {
             -1.0f, -1.0f,
              1.0f, -1.0f,
-            -1.0f,  1.0f,
              1.0f,  1.0f,
+            -1.0f,  1.0f,
         };
         // clang-format on
         VAO = std::make_unique<SVAO>();
