@@ -46,6 +46,7 @@ set(EXAMPLES
     Mandelbulb
     SimpleShapes
     ParallaxMapping
+    MSAA
 )
 
 buildExamples()
