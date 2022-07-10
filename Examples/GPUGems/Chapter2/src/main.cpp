@@ -1,9 +1,10 @@
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include "RenderIt.hpp"
 #include "configs.hpp"
 #include "renderer.hpp"
-
-#include <stb_image.h>
 
 using namespace RenderIt;
 
@@ -67,7 +68,7 @@ int main()
     auto lightMap = std::make_unique<STexture>(GL_TEXTURE_2D);
     {
         int w, h, n;
-        auto lightMapSource = stbi_load("./assets/sun.png", &w, &h, &n, STBI_rgb_alpha);
+        auto lightMapSource = stbi_load("./assets/sun.jpg", &w, &h, &n, STBI_rgb_alpha);
         if (lightMapSource)
         {
             lightMap->Bind();

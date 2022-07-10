@@ -4,9 +4,6 @@
 #include "Tools.hpp"
 #include "Vertex.hpp"
 
-// this is already defined in assimp.cpp
-// so we skip it here
-// #define STB_IMAGE_IMPLEMENTATION
 #include <assimp/Importer.hpp>
 #include <glm/glm.hpp>
 #include <stb_image.h>
