@@ -223,11 +223,12 @@ int main()
         cam->PrepareFrame(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         mView = cam->GetView();
         mProj = cam->GetProj();
+        auto mProjView = mProj * mView;
 
         shader->Bind();
 
         // vertex stage uniforms
-        shader->UniformMat4("mat_ProjView", mProj * mView);
+        shader->UniformMat4("mat_ProjView", mProjView);
         // fragment stage uniforms
         shader->SsboBinding("LightsData", 1);
         lights->BindLights(1);
@@ -239,6 +240,8 @@ int main()
 
         lights->UnBindLights(1);
         shader->UnBind();
+
+        lights->DrawLights(mProjView, cam->GetPosition());
 
         app->LoopEndFrame(renderUI);
 
