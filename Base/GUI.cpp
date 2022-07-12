@@ -421,7 +421,7 @@ void Mesh::UI()
 
     if (ImGui::TreeNode("Material"))
     {
-        UIEditMaterial(_mat);
+        UIEditMaterial(material);
         ImGui::TreePop();
     }
 

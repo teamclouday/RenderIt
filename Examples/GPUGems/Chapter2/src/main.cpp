@@ -55,7 +55,7 @@ int main()
     {
         waveGround->transform.position.y = -0.5f;
         waveGround->transform.UpdateMatrix();
-        auto mat = waveGround->GetMesh(0)->GetMaterial();
+        auto mat = waveGround->GetMesh(0)->material;
         mat->twoSided = true;
         mat->colorDiffuse = glm::vec3(0.6f, 0.5f, 0.3f);
     }

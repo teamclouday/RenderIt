@@ -28,7 +28,7 @@ class Mesh
 
     /// Load with mesh data
     void Load(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices,
-              std::shared_ptr<Material> material, GLenum primType = GL_TRIANGLES);
+              std::shared_ptr<Material> material, GLenum type = GL_TRIANGLES);
 
     /// Reset mesh data
     void Reset();
@@ -42,9 +42,6 @@ class Mesh
     /// Get index buffer
     std::optional<GLuint> GetIndexBuffer();
 
-    /// Get material
-    std::shared_ptr<Material> GetMaterial();
-
     /// Get number of vertices
     size_t GetNumVertices() const;
 
@@ -56,6 +53,8 @@ class Mesh
 
   public:
     const std::string LOGNAME = "Mesh";
+    std::shared_ptr<Material> material;
+    GLenum primType;
 
   private:
     /// Configure VAO attribute points
@@ -65,9 +64,7 @@ class Mesh
     std::unique_ptr<SVAO> _vao;
     std::unique_ptr<SBuffer> _vbo;
     std::unique_ptr<SBuffer> _ebo;
-    std::shared_ptr<Material> _mat;
     size_t _indicesCount, _verticesCount;
-    GLenum _primType;
 };
 
 } // namespace RenderIt

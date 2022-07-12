@@ -6,7 +6,7 @@
 namespace RenderIt
 {
 
-Mesh::Mesh() : _vao(nullptr), _vbo(nullptr), _ebo(nullptr), _mat(nullptr), _indicesCount(0)
+Mesh::Mesh() : _vao(nullptr), _vbo(nullptr), _ebo(nullptr), material(nullptr), _indicesCount(0), _verticesCount(0)
 {
 }
 
@@ -19,32 +19,32 @@ void Mesh::Draw(const Shader *shader) const
 {
     if (!_vao || !_indicesCount)
         return;
-    if (_mat)
+    if (material)
     {
-        shader->ConfigMaterialTextures(_mat.get());
-        if (_mat->twoSided)
+        shader->ConfigMaterialTextures(material.get());
+        if (material->twoSided)
             glDisable(GL_CULL_FACE);
         else
             glEnable(GL_CULL_FACE);
     }
     glActiveTexture(GL_TEXTURE0);
     _vao->Bind();
-    glDrawElements(_primType, static_cast<GLsizei>(_indicesCount), GL_UNSIGNED_INT, 0);
+    glDrawElements(primType, static_cast<GLsizei>(_indicesCount), GL_UNSIGNED_INT, 0);
     _vao->UnBind();
 }
 
 void Mesh::Load(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices,
-                std::shared_ptr<Material> material, GLenum primType)
+                std::shared_ptr<Material> material, GLenum type)
 {
-    if (_vao || _vbo || _ebo || _mat)
+    if (_vao || _vbo || _ebo)
         Reset();
     _vao = std::make_unique<SVAO>();
     _vbo = std::make_unique<SBuffer>(GL_ARRAY_BUFFER);
     _ebo = std::make_unique<SBuffer>(GL_ELEMENT_ARRAY_BUFFER);
-    _mat = material;
+    material = material;
     _indicesCount = indices.size();
     _verticesCount = vertices.size();
-    _primType = primType;
+    primType = type;
 
     _vao->Bind();
     _vbo->Bind();
@@ -60,7 +60,6 @@ void Mesh::Reset()
     _vao = nullptr;
     _vbo = nullptr;
     _ebo = nullptr;
-    _mat = nullptr;
 }
 
 std::optional<GLuint> Mesh::GetVertexArray()
@@ -76,11 +75,6 @@ std::optional<GLuint> Mesh::GetVertexBuffer()
 std::optional<GLuint> Mesh::GetIndexBuffer()
 {
     return _ebo ? _ebo->Get() : std::optional<GLuint>{std::nullopt};
-}
-
-std::shared_ptr<Material> Mesh::GetMaterial()
-{
-    return _mat;
 }
 
 size_t Mesh::GetNumVertices() const

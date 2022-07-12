@@ -51,7 +51,7 @@ int main()
         shapePlane->transform.position.y = -0.5f;
         shapePlane->transform.scale = glm::vec3(2.0f);
         shapePlane->transform.UpdateMatrix();
-        auto mat = shapePlane->GetMesh(0)->GetMaterial();
+        auto mat = shapePlane->GetMesh(0)->material;
         mat->colorAmbient = glm::vec3(0.25f);
         mat->colorDiffuse = glm::vec3(0.0f, 1.0f, 1.0f);
         mat->colorSpecular = glm::vec3(1.0f);
@@ -66,7 +66,7 @@ int main()
         shapeCube->transform.position.x = 1.0f;
         shapeCube->transform.scale = glm::vec3(0.2f);
         shapeCube->transform.UpdateMatrix();
-        auto mat = shapeCube->GetMesh(0)->GetMaterial();
+        auto mat = shapeCube->GetMesh(0)->material;
         mat->colorAmbient = glm::vec3(0.25f);
         mat->colorDiffuse = glm::vec3(1.0f, 0.0f, 1.0f);
         mat->colorSpecular = glm::vec3(1.0f);
@@ -81,7 +81,7 @@ int main()
         shapeSphere->transform.position.x = -1.0f;
         shapeSphere->transform.scale = glm::vec3(0.2f);
         shapeSphere->transform.UpdateMatrix();
-        auto mat = shapeSphere->GetMesh(0)->GetMaterial();
+        auto mat = shapeSphere->GetMesh(0)->material;
         mat->colorAmbient = glm::vec3(0.25f);
         mat->colorDiffuse = glm::vec3(1.0f, 0.0f, 0.0f);
         mat->colorSpecular = glm::vec3(1.0f);
@@ -96,7 +96,7 @@ int main()
         shapeCylinder->transform.position.z = 1.0f;
         shapeCylinder->transform.scale = glm::vec3(0.2f);
         shapeCylinder->transform.UpdateMatrix();
-        auto mat = shapeCylinder->GetMesh(0)->GetMaterial();
+        auto mat = shapeCylinder->GetMesh(0)->material;
         mat->colorAmbient = glm::vec3(0.25f);
         mat->colorDiffuse = glm::vec3(0.0f, 1.0f, 0.0f);
         mat->colorSpecular = glm::vec3(1.0f);
@@ -111,7 +111,7 @@ int main()
         shapeCone->transform.position.z = -1.0f;
         shapeCone->transform.scale = glm::vec3(0.2f);
         shapeCone->transform.UpdateMatrix();
-        auto mat = shapeCone->GetMesh(0)->GetMaterial();
+        auto mat = shapeCone->GetMesh(0)->material;
         mat->colorAmbient = glm::vec3(0.25f);
         mat->colorDiffuse = glm::vec3(0.0f, 0.0f, 1.0f);
         mat->colorSpecular = glm::vec3(1.0f);
@@ -125,7 +125,7 @@ int main()
     {
         shapeTorus->transform.scale = glm::vec3(0.4f);
         shapeTorus->transform.UpdateMatrix();
-        auto mat = shapeTorus->GetMesh(0)->GetMaterial();
+        auto mat = shapeTorus->GetMesh(0)->material;
         mat->colorAmbient = glm::vec3(0.25f);
         mat->colorDiffuse = glm::vec3(1.0f, 1.0f, 0.0f);
         mat->colorSpecular = glm::vec3(1.0f);

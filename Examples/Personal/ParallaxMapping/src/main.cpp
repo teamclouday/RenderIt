@@ -141,7 +141,7 @@ int main()
         model1->transform.position.x = -0.5f;
         model1->transform.scale = glm::vec3(0.4f);
         model1->transform.UpdateMatrix();
-        auto mat = model1->GetMesh(0)->GetMaterial();
+        auto mat = model1->GetMesh(0)->material;
         mat->colorDiffuse = glm::vec3(1.0);
         mat->colorSpecular = glm::vec3(1.0);
         mat->valShininess = 32.0f;
@@ -156,7 +156,7 @@ int main()
         model2->transform.position.x = 0.5f;
         model2->transform.scale = glm::vec3(0.4f);
         model2->transform.UpdateMatrix();
-        auto mat = model2->GetMesh(0)->GetMaterial();
+        auto mat = model2->GetMesh(0)->material;
         mat->colorDiffuse = glm::vec3(1.0);
         mat->colorSpecular = glm::vec3(1.0);
         mat->valShininess = 32.0f;
