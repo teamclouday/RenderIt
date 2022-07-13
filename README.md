@@ -1,6 +1,6 @@
 # RenderIt
 
-Just Render It 😍 \
+Just Render It 😉 \
 Personal OpenGL Rendering Playground
 
 `Base`: the `RenderIt` library, with everything except rendering\
