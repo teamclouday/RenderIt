@@ -29,23 +29,46 @@ bool Scene::RemoveObject(const std::shared_ptr<Model> &model)
     return true;
 }
 
-void Scene::Draw(const Shader *shader, std::function<void(const Model *, const Shader *)> configModelShader) const
+void Scene::Draw(const Shader *shader, const RenderPass &pass,
+                 std::function<void(const Model *, const Shader *)> configModelShader) const
 {
-    std::queue<const Model *> ms;
-    for (auto m : models)
-        ms.push(m.get());
-
-    while (!ms.empty())
+    if (pass == RenderPass::Ordered || pass == RenderPass::Opaque)
     {
-        auto m = ms.front();
-        ms.pop();
-        // draw model
-        if (configModelShader)
-            configModelShader(m, shader);
-        m->Draw(shader);
-        // get children
-        for (auto child : m->_children)
-            ms.push(child.get());
+        std::queue<const Model *> ms;
+        for (auto m : models)
+            ms.push(m.get());
+
+        while (!ms.empty())
+        {
+            auto m = ms.front();
+            ms.pop();
+            // draw model
+            if (configModelShader)
+                configModelShader(m, shader);
+            m->Draw(shader, RenderPass::Opaque);
+            // get children
+            for (auto child : m->_children)
+                ms.push(child.get());
+        }
+    }
+    if (pass == RenderPass::Ordered || pass == RenderPass::Trans)
+    {
+        std::queue<const Model *> ms;
+        for (auto m : models)
+            ms.push(m.get());
+
+        while (!ms.empty())
+        {
+            auto m = ms.front();
+            ms.pop();
+            // draw model
+            if (configModelShader)
+                configModelShader(m, shader);
+            m->Draw(shader, RenderPass::Trans);
+            // get children
+            for (auto child : m->_children)
+                ms.push(child.get());
+        }
     }
 }
 

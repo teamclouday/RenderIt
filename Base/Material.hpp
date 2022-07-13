@@ -79,15 +79,19 @@ struct Material
     glm::vec3 colorDiffuse = glm::vec3(0.0f);
     glm::vec3 colorSpecular = glm::vec3(0.0f);
     glm::vec3 colorEmissive = glm::vec3(0.0f);
+    glm::vec3 colorTransparent = glm::vec3(0.0f);
     float valShininess = 0.0f;
     float valOpacity = 1.0f;
+    float valRefract = 1.0f;
 
     inline static const std::string valNameColorAmbient = "val_AMBIENT";
     inline static const std::string valNameColorDiffuse = "val_DIFFUSE";
     inline static const std::string valNameColorSpecular = "val_SPECULAR";
     inline static const std::string valNameColorEmissive = "val_EMISSIVE";
-    inline static const std::string valNameColorShininess = "val_SHININESS";
-    inline static const std::string valNameColorOpacity = "val_OPACITY";
+    inline static const std::string valNameColorTransparent = "val_TRANSPARENT";
+    inline static const std::string valNameValShininess = "val_SHININESS";
+    inline static const std::string valNameValOpacity = "val_OPACITY";
+    inline static const std::string valNameValRefract = "val_REFRACT";
 
 #pragma endregion material_consts
 

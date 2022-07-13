@@ -147,8 +147,10 @@ void Shader::ConfigMaterialTextures(const Material *mat) const
     UniformVec3(Material::valNameColorDiffuse, mat->colorDiffuse);
     UniformVec3(Material::valNameColorSpecular, mat->colorSpecular);
     UniformVec3(Material::valNameColorEmissive, mat->colorEmissive);
-    UniformFloat(Material::valNameColorShininess, mat->valShininess);
-    UniformFloat(Material::valNameColorOpacity, mat->valOpacity);
+    UniformVec3(Material::valNameColorTransparent, mat->colorTransparent);
+    UniformFloat(Material::valNameValShininess, mat->valShininess);
+    UniformFloat(Material::valNameValOpacity, mat->valOpacity);
+    UniformFloat(Material::valNameValRefract, mat->valRefract);
 }
 
 void Shader::UniformBool(const std::string &name, bool val) const

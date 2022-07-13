@@ -151,8 +151,10 @@ void UIEditMaterial(std::shared_ptr<Material> &mat)
         ImGui::ColorEdit3(Material::valNameColorDiffuse.c_str(), glm::value_ptr(mat->colorDiffuse));
         ImGui::ColorEdit3(Material::valNameColorSpecular.c_str(), glm::value_ptr(mat->colorSpecular));
         ImGui::ColorEdit3(Material::valNameColorEmissive.c_str(), glm::value_ptr(mat->colorEmissive));
-        ImGui::DragFloat(Material::valNameColorShininess.c_str(), &mat->valShininess, 0.01f, 0.0f, 1000.0f, "%.2f");
-        ImGui::DragFloat(Material::valNameColorOpacity.c_str(), &mat->valOpacity, 0.001f, 0.0f, 1.0f, "%.3f");
+        ImGui::ColorEdit3(Material::valNameColorTransparent.c_str(), glm::value_ptr(mat->colorTransparent));
+        ImGui::DragFloat(Material::valNameValShininess.c_str(), &mat->valShininess, 0.01f, 0.0f, 1000.0f, "%.2f");
+        ImGui::DragFloat(Material::valNameValOpacity.c_str(), &mat->valOpacity, 0.001f, 0.0f, 1.0f, "%.3f");
+        ImGui::DragFloat(Material::valNameValRefract.c_str(), &mat->valRefract, 0.001f, 0.0f, 1.0f, "%.3f");
         ImGui::Checkbox("Two Sided", &mat->twoSided);
         ImGui::TreePop();
     }

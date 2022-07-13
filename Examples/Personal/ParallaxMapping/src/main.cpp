@@ -236,7 +236,7 @@ int main()
         shader->UniformFloat("val_HeightScale", heightScale);
         shader->UniformFloat("val_HeightLayers", heightLayers);
 
-        scene->Draw(shader.get(), configModelShader);
+        scene->Draw(shader.get(), RenderPass::Ordered, configModelShader);
 
         lights->UnBindLights(1);
         shader->UnBind();

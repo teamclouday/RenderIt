@@ -6,6 +6,7 @@
 #include <unordered_set>
 
 #include "Model.hpp"
+#include "RenderPass.hpp"
 #include "Shader.hpp"
 
 /** @file */
@@ -31,7 +32,7 @@ class Scene
 #pragma endregion object_management
 
     /// Draw scene, and configure shader for each model
-    void Draw(const Shader *shader,
+    void Draw(const Shader *shader, const RenderPass &pass = RenderPass::Ordered,
               std::function<void(const Model *, const Shader *)> configModelShader = nullptr) const;
 
     /// UI calls

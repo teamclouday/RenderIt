@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "GLStructs.hpp"
+#include "RenderPass.hpp"
 #include "Shader.hpp"
 #include "Vertex.hpp"
 
@@ -24,7 +25,7 @@ class Mesh
     ~Mesh();
 
     /// Draw mesh data
-    void Draw(const Shader *shader) const;
+    void Draw(const Shader *shader, const RenderPass &pass = RenderPass::Ordered) const;
 
     /// Load with mesh data
     void Load(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices, std::shared_ptr<Material> mat,

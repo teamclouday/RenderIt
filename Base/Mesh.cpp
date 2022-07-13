@@ -15,7 +15,7 @@ Mesh::~Mesh()
     Reset();
 }
 
-void Mesh::Draw(const Shader *shader) const
+void Mesh::Draw(const Shader *shader, const RenderPass &pass) const
 {
     if (!_vao || !_indicesCount)
         return;
@@ -26,6 +26,12 @@ void Mesh::Draw(const Shader *shader) const
             glDisable(GL_CULL_FACE);
         else
             glEnable(GL_CULL_FACE);
+
+        auto isTransparent = material->valOpacity < 1.0f || material->opacity;
+        if (pass == RenderPass::Opaque && isTransparent)
+            return;
+        else if (pass == RenderPass::Trans && !isTransparent)
+            return;
     }
     _vao->Bind();
     glDrawElements(primType, static_cast<GLsizei>(_indicesCount), GL_UNSIGNED_INT, 0);

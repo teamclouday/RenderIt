@@ -47,6 +47,7 @@ set(EXAMPLES
     SimpleShapes
     ParallaxMapping
     MSAA
+    Transparency
 )
 
 buildExamples()

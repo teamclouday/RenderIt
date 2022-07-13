@@ -192,7 +192,7 @@ int main()
         shader->UniformMat4("mat_ProjView", mProj * mView);
         shader->UniformVec3("vec_CameraPosWS", cam->GetPosition());
 
-        scene->Draw(shader.get(), configModelShader);
+        scene->Draw(shader.get(), RenderPass::Ordered, configModelShader);
 
         shader->UnBind();
 

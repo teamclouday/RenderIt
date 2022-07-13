@@ -200,14 +200,22 @@ bool Model::Load(const std::string &modelSource, bool isFile, unsigned flags, bo
                 material->colorSpecular = Tools::convertAssimpColor(color);
             if (mat->Get(AI_MATKEY_COLOR_EMISSIVE, color) == AI_SUCCESS)
                 material->colorEmissive = Tools::convertAssimpColor(color);
+            if (mat->Get(AI_MATKEY_COLOR_TRANSPARENT, color) == AI_SUCCESS)
+                material->colorTransparent = Tools::convertAssimpColor(color);
 
             if (mat->Get(AI_MATKEY_SHININESS, fval) == AI_SUCCESS)
                 material->valShininess = fval;
             if (mat->Get(AI_MATKEY_OPACITY, fval) == AI_SUCCESS)
                 material->valOpacity = fval;
+            if (mat->Get(AI_MATKEY_REFRACTI, fval) == AI_SUCCESS)
+                material->valRefract = fval;
 
             if (mat->Get(AI_MATKEY_TWOSIDED, ival) == AI_SUCCESS)
                 material->twoSided = ival != 0;
+
+            // avoid cull artifacts
+            if (material->valOpacity < 1.0f)
+                material->twoSided = true;
 
             // vertex bone info
             for (auto boneIdx = 0u; boneIdx < mesh->mNumBones; ++boneIdx)
@@ -355,10 +363,18 @@ bool Model::LoadAnimation(const std::string &modelSource, bool isFile)
     return true;
 }
 
-void Model::Draw(const Shader *shader) const
+void Model::Draw(const Shader *shader, const RenderPass &pass) const
 {
-    for (auto &mesh : _meshes)
-        mesh->Draw(shader);
+    if (pass == RenderPass::Ordered || pass == RenderPass::Opaque)
+    {
+        for (auto &mesh : _meshes)
+            mesh->Draw(shader, RenderPass::Opaque);
+    }
+    if (pass == RenderPass::Ordered || pass == RenderPass::Trans)
+    {
+        for (auto &mesh : _meshes)
+            mesh->Draw(shader, RenderPass::Trans);
+    }
 }
 
 void Model::Reset()

@@ -13,6 +13,7 @@
 #include "Bounds.hpp"
 #include "GLStructs.hpp"
 #include "Mesh.hpp"
+#include "RenderPass.hpp"
 #include "Shader.hpp"
 #include "Transform.hpp"
 
@@ -51,7 +52,7 @@ class Model
     bool LoadAnimation(const std::string &modelSource, bool isFile = true);
 
     /// Draw all meshes
-    void Draw(const Shader *shader) const;
+    void Draw(const Shader *shader, const RenderPass &pass = RenderPass::Ordered) const;
 
     /// Reset model data
     void Reset();
