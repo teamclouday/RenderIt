@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
+/** @file */
+
 namespace RenderIt
 {
 
