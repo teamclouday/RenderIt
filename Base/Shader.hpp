@@ -76,6 +76,8 @@ class Shader
 
     void SsboBinding(const std::string &name, uint32_t binding) const;
 
+    void TextureBinding(const GLuint &texID, uint32_t binding) const;
+
 #pragma endregion uniform_methods
 
   public:

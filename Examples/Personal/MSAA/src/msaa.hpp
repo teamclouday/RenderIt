@@ -93,8 +93,7 @@ struct MSAAFramebuffer
         if (texMSAA)
         {
             shader->UniformInt("screenTexture", 0);
-            glActiveTexture(GL_TEXTURE0);
-            texMSAA->Bind();
+            shader->TextureBinding(texMSAA->Get(), 0u);
         }
         shader->UniformInt("numSamples", nSamples);
         VAO->Bind();

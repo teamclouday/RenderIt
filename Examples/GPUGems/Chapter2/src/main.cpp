@@ -139,8 +139,7 @@ int main()
         // render ground
         {
             waveGroundShader->Bind();
-            lightMap->Bind();
-            glActiveTexture(GL_TEXTURE0);
+            waveGroundShader->TextureBinding(lightMap->Get(), 0u);
             waveGroundShader->UniformInt("lightMap", 0);
             waveGroundShader->UniformMat4("mat_ProjView", mProjView);
             waveGroundShader->UniformMat4("mat_Model", waveGround->transform.matrix);

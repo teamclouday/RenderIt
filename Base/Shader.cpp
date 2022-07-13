@@ -114,8 +114,7 @@ void Shader::ConfigMaterialTextures(const Material *mat) const
     auto bindTexture = [&](const std::shared_ptr<STexture> &tex, const std::string &name) {
         if (tex)
         {
-            glActiveTexture(GL_TEXTURE0 + texIdx);
-            tex->Bind();
+            TextureBinding(tex->Get(), static_cast<uint32_t>(texIdx));
             UniformInt(name, texIdx);
             UniformBool(name + Material::existsEXT, true);
             ++texIdx;
@@ -250,6 +249,13 @@ void Shader::SsboBinding(const std::string &name, uint32_t binding) const
         return;
     GLuint idx = glGetProgramResourceIndex(_program, GL_SHADER_STORAGE_BLOCK, name.c_str());
     glShaderStorageBlockBinding(_program, idx, binding);
+}
+
+void Shader::TextureBinding(const GLuint &texID, uint32_t binding) const
+{
+    if (!_compiled)
+        return;
+    glBindTextureUnit(binding, texID);
 }
 
 } // namespace RenderIt

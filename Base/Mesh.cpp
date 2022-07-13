@@ -27,7 +27,6 @@ void Mesh::Draw(const Shader *shader) const
         else
             glEnable(GL_CULL_FACE);
     }
-    glActiveTexture(GL_TEXTURE0);
     _vao->Bind();
     glDrawElements(primType, static_cast<GLsizei>(_indicesCount), GL_UNSIGNED_INT, 0);
     _vao->UnBind();
