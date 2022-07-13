@@ -27,8 +27,8 @@ class Mesh
     void Draw(const Shader *shader) const;
 
     /// Load with mesh data
-    void Load(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices,
-              std::shared_ptr<Material> material, GLenum type = GL_TRIANGLES);
+    void Load(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices, std::shared_ptr<Material> mat,
+              GLenum type = GL_TRIANGLES);
 
     /// Reset mesh data
     void Reset();

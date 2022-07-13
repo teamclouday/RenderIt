@@ -34,14 +34,14 @@ void Mesh::Draw(const Shader *shader) const
 }
 
 void Mesh::Load(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices,
-                std::shared_ptr<Material> material, GLenum type)
+                std::shared_ptr<Material> mat, GLenum type)
 {
     if (_vao || _vbo || _ebo)
         Reset();
     _vao = std::make_unique<SVAO>();
     _vbo = std::make_unique<SBuffer>(GL_ARRAY_BUFFER);
     _ebo = std::make_unique<SBuffer>(GL_ELEMENT_ARRAY_BUFFER);
-    material = material;
+    material = mat;
     _indicesCount = indices.size();
     _verticesCount = vertices.size();
     primType = type;
