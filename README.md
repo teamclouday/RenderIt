@@ -1,7 +1,10 @@
 # RenderIt
 
-Just Render It\
-Personal OpenGL Render Playground
+Just Render It 😍 \
+Personal OpenGL Rendering Playground
+
+`Base`: the `RenderIt` library, with everything except rendering\
+`Examples`: the actual rendering implementations
 
 ------
 
@@ -14,4 +17,4 @@ make -j6
 
 ------
 
-See `Examples` folder for usages
+See `Examples` folder for demos
