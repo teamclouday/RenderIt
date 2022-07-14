@@ -365,15 +365,21 @@ bool Model::LoadAnimation(const std::string &modelSource, bool isFile)
 
 void Model::Draw(const Shader *shader, const RenderPass &pass) const
 {
-    if (pass == RenderPass::Ordered || pass == RenderPass::Opaque)
-    {
+    auto drawCall = [&](const RenderPass &p) {
         for (auto &mesh : _meshes)
-            mesh->Draw(shader, RenderPass::Opaque);
+            mesh->Draw(shader, p);
+    };
+    switch (pass)
+    {
+    case RenderPass::Ordered: {
+        drawCall(RenderPass::Opaque);
+        drawCall(RenderPass::Transparent);
+        break;
     }
-    if (pass == RenderPass::Ordered || pass == RenderPass::Trans)
-    {
-        for (auto &mesh : _meshes)
-            mesh->Draw(shader, RenderPass::Trans);
+    default: {
+        drawCall(pass);
+        break;
+    }
     }
 }
 

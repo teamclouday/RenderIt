@@ -9,8 +9,9 @@ namespace RenderIt
 enum class RenderPass
 {
     Opaque,
-    Trans,
-    Ordered
+    Transparent,
+    Ordered,      // (default)
+    Transmissive, // refraction
 };
 
 } // namespace RenderIt

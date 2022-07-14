@@ -81,6 +81,9 @@ layout(std430, binding = 1) buffer LightsData
 
 // other uniforms
 uniform vec3 vec_CameraPosWS;
+uniform vec3 vec_CameraFrontWS;
+uniform vec2 vec_screenDimInv;
+uniform sampler2D screenTexture;
 
 vec3 ComputeNormal()
 {
@@ -169,6 +172,13 @@ void ComputeSpotLight(SpotLight light, vec3 normDir, vec3 viewDir, vec3 fragPos,
             ComputeLightAttenuation(light.range, fragToLight);
 }
 
+vec3 ComputeScreenSpaceRefraction(vec3 normDir)
+{
+    vec3 outDir = normalize(refract(vec_CameraFrontWS, normDir, val_REFRACT));
+    vec2 texCoords = gl_FragCoord.xy * vec_screenDimInv + outDir.xy * 0.1;
+    return texture(screenTexture, texCoords).rgb;
+}
+
 void main()
 {
     vec3 normDir = ComputeNormal();
@@ -213,6 +223,9 @@ void main()
     {
         accColor = colDiffuse;
     }
+
+    // compute screen-space transmission
+    accColor = mix(accColor, ComputeScreenSpaceRefraction(normDir), 0.5);
 
     outColor = vec4(accColor + colEmissive, GetOpacity());
 }
