@@ -1,4 +1,11 @@
-#include "msaa.hpp"
+#include "RenderIt.hpp"
+
+#include <memory>
+#include <string>
+
+#include <imgui.h>
+
+using namespace RenderIt;
 
 int main()
 {
@@ -31,12 +38,9 @@ int main()
     glEnable(GL_MULTISAMPLE);
 
     // prepare shaders
-    auto vertShader = Tools::read_file_content("./shaders/Lights.vert");
-    auto fragShader = Tools::read_file_content("./shaders/Lights.frag");
-
     auto shader = std::make_shared<Shader>();
-    shader->AddSource(vertShader, GL_VERTEX_SHADER);
-    shader->AddSource(fragShader, GL_FRAGMENT_SHADER);
+    shader->AddSource(Tools::read_file_content("./shaders/MSAA.vert"), GL_VERTEX_SHADER);
+    shader->AddSource(Tools::read_file_content("./shaders/MSAA.frag"), GL_FRAGMENT_SHADER);
     if (!shader->Compile())
         return -1;
 
@@ -62,9 +66,8 @@ int main()
     auto mProj = cam->GetProj();
 
     // prepare MSAA
-    auto msaa = std::make_unique<MSAAFramebuffer>();
-
-    auto msaaSamples = 4;
+    auto msaa = std::make_unique<PostProcessMSAA>();
+    msaa->SetNumSamples(4);
 
     // define UI
     auto renderUI = [&]() {
@@ -93,8 +96,7 @@ int main()
             }
             if (msaa && ImGui::BeginTabItem("MSAA"))
             {
-                if (ImGui::DragInt("Samples", &msaaSamples, 1, 1, 10))
-                    msaa->Update(w, h, msaaSamples);
+                msaa->UI();
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
@@ -121,8 +123,7 @@ int main()
         // render
         app->GetWindowSize(w, h);
         cam->SetWindowAspect(w, h);
-        if (!msaa->Update(w, h, msaaSamples))
-            break;
+        msaa->Update(w, h);
         glViewport(0, 0, w, h);
         // this prepares default framebuffer
         cam->PrepareFrame(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -130,7 +131,7 @@ int main()
         mProj = cam->GetProj();
         auto mProjView = mProj * mView;
 
-        msaa->Bind();
+        msaa->StartRecord();
         // this prepares MSAA framebuffer
         cam->PrepareFrame(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -155,7 +156,7 @@ int main()
 
         lights->DrawLights(mProjView, cam->GetPosition());
 
-        msaa->UnBind();
+        msaa->StopRecord();
 
         msaa->Draw();
 
