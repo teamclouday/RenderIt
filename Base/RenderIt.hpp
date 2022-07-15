@@ -24,6 +24,7 @@
 #include "Shapes/MeshShapes.hpp"
 
 #include "PostProcess/PostProcess.hpp"
+#include "PostProcess/PostProcessGeneral.hpp"
 #include "PostProcess/PostProcessMSAA.hpp"
 
 #include "Tools.hpp"

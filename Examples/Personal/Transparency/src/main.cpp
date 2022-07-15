@@ -1,4 +1,11 @@
-#include "screen.hpp"
+#include "RenderIt.hpp"
+
+#include <memory>
+#include <string>
+
+#include <imgui.h>
+
+using namespace RenderIt;
 
 int main()
 {
@@ -29,10 +36,15 @@ int main()
     Tools::set_gl_debug(true);
 
     // prepare shaders
-    auto shader = std::make_shared<Shader>();
-    shader->AddSource(Tools::read_file_content("./shaders/Transparency.vert"), GL_VERTEX_SHADER);
-    shader->AddSource(Tools::read_file_content("./shaders/Transparency.frag"), GL_FRAGMENT_SHADER);
-    if (!shader->Compile())
+    auto shaderCommon = std::make_shared<Shader>();
+    shaderCommon->AddSource(Tools::read_file_content("./shaders/Transparency.vert"), GL_VERTEX_SHADER);
+    shaderCommon->AddSource(Tools::read_file_content("./shaders/Transparency.frag"), GL_FRAGMENT_SHADER);
+    if (!shaderCommon->Compile())
+        return -1;
+    auto shaderRefraction = std::make_shared<Shader>();
+    shaderRefraction->AddSource(Tools::read_file_content("./shaders/Transparency.vert"), GL_VERTEX_SHADER);
+    shaderRefraction->AddSource(Tools::read_file_content("./shaders/Transparency.Refract.frag"), GL_FRAGMENT_SHADER);
+    if (!shaderRefraction->Compile())
         return -1;
 
     // setup camera
@@ -46,14 +58,6 @@ int main()
     auto mView = cam->GetView();
     auto mProj = cam->GetProj();
 
-    // setup screen record
-    auto screen = std::make_unique<ScreenRecorder>();
-    auto screenShader = std::make_shared<Shader>();
-    screenShader->AddSource(Tools::read_file_content("./shaders/Transparency.vert"), GL_VERTEX_SHADER);
-    screenShader->AddSource(Tools::read_file_content("./shaders/TransparencyRefract.frag"), GL_FRAGMENT_SHADER);
-    if (!screenShader->Compile())
-        return -1;
-
     // load model
     auto modelPath = Tools::select_file_in_explorer("Select Model File");
     auto model = std::make_shared<Model>();
@@ -63,6 +67,9 @@ int main()
         return -1;
     }
     model->transform.TransformToUnitOrigin(model->bounds);
+
+    // screen recorder
+    auto screen = std::make_unique<PostProcessGeneral>();
 
     // define UI
     auto renderUI = [&]() {
@@ -121,57 +128,59 @@ int main()
         auto mProjView = mProj * mView;
 
         // step 1: render everything except transmissive
-        screen->Bind();
+        screen->StartRecord();
         cam->PrepareFrame(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        shader->Bind();
-
+        shaderCommon->Bind();
         // vertex stage uniforms
-        shader->UniformMat4("mat_Model", model->transform.matrix);
-        shader->UniformMat3("mat_ModelInv", glm::mat3(model->transform.matrixInv));
-        shader->UniformMat4("mat_ProjView", mProjView);
-        shader->SsboBinding("BoneMatrices", 0);
+        shaderCommon->UniformMat4("mat_Model", model->transform.matrix);
+        shaderCommon->UniformMat3("mat_ModelInv", glm::mat3(model->transform.matrixInv));
+        shaderCommon->UniformMat4("mat_ProjView", mProjView);
+        shaderCommon->SsboBinding("BoneMatrices", 0);
         anim->BindBones(0);
         // fragment stage uniforms
-        shader->SsboBinding("LightsData", 1);
+        shaderCommon->SsboBinding("LightsData", 1);
+        shaderCommon->UniformVec3("vec_CameraPosWS", cam->GetPosition());
         lights->BindLights(1);
-        shader->UniformVec3("vec_CameraPosWS", cam->GetPosition());
-        model->Draw(shader.get());
+        // draw
+        model->Draw(shaderCommon.get(), RenderPass::Ordered);
+        // unbind
         lights->UnBindLights(1);
         anim->UnBindBones(0);
-        shader->UnBind();
-
+        shaderCommon->UnBind();
+        // draw lights
         lights->DrawLights(mProjView, cam->GetPosition());
 
-        screen->UnBind();
+        screen->StopRecord();
 
-        // render recorded as background
+        // step 2: render recorded framebuffer as background
         glDisable(GL_DEPTH_TEST);
         screen->Draw();
         glEnable(GL_DEPTH_TEST);
-        // copy depth buffer
-        screen->screenFBO->BindRead();
+
+        // step 3: copy depth buffer
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, screen->GetFramebuffer());
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         glBlitFramebuffer(0, 0, w, h, 0, 0, w, h, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
-        // render transmissive objects
-        screenShader->Bind();
-        screenShader->UniformMat4("mat_Model", model->transform.matrix);
-        screenShader->UniformMat3("mat_ModelInv", glm::mat3(model->transform.matrixInv));
-        screenShader->UniformMat4("mat_ProjView", mProjView);
-        screenShader->SsboBinding("BoneMatrices", 0);
-        screenShader->SsboBinding("LightsData", 1);
-        screenShader->UniformVec3("vec_CameraPosWS", cam->GetPosition());
-        screenShader->UniformVec3("vec_CameraFrontWS", cam->GetVecFront());
-        screenShader->UniformVec2("vec_screenDimInv", glm::vec2(1.0f / w, 1.0f / h));
-        screenShader->UniformInt("screenTexture", 10);
-        screenShader->TextureBinding(screen->screenTex->Get(), 10u);
+        // step 4: render transmissive objects for refraction
+        shaderRefraction->Bind();
+        shaderRefraction->UniformMat4("mat_Model", model->transform.matrix);
+        shaderRefraction->UniformMat3("mat_ModelInv", glm::mat3(model->transform.matrixInv));
+        shaderRefraction->UniformMat4("mat_ProjView", mProjView);
+        shaderRefraction->SsboBinding("BoneMatrices", 0);
+        shaderRefraction->SsboBinding("LightsData", 1);
+        shaderRefraction->UniformVec3("vec_CameraPosWS", cam->GetPosition());
+        shaderRefraction->UniformVec3("vec_CameraFrontWS", cam->GetVecFront());
+        shaderRefraction->UniformVec2("vec_ScreenDimInv", glm::vec2(1.0f / w, 1.0f / h));
+        shaderRefraction->UniformInt("screenTexture", 10);
+        shaderRefraction->TextureBinding(screen->GetTexture(), 10u);
         anim->BindBones(0);
         lights->BindLights(1);
-        model->Draw(screenShader.get(), RenderPass::Transmissive);
+        model->Draw(shaderRefraction.get(), RenderPass::Transmissive);
         lights->UnBindLights(1);
         anim->UnBindBones(0);
-        screenShader->UnBind();
+        shaderRefraction->UnBind();
 
         app->LoopEndFrame(renderUI);
 

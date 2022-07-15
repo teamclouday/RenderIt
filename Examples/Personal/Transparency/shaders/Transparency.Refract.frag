@@ -82,7 +82,7 @@ layout(std430, binding = 1) buffer LightsData
 // other uniforms
 uniform vec3 vec_CameraPosWS;
 uniform vec3 vec_CameraFrontWS;
-uniform vec2 vec_screenDimInv;
+uniform vec2 vec_ScreenDimInv;
 uniform sampler2D screenTexture;
 
 vec3 ComputeNormal()
@@ -177,7 +177,7 @@ vec3 ComputeScreenSpaceRefraction(vec3 normDir)
     // yes, I know that it's illegal to mix screen space with world space
     // but it works so I'll leave it like that lol
     vec3 outDir = normalize(refract(vec_CameraFrontWS, normDir, val_REFRACT));
-    vec2 texCoords = gl_FragCoord.xy * vec_screenDimInv + outDir.xy * 0.1;
+    vec2 texCoords = gl_FragCoord.xy * vec_ScreenDimInv + outDir.xy * 0.1;
     return texture(screenTexture, texCoords).rgb;
 }
 

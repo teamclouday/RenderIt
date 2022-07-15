@@ -27,6 +27,12 @@ class PostProcess
         return _FBO && _FBO->Validate();
     }
 
+    /// Get framebuffer
+    GLuint GetFramebuffer() const
+    {
+        return _FBO ? _FBO->Get() : 0u;
+    }
+
     /// UI calls
     void UI();
 

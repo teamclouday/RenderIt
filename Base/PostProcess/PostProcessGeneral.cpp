@@ -1,4 +1,4 @@
-#include "PostProcess/PostProcessMSAA.hpp"
+#include "PostProcess/PostProcessGeneral.hpp"
 
 #include <algorithm>
 #include <string>
@@ -6,7 +6,7 @@
 namespace RenderIt
 {
 
-PostProcessMSAA::PostProcessMSAA() : _numSamples(4), _RBO(nullptr), _TEX(nullptr)
+PostProcessGeneral::PostProcessGeneral() : _RBO(nullptr), _TEX(nullptr)
 {
     _frameWidth = 1;
     _frameHeight = 1;
@@ -15,19 +15,19 @@ PostProcessMSAA::PostProcessMSAA() : _numSamples(4), _RBO(nullptr), _TEX(nullptr
     loadVAO();
 }
 
-void PostProcessMSAA::StartRecord()
+void PostProcessGeneral::StartRecord()
 {
     if (_FBO)
         _FBO->Bind();
 }
 
-void PostProcessMSAA::StopRecord()
+void PostProcessGeneral::StopRecord()
 {
     if (_FBO)
         _FBO->UnBind();
 }
 
-void PostProcessMSAA::Draw()
+void PostProcessGeneral::Draw()
 {
     _shader->Bind();
     if (_TEX)
@@ -35,14 +35,13 @@ void PostProcessMSAA::Draw()
         _shader->UniformInt("screenTexture", 0);
         _shader->TextureBinding(_TEX->Get(), 0u);
     }
-    _shader->UniformInt("numSamples", _numSamples);
     _VAO->Bind();
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     _VAO->UnBind();
     _shader->UnBind();
 }
 
-bool PostProcessMSAA::Update(int screenWidth, int screenHeight)
+bool PostProcessGeneral::Update(int screenWidth, int screenHeight)
 {
     if (screenWidth == _frameWidth && screenHeight == _frameHeight && _FBO)
         return true;
@@ -51,44 +50,31 @@ bool PostProcessMSAA::Update(int screenWidth, int screenHeight)
     return loadFBO();
 }
 
-int PostProcessMSAA::GetNumSamples() const
+GLuint PostProcessGeneral::GetTexture() const
 {
-    return _numSamples;
+    return _TEX ? _TEX->Get() : 0u;
 }
 
-bool PostProcessMSAA::SetNumSamples(int samples)
-{
-    auto n = std::min(8, std::max(1, samples));
-    if (n != _numSamples)
-    {
-        _numSamples = n;
-        return loadFBO();
-    }
-    return true;
-}
-
-void PostProcessMSAA::loadShader()
+void PostProcessGeneral::loadShader()
 {
     std::string vertShader = R"(
         #version 450 core
         layout(location = 0) in vec2 inPos;
-        void main(){ gl_Position = vec4(inPos, 0.0, 1.0); }
+        layout(location = 0) out vec2 vertTexCoords;
+        void main()
+        {
+            vertTexCoords = inPos * 0.5 + 0.5;
+            gl_Position = vec4(inPos, 0.0, 1.0);
+        }
     )";
     std::string fragShader = R"(
         #version 450 core
         layout(location = 0) out vec4 outColor;
-        uniform sampler2DMS screenTexture;
-        uniform int numSamples;
+        layout(location = 0) in vec2 vertTexCoords;
+        uniform sampler2D screenTexture;
         void main()
         {
-            ivec2 texCoords = ivec2(gl_FragCoord.xy);
-            vec3 color = vec3(0.0);
-            for (int i = 0; i < numSamples; ++i)
-            {
-                color += texelFetch(screenTexture, texCoords, i).rgb;
-            }
-            color /= numSamples;
-            outColor = vec4(color, 1.0);
+            outColor = vec4(texture(screenTexture, vertTexCoords).rgb, 1.0);
         }
     )";
     _shader = std::make_unique<Shader>();
@@ -97,7 +83,7 @@ void PostProcessMSAA::loadShader()
     _shader->Compile();
 }
 
-void PostProcessMSAA::loadVAO()
+void PostProcessGeneral::loadVAO()
 {
     // clang-format off
     const float vertices[] =
@@ -118,16 +104,18 @@ void PostProcessMSAA::loadVAO()
     _VAO->UnBind();
 }
 
-bool PostProcessMSAA::loadFBO()
+bool PostProcessGeneral::loadFBO()
 {
-    _TEX = std::make_unique<STexture>(GL_TEXTURE_2D_MULTISAMPLE);
+    _TEX = std::make_unique<STexture>(GL_TEXTURE_2D);
     _TEX->Bind();
-    glTexImage2DMultisample(_TEX->type, _numSamples, GL_RGB, _frameWidth, _frameHeight, GL_TRUE);
+    glTexImage2D(_TEX->type, 0, GL_RGB, _frameWidth, _frameHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     _TEX->UnBind();
 
     _RBO = std::make_unique<SRBO>();
     _RBO->Bind();
-    glRenderbufferStorageMultisample(GL_RENDERBUFFER, _numSamples, GL_DEPTH24_STENCIL8, _frameWidth, _frameHeight);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, _frameWidth, _frameHeight);
     _RBO->UnBind();
 
     _FBO = std::make_unique<SFBO>();
