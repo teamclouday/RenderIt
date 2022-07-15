@@ -174,6 +174,8 @@ void ComputeSpotLight(SpotLight light, vec3 normDir, vec3 viewDir, vec3 fragPos,
 
 vec3 ComputeScreenSpaceRefraction(vec3 normDir)
 {
+    // yes, I know that it's illegal to mix screen space with world space
+    // but it works so I'll leave it like that lol
     vec3 outDir = normalize(refract(vec_CameraFrontWS, normDir, val_REFRACT));
     vec2 texCoords = gl_FragCoord.xy * vec_screenDimInv + outDir.xy * 0.1;
     return texture(screenTexture, texCoords).rgb;
