@@ -135,6 +135,8 @@ int main()
         // this prepares MSAA framebuffer
         cam->PrepareFrame(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        lights->DrawLights(mProjView, cam->GetPosition());
+
         shader->Bind();
 
         // vertex stage uniforms
@@ -153,8 +155,6 @@ int main()
         lights->UnBindLights(1);
         anim->UnBindBones(0);
         shader->UnBind();
-
-        lights->DrawLights(mProjView, cam->GetPosition());
 
         msaa->StopRecord();
 

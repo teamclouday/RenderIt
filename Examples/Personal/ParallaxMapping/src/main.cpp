@@ -225,6 +225,8 @@ int main()
         mProj = cam->GetProj();
         auto mProjView = mProj * mView;
 
+        lights->DrawLights(mProjView, cam->GetPosition());
+
         shader->Bind();
 
         // vertex stage uniforms
@@ -240,8 +242,6 @@ int main()
 
         lights->UnBindLights(1);
         shader->UnBind();
-
-        lights->DrawLights(mProjView, cam->GetPosition());
 
         app->LoopEndFrame(renderUI);
 

@@ -151,6 +151,8 @@ void Shader::ConfigMaterialTextures(const Material *mat) const
     UniformFloat(Material::valNameValShininess, mat->valShininess);
     UniformFloat(Material::valNameValOpacity, mat->valOpacity);
     UniformFloat(Material::valNameValRefract, mat->valRefract);
+    UniformFloat(Material::valNameValPBRMetallic, mat->valPBRMetallic);
+    UniformFloat(Material::valNameValPBRRoughness, mat->valPBRRoughness);
 }
 
 void Shader::UniformBool(const std::string &name, bool val) const

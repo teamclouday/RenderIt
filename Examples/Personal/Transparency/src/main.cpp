@@ -131,6 +131,9 @@ int main()
         screen->StartRecord();
         cam->PrepareFrame(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // draw lights
+        lights->DrawLights(mProjView, cam->GetPosition());
+
         shaderCommon->Bind();
         // vertex stage uniforms
         shaderCommon->UniformMat4("mat_Model", model->transform.matrix);
@@ -148,8 +151,6 @@ int main()
         lights->UnBindLights(1);
         anim->UnBindBones(0);
         shaderCommon->UnBind();
-        // draw lights
-        lights->DrawLights(mProjView, cam->GetPosition());
 
         screen->StopRecord();
 

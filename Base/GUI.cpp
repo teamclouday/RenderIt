@@ -155,6 +155,8 @@ void UIEditMaterial(std::shared_ptr<Material> &mat)
         ImGui::DragFloat(Material::valNameValShininess.c_str(), &mat->valShininess, 0.01f, 0.0f, 1000.0f, "%.2f");
         ImGui::DragFloat(Material::valNameValOpacity.c_str(), &mat->valOpacity, 0.001f, 0.0f, 1.0f, "%.3f");
         ImGui::DragFloat(Material::valNameValRefract.c_str(), &mat->valRefract, 0.001f, 0.0f, 1.0f, "%.3f");
+        ImGui::DragFloat(Material::valNameValPBRMetallic.c_str(), &mat->valPBRMetallic, 0.001f, 0.0f, 1.0f, "%.3f");
+        ImGui::DragFloat(Material::valNameValPBRRoughness.c_str(), &mat->valPBRRoughness, 0.001f, 0.0f, 1.0f, "%.3f");
         ImGui::Checkbox("Two Sided", &mat->twoSided);
         ImGui::TreePop();
     }

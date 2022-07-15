@@ -210,6 +210,11 @@ bool Model::Load(const std::string &modelSource, bool isFile, unsigned flags, bo
             if (mat->Get(AI_MATKEY_REFRACTI, fval) == AI_SUCCESS)
                 material->valRefract = fval;
 
+            if (mat->Get(AI_MATKEY_METALLIC_FACTOR, fval) == AI_SUCCESS)
+                material->valPBRMetallic = fval;
+            if (mat->Get(AI_MATKEY_ROUGHNESS_FACTOR, fval) == AI_SUCCESS)
+                material->valPBRRoughness = fval;
+
             if (mat->Get(AI_MATKEY_TWOSIDED, ival) == AI_SUCCESS)
                 material->twoSided = ival != 0;
 

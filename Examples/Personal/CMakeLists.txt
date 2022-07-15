@@ -48,6 +48,7 @@ set(EXAMPLES
     ParallaxMapping
     MSAA
     Transparency
+    PBR
 )
 
 buildExamples()

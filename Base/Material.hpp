@@ -15,7 +15,8 @@ struct Material
 {
     ~Material()
     {
-        diffuse = specular = ambient = emissive = height = normals = shininess = opacity = displacement = nullptr;
+        diffuse = specular = ambient = emissive = height = normals = shininess = opacity = displacement = lightmap =
+            reflection = nullptr;
         pbr_color = pbr_normal = pbr_emission = pbr_metalness = pbr_roughness = pbr_occlusion = nullptr;
     }
 
@@ -92,6 +93,12 @@ struct Material
     inline static const std::string valNameValShininess = "val_SHININESS";
     inline static const std::string valNameValOpacity = "val_OPACITY";
     inline static const std::string valNameValRefract = "val_REFRACT";
+
+    float valPBRMetallic = 0.0f;
+    float valPBRRoughness = 0.0f;
+
+    inline static const std::string valNameValPBRMetallic = "valPBR_METALLIC";
+    inline static const std::string valNameValPBRRoughness = "valPBR_ROUGHNESS";
 
 #pragma endregion material_consts
 
