@@ -12,6 +12,8 @@ enum class RenderPass
     Transparent,
     Ordered,      // (default)
     Transmissive, // refraction
+    AllOrdered,   // draw everything
+    AllUnOrdered
 };
 
 } // namespace RenderIt

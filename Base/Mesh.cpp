@@ -21,19 +21,24 @@ void Mesh::Draw(const Shader *shader, const RenderPass &pass) const
         return;
     if (material)
     {
+        // if unordered, skip all checking
+        if (pass != RenderPass::AllUnOrdered)
+        {
+            // check render pass for transparency
+            auto isTransparent = material->valOpacity < 1.0f || material->opacity;
+            if ((pass == RenderPass::Opaque && isTransparent) || (pass == RenderPass::Transparent && !isTransparent))
+                return;
+            // check render pass for refraction
+            auto isRefract = material->valRefract != 1.0f;
+            if ((pass == RenderPass::Transmissive && !isRefract) || (pass != RenderPass::Transmissive && isRefract))
+                return;
+        }
+        // configure material
         shader->ConfigMaterialTextures(material.get());
         if (material->twoSided)
             glDisable(GL_CULL_FACE);
         else
             glEnable(GL_CULL_FACE);
-        // check render pass for transparency
-        auto isTransparent = material->valOpacity < 1.0f || material->opacity;
-        if ((pass == RenderPass::Opaque && isTransparent) || (pass == RenderPass::Transparent && !isTransparent))
-            return;
-        // check render pass for refraction
-        auto isRefract = material->valRefract != 1.0f;
-        if ((pass == RenderPass::Transmissive && !isRefract) || (pass != RenderPass::Transmissive && isRefract))
-            return;
     }
     _vao->Bind();
     glDrawElements(primType, static_cast<GLsizei>(_indicesCount), GL_UNSIGNED_INT, 0);

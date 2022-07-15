@@ -57,6 +57,12 @@ void Scene::Draw(const Shader *shader, const RenderPass &pass,
         drawCall(RenderPass::Transparent);
         break;
     }
+    case RenderPass::AllOrdered: {
+        drawCall(RenderPass::Opaque);
+        drawCall(RenderPass::Transparent);
+        drawCall(RenderPass::Transmissive);
+        break;
+    }
     default: {
         drawCall(pass);
         break;
