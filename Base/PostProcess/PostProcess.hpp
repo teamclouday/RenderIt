@@ -1,13 +1,19 @@
 #pragma once
+#include <functional>
 #include <memory>
+#include <string>
 
 #include <GL/glew.h>
 
 #include "GLStructs.hpp"
+#include "Shader.hpp"
+
+/** @file */
 
 namespace RenderIt
 {
 
+/// Abstract Post-Processing Filter
 class PostProcess
 {
   public:
@@ -18,7 +24,7 @@ class PostProcess
     virtual void StopRecord() = 0;
 
     /// Draw recorded texture
-    virtual void Draw() = 0;
+    virtual void Draw(std::function<void(const Shader *)> func = nullptr) = 0;
 
     /// Update framebuffer & texture dimensions
     virtual bool Update(int screenWidth, int screenHeight) = 0;
@@ -46,6 +52,9 @@ class PostProcess
 
     /// UI calls
     void UI();
+
+  public:
+    const std::string NAME = "PostProcess";
 
   protected:
     int _frameWidth, _frameHeight;

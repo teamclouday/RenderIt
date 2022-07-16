@@ -1,4 +1,4 @@
-#include "PostProcess/PostProcessGeneral.hpp"
+#include "PostProcess/PostProcessGamma.hpp"
 #include "Tools.hpp"
 
 #include <algorithm>
@@ -7,7 +7,7 @@
 namespace RenderIt
 {
 
-PostProcessGeneral::PostProcessGeneral() : _RBO(nullptr), _TEX(nullptr)
+PostProcessGamma::PostProcessGamma() : _gamma(2.2f), _gammaInv(1.0f / 2.2f), _RBO(nullptr), _TEX(nullptr)
 {
     _frameWidth = 1;
     _frameHeight = 1;
@@ -16,19 +16,19 @@ PostProcessGeneral::PostProcessGeneral() : _RBO(nullptr), _TEX(nullptr)
     loadVAO();
 }
 
-void PostProcessGeneral::StartRecord()
+void PostProcessGamma::StartRecord()
 {
     if (_FBO)
         _FBO->Bind();
 }
 
-void PostProcessGeneral::StopRecord()
+void PostProcessGamma::StopRecord()
 {
     if (_FBO)
         _FBO->UnBind();
 }
 
-void PostProcessGeneral::Draw(std::function<void(const Shader *)> func)
+void PostProcessGamma::Draw(std::function<void(const Shader *)> func)
 {
     _shader->Bind();
     if (func)
@@ -36,6 +36,7 @@ void PostProcessGeneral::Draw(std::function<void(const Shader *)> func)
     if (_TEX)
     {
         _shader->UniformInt("screenTexture", 0);
+        _shader->UniformFloat("gammaInv", _gammaInv);
         _shader->TextureBinding(_TEX->Get(), 0u);
     }
     else
@@ -46,7 +47,7 @@ void PostProcessGeneral::Draw(std::function<void(const Shader *)> func)
     _shader->UnBind();
 }
 
-bool PostProcessGeneral::Update(int screenWidth, int screenHeight)
+bool PostProcessGamma::Update(int screenWidth, int screenHeight)
 {
     if (screenWidth == _frameWidth && screenHeight == _frameHeight && _FBO)
         return true;
@@ -55,18 +56,18 @@ bool PostProcessGeneral::Update(int screenWidth, int screenHeight)
     return loadFBO();
 }
 
-GLuint PostProcessGeneral::GetTexture() const
+float PostProcessGamma::GetGamma() const
 {
-    return _TEX ? _TEX->Get() : 0u;
+    return _gamma;
 }
 
-void PostProcessGeneral::SetShader(std::shared_ptr<Shader> newShader)
+void PostProcessGamma::SetGamma(float val)
 {
-    if (newShader)
-        _shader = newShader;
+    _gamma = std::max(0.01f, val);
+    _gammaInv = 1.0f / _gamma;
 }
 
-void PostProcessGeneral::loadShader()
+void PostProcessGamma::loadShader()
 {
     std::string vertShader = R"(
         #version 450 core
@@ -82,10 +83,11 @@ void PostProcessGeneral::loadShader()
         #version 450 core
         layout(location = 0) out vec4 outColor;
         layout(location = 0) in vec2 vertTexCoords;
+        uniform float gammaInv;
         uniform sampler2D screenTexture;
         void main()
         {
-            outColor = vec4(texture(screenTexture, vertTexCoords).rgb, 1.0);
+            outColor = vec4(pow(texture(screenTexture, vertTexCoords).rgb, vec3(gammaInv)), 1.0);
         }
     )";
     _shader = std::make_unique<Shader>();
@@ -94,7 +96,7 @@ void PostProcessGeneral::loadShader()
     _shader->Compile();
 }
 
-void PostProcessGeneral::loadVAO()
+void PostProcessGamma::loadVAO()
 {
     // clang-format off
     const float vertices[] =
@@ -115,7 +117,7 @@ void PostProcessGeneral::loadVAO()
     _VAO->UnBind();
 }
 
-bool PostProcessGeneral::loadFBO()
+bool PostProcessGamma::loadFBO()
 {
     _TEX = std::make_unique<STexture>(GL_TEXTURE_2D);
     _TEX->Bind();

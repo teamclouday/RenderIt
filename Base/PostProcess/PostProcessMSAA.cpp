@@ -1,4 +1,5 @@
 #include "PostProcess/PostProcessMSAA.hpp"
+#include "Tools.hpp"
 
 #include <algorithm>
 #include <string>
@@ -27,14 +28,18 @@ void PostProcessMSAA::StopRecord()
         _FBO->UnBind();
 }
 
-void PostProcessMSAA::Draw()
+void PostProcessMSAA::Draw(std::function<void(const Shader *)> func)
 {
     _shader->Bind();
+    if (func)
+        func(_shader.get());
     if (_TEX)
     {
         _shader->UniformInt("screenTexture", 0);
         _shader->TextureBinding(_TEX->Get(), 0u);
     }
+    else
+        Tools::display_message(NAME, "no screen texture!", Tools::MessageType::WARN);
     _shader->UniformInt("numSamples", _numSamples);
     _VAO->Bind();
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

@@ -8,11 +8,11 @@
 namespace RenderIt
 {
 
-/// Post-Processing for Multi-Sample Anti-Aliasing
-class PostProcessMSAA : public PostProcess
+/// Post-Processing for Gamma Correction
+class PostProcessGamma : public PostProcess
 {
   public:
-    PostProcessMSAA();
+    PostProcessGamma();
 
     void StartRecord() override;
 
@@ -22,16 +22,16 @@ class PostProcessMSAA : public PostProcess
 
     bool Update(int screenWidth, int screenHeight) override;
 
-    /// Get number of samples
-    int GetNumSamples() const;
+    /// Get current gamma
+    float GetGamma() const;
 
-    /// Set number of samples
-    bool SetNumSamples(int samples);
+    /// Set gamma
+    void SetGamma(float val);
 
     void UI();
 
   public:
-    const std::string NAME = "PostProcessMSAA";
+    const std::string NAME = "PostProcessGamma";
 
   private:
     /// Load shader program
@@ -44,7 +44,7 @@ class PostProcessMSAA : public PostProcess
     bool loadFBO();
 
   private:
-    int _numSamples;
+    float _gamma, _gammaInv;
     std::shared_ptr<Shader> _shader;
     std::unique_ptr<SRBO> _RBO;
     std::unique_ptr<STexture> _TEX;

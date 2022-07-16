@@ -3,9 +3,12 @@
 #include "PostProcess/PostProcess.hpp"
 #include "Shader.hpp"
 
+/** @file */
+
 namespace RenderIt
 {
 
+/// General Post-Processing Filter
 class PostProcessGeneral : public PostProcess
 {
   public:
@@ -15,12 +18,18 @@ class PostProcessGeneral : public PostProcess
 
     void StopRecord() override;
 
-    void Draw() override;
+    void Draw(std::function<void(const Shader *)> func = nullptr) override;
 
     bool Update(int screenWidth, int screenHeight) override;
 
     /// Get color texture of framebuffer
     GLuint GetTexture() const;
+
+    /// Override default shader
+    void SetShader(std::shared_ptr<Shader> newShader);
+
+  public:
+    const std::string NAME = "PostProcessGeneral";
 
   private:
     /// Load shader program
