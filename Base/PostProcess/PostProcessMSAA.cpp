@@ -122,7 +122,7 @@ bool PostProcessMSAA::loadFBO()
 {
     _TEX = std::make_unique<STexture>(GL_TEXTURE_2D_MULTISAMPLE);
     _TEX->Bind();
-    glTexImage2DMultisample(_TEX->type, _numSamples, GL_RGB, _frameWidth, _frameHeight, GL_TRUE);
+    glTexImage2DMultisample(_TEX->type, _numSamples, GL_RGB16F, _frameWidth, _frameHeight, GL_TRUE);
     _TEX->UnBind();
 
     _RBO = std::make_unique<SRBO>();
