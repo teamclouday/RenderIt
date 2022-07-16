@@ -1,6 +1,8 @@
 #pragma once
 #include <memory>
 
+#include <GL/glew.h>
+
 #include "GLStructs.hpp"
 
 namespace RenderIt
@@ -31,6 +33,15 @@ class PostProcess
     GLuint GetFramebuffer() const
     {
         return _FBO ? _FBO->Get() : 0u;
+    }
+
+    /// Read & copy content from other PostProcess framebuffer
+    void ReadFramebuffer(const PostProcess &other, GLbitfield mask = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
+                         GLenum filter = GL_LINEAR)
+    {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, other.GetFramebuffer());
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GetFramebuffer());
+        glBlitFramebuffer(0, 0, other._frameWidth, other._frameHeight, 0, 0, _frameWidth, _frameHeight, mask, filter);
     }
 
     /// UI calls
