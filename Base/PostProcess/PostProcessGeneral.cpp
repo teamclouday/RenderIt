@@ -119,7 +119,7 @@ bool PostProcessGeneral::loadFBO()
 {
     _TEX = std::make_unique<STexture>(GL_TEXTURE_2D);
     _TEX->Bind();
-    glTexImage2D(_TEX->type, 0, GL_RGB16F, _frameWidth, _frameHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(_TEX->type, 0, GL_RGBA16F, _frameWidth, _frameHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     _TEX->UnBind();

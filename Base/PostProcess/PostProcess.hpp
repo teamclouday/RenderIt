@@ -42,12 +42,23 @@ class PostProcess
     }
 
     /// Read & copy content from other PostProcess framebuffer
-    void ReadFramebuffer(const PostProcess &other, GLbitfield mask = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
-                         GLenum filter = GL_LINEAR)
+    void ReadFramebuffer(const PostProcess *other, GLbitfield mask = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
+                         GLenum filter = GL_NEAREST)
     {
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, other.GetFramebuffer());
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, other->GetFramebuffer());
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GetFramebuffer());
-        glBlitFramebuffer(0, 0, other._frameWidth, other._frameHeight, 0, 0, _frameWidth, _frameHeight, mask, filter);
+        glBlitFramebuffer(0, 0, other->_frameWidth, other->_frameHeight, 0, 0, _frameWidth, _frameHeight, mask, filter);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    }
+
+    void ReadGlobalFramebuffer(int w, int h, GLbitfield mask = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
+                               GLenum filter = GL_NEAREST)
+    {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GetFramebuffer());
+        glBlitFramebuffer(0, 0, w, h, 0, 0, _frameWidth, _frameHeight, mask, filter);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     }
 
     /// UI calls

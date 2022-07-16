@@ -26,6 +26,7 @@
 #include "PostProcess/PostProcess.hpp"
 #include "PostProcess/PostProcessGamma.hpp"
 #include "PostProcess/PostProcessGeneral.hpp"
+#include "PostProcess/PostProcessLuminance.hpp"
 #include "PostProcess/PostProcessMSAA.hpp"
 
 #include "Tools.hpp"

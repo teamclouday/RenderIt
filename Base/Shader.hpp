@@ -52,6 +52,8 @@ class Shader
 
     void UniformInt(const std::string &name, int val) const;
 
+    void UniformUInt(const std::string &name, unsigned val) const;
+
     void UniformFloat(const std::string &name, float val) const;
 
     void UniformVec2(const std::string &name, const glm::vec2 &val) const;
@@ -65,6 +67,12 @@ class Shader
     void UniformIVec3(const std::string &name, const glm::ivec3 &val) const;
 
     void UniformIVec4(const std::string &name, const glm::ivec4 &val) const;
+
+    void UniformUIVec2(const std::string &name, const glm::uvec2 &val) const;
+
+    void UniformUIVec3(const std::string &name, const glm::uvec3 &val) const;
+
+    void UniformUIVec4(const std::string &name, const glm::uvec4 &val) const;
 
     void UniformMat2(const std::string &name, const glm::mat2 &val) const;
 

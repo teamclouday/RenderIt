@@ -170,6 +170,13 @@ void Shader::UniformInt(const std::string &name, int val) const
     glUniform1i(glGetUniformLocation(_program, name.c_str()), val);
 }
 
+void Shader::UniformUInt(const std::string &name, unsigned val) const
+{
+    if (!_compiled)
+        return;
+    glUniform1ui(glGetUniformLocation(_program, name.c_str()), val);
+}
+
 void Shader::UniformFloat(const std::string &name, float val) const
 {
     if (!_compiled)
@@ -217,6 +224,27 @@ void Shader::UniformIVec4(const std::string &name, const glm::ivec4 &val) const
     if (!_compiled)
         return;
     glUniform4iv(glGetUniformLocation(_program, name.c_str()), 1, glm::value_ptr(val));
+}
+
+void Shader::UniformUIVec2(const std::string &name, const glm::uvec2 &val) const
+{
+    if (!_compiled)
+        return;
+    glUniform2uiv(glGetUniformLocation(_program, name.c_str()), 1, glm::value_ptr(val));
+}
+
+void Shader::UniformUIVec3(const std::string &name, const glm::uvec3 &val) const
+{
+    if (!_compiled)
+        return;
+    glUniform3uiv(glGetUniformLocation(_program, name.c_str()), 1, glm::value_ptr(val));
+}
+
+void Shader::UniformUIVec4(const std::string &name, const glm::uvec4 &val) const
+{
+    if (!_compiled)
+        return;
+    glUniform4uiv(glGetUniformLocation(_program, name.c_str()), 1, glm::value_ptr(val));
 }
 
 void Shader::UniformMat2(const std::string &name, const glm::mat2 &val) const
