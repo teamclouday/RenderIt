@@ -6,7 +6,9 @@
 namespace RenderIt
 {
 
-Mesh::Mesh() : _vao(nullptr), _vbo(nullptr), _ebo(nullptr), material(nullptr), _indicesCount(0), _verticesCount(0)
+Mesh::Mesh()
+    : material(nullptr), primType(GL_TRIANGLES), drawMesh(true), _vao(nullptr), _vbo(nullptr), _ebo(nullptr),
+      _indicesCount(0), _verticesCount(0)
 {
 }
 
@@ -17,8 +19,9 @@ Mesh::~Mesh()
 
 void Mesh::Draw(const Shader *shader, const RenderPass &pass) const
 {
-    if (!_vao || !_indicesCount)
+    if (!_vao || !_indicesCount || !drawMesh)
         return;
+    auto hasCullFace = glIsEnabled(GL_CULL_FACE);
     if (material)
     {
         // if unordered, skip all checking
@@ -43,6 +46,10 @@ void Mesh::Draw(const Shader *shader, const RenderPass &pass) const
     _vao->Bind();
     glDrawElements(primType, static_cast<GLsizei>(_indicesCount), GL_UNSIGNED_INT, 0);
     _vao->UnBind();
+    if (hasCullFace)
+        glEnable(GL_CULL_FACE);
+    else
+        glDisable(GL_CULL_FACE);
 }
 
 void Mesh::Load(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices,

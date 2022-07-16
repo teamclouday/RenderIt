@@ -217,6 +217,14 @@ bool Model::Load(const std::string &modelSource, bool isFile, unsigned flags, bo
 
             if (mat->Get(AI_MATKEY_TWOSIDED, ival) == AI_SUCCESS)
                 material->twoSided = ival != 0;
+            if (mat->Get(AI_MATKEY_SHADING_MODEL, ival) == AI_SUCCESS)
+            {
+                if (ival == aiShadingMode_PBR_BRDF || ival == aiShadingMode_CookTorrance ||
+                    ival == aiShadingMode_OrenNayar)
+                    material->valHasPBR = true;
+                else
+                    material->valHasPBR = false;
+            }
 
             // avoid cull artifacts
             if (material->valOpacity < 1.0f)

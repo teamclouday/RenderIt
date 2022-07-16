@@ -20,11 +20,6 @@ struct Material
         pbr_color = pbr_normal = pbr_emission = pbr_metalness = pbr_roughness = pbr_occlusion = nullptr;
     }
 
-    bool HasPBR()
-    {
-        return pbr_color || pbr_normal || pbr_emission || pbr_metalness || pbr_roughness || pbr_occlusion;
-    }
-
 #pragma region material_maps
 
     // legacy materials
@@ -84,6 +79,7 @@ struct Material
     float valShininess = 0.0f;
     float valOpacity = 1.0f;
     float valRefract = 1.0f;
+    bool valHasPBR = false;
 
     inline static const std::string valNameColorAmbient = "val_AMBIENT";
     inline static const std::string valNameColorDiffuse = "val_DIFFUSE";
@@ -93,6 +89,7 @@ struct Material
     inline static const std::string valNameValShininess = "val_SHININESS";
     inline static const std::string valNameValOpacity = "val_OPACITY";
     inline static const std::string valNameValRefract = "val_REFRACT";
+    inline static const std::string valNameHasPBR = "val_HASPBR";
 
     float valPBRMetallic = 0.0f;
     float valPBRRoughness = 0.0f;

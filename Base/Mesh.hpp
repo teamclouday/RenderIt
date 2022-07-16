@@ -56,6 +56,7 @@ class Mesh
     const std::string LOGNAME = "Mesh";
     std::shared_ptr<Material> material;
     GLenum primType;
+    bool drawMesh;
 
   private:
     /// Configure VAO attribute points

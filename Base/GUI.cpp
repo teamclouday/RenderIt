@@ -157,6 +157,7 @@ void UIEditMaterial(std::shared_ptr<Material> &mat)
         ImGui::DragFloat(Material::valNameValRefract.c_str(), &mat->valRefract, 0.001f, 0.0f, 1.0f, "%.3f");
         ImGui::DragFloat(Material::valNameValPBRMetallic.c_str(), &mat->valPBRMetallic, 0.001f, 0.0f, 1.0f, "%.3f");
         ImGui::DragFloat(Material::valNameValPBRRoughness.c_str(), &mat->valPBRRoughness, 0.001f, 0.0f, 1.0f, "%.3f");
+        ImGui::Checkbox("PBR Mode", &mat->valHasPBR);
         ImGui::Checkbox("Two Sided", &mat->twoSided);
         ImGui::TreePop();
     }
@@ -418,6 +419,7 @@ void Mesh::UI()
 {
     ImGui::PushID(LOGNAME.c_str());
 
+    ImGui::Checkbox("Draw", &drawMesh);
     ImGui::Text("VAO ID (%d)", _vao ? _vao->Get() : 0);
     ImGui::Text("VBO ID (%d)", _vbo ? _vbo->Get() : 0);
     ImGui::Text("EBO ID (%d)", _ebo ? _ebo->Get() : 0);

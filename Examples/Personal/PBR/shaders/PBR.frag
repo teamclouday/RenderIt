@@ -36,6 +36,7 @@ uniform vec3 val_EMISSIVE;
 uniform float val_SHININESS;
 uniform float val_OPACITY;
 uniform float val_REFRACT;
+uniform bool val_HASPBR;
 
 // pbr maps
 uniform sampler2D mapPBR_COLOR;
@@ -136,7 +137,14 @@ vec3 GetAmbientColor()
 
 vec3 GetDiffuseColor()
 {
-    return val_DIFFUSE * (map_DIFFUSE_exists ? texture(map_DIFFUSE, vertOut.texCoords).rgb : vec3(0.75));
+    if (val_HASPBR && mapPBR_COLOR_exists)
+    {
+        return texture(mapPBR_COLOR, vertOut.texCoords).rgb;
+    }
+    else
+    {
+        return val_DIFFUSE * (map_DIFFUSE_exists ? texture(map_DIFFUSE, vertOut.texCoords).rgb : vec3(0.75));
+    }
 }
 
 vec3 GetSpecularColor()
@@ -295,8 +303,6 @@ void main()
 {
     Surface surface;
     surface.colorAmbient = GetAmbientColor();
-    surface.colorDiffuse = GetDiffuseColor();
-    surface.colorSpecular = GetSpecularColor();
     surface.colorEmissive = GetEmissiveColor();
     surface.normDir = ComputeNormal();
     surface.viewDir = normalize(vec_CameraPosWS - vertOut.fragPosWS.xyz);
@@ -307,6 +313,18 @@ void main()
     surface.roughness = GetRoughness();
     surface.ao = GetOcclusion();
 
+    if (val_HASPBR)
+    {
+        vec3 color = GetDiffuseColor();
+        surface.colorDiffuse = mix(color * 0.96, vec3(0.0), surface.metallic);
+        surface.colorSpecular = mix(vec3(0.04), color, surface.metallic);
+    }
+    else
+    {
+        surface.colorDiffuse = GetDiffuseColor();
+        surface.colorSpecular = GetSpecularColor();
+    }
+
     if (dirLightsLen + pointLightsLen + spotLightsLen == 0)
     {
         outColor = vec4(surface.colorDiffuse, surface.opacity);
@@ -314,13 +332,9 @@ void main()
     }
 
     vec3 accColor = vec3(0.0);
-    if (mapPBR_COLOR_exists)
+    if (val_HASPBR)
     {
         // go PBR path
-        vec3 color = texture(mapPBR_COLOR, vertOut.texCoords).rgb;
-        surface.colorDiffuse = mix(color * 0.96, vec3(0.0), surface.metallic);
-        surface.colorSpecular = mix(vec3(0.04), color, surface.metallic);
-
         for (uint i = 0; i < dirLightsLen; i++)
         {
             DirLight light = dirLights[i];

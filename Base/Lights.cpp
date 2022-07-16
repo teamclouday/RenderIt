@@ -55,9 +55,13 @@ void LightManager::DrawLights(const glm::mat4 &matProjView, const glm::vec3 &cam
     // dir lights
     if (drawDirLights && !_dirLights.empty() && mesh)
     {
+        auto hasDepth = glIsEnabled(GL_DEPTH_TEST);
+        glDisable(GL_DEPTH_TEST);
         _drawShader->UniformInt("vLightType", 0);
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(count), GL_UNSIGNED_INT, 0,
                                 static_cast<GLsizei>(_dirLights.size()));
+        if (hasDepth)
+            glEnable(GL_DEPTH_TEST);
     }
     if (drawPointLights && !_pointLights.empty() && mesh)
     {
