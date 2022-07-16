@@ -49,6 +49,7 @@ set(EXAMPLES
     MSAA
     Transparency
     PBR
+    ToneMapping
 )
 
 buildExamples()

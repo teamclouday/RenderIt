@@ -13,7 +13,8 @@ namespace RenderIt
 {
 
 PostProcessLuminance::PostProcessLuminance()
-    : _lumMax(0.0f), _lumMin(0.0f), _lumAvg(0.0f), _minLog(-10.0f), _maxLog(2.0f), _RBO(nullptr), _TEX(nullptr)
+    : _lumMax(1.0f), _lumMin(0.0f), _lumAvg(0.5f), _lumAvgSmooth(0.5f), _minLog(-10.0f), _maxLog(2.0f), _RBO(nullptr),
+      _TEX(nullptr)
 {
     _frameWidth = 1;
     _frameHeight = 1;
@@ -50,9 +51,10 @@ bool PostProcessLuminance::Update(int screenWidth, int screenHeight)
 
 void PostProcessLuminance::Draw(std::function<void(const Shader *)> func)
 {
+    Tools::display_message(NAME, "drawing nothing!", Tools::MessageType::WARN);
 }
 
-void PostProcessLuminance::Compute()
+void PostProcessLuminance::Compute(float timeDelta)
 {
     if (!_FBO)
         return;
@@ -84,6 +86,11 @@ void PostProcessLuminance::Compute()
     _lumAvg = *(dataPtr + 2);
     glUnmapBuffer(_valsSSBO->type);
     _valsSSBO->UnBind();
+    // compute smooth luminance average
+    if (timeDelta >= 0.0f)
+        _lumAvgSmooth = _lumAvgSmooth + (_lumAvg - _lumAvgSmooth) * (1.0f - std::exp(-timeDelta * 1.1f));
+    else
+        _lumAvgSmooth = _lumAvg;
 }
 
 float PostProcessLuminance::GetMaxLuminance() const
@@ -99,6 +106,11 @@ float PostProcessLuminance::GetMinLuminance() const
 float PostProcessLuminance::GetAvgLuminance() const
 {
     return _lumAvg;
+}
+
+float PostProcessLuminance::GetAvgSmoothLuminance() const
+{
+    return _lumAvgSmooth;
 }
 
 void PostProcessLuminance::loadShader()

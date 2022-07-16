@@ -28,6 +28,7 @@
 #include "PostProcess/PostProcessGeneral.hpp"
 #include "PostProcess/PostProcessLuminance.hpp"
 #include "PostProcess/PostProcessMSAA.hpp"
+#include "PostProcess/PostProcessTone.hpp"
 
 #include "Tools.hpp"
 

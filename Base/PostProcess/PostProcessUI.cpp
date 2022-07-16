@@ -1,6 +1,7 @@
 #include "PostProcess/PostProcessGamma.hpp"
 #include "PostProcess/PostProcessLuminance.hpp"
 #include "PostProcess/PostProcessMSAA.hpp"
+#include "PostProcess/PostProcessTone.hpp"
 
 #include <imgui.h>
 
@@ -36,6 +37,7 @@ void PostProcessLuminance::UI()
     ImGui::Text("Max: %.4f", _lumMax);
     ImGui::Text("Min: %.4f", _lumMin);
     ImGui::Text("Avg: %.4f", _lumAvg);
+    ImGui::Text("Avg (smooth): %.4f", _lumAvgSmooth);
     ImGui::Separator();
     auto updated = false;
     updated &= ImGui::DragFloat("Min Luminance (log)", &_minLog, 0.01f, -1000.0f, _maxLog, "%.2f");
@@ -45,6 +47,12 @@ void PostProcessLuminance::UI()
         _rangeLog = _maxLog - _minLog;
         _rangeLogInv = _rangeLog ? 1.0f / _rangeLog : 0.0f;
     }
+}
+
+void PostProcessTone::UI()
+{
+    PostProcess::UI();
+    ImGui::DragFloat("Exposure", &_exposure, 0.01f, 0.0f, 1000.0f, "%.2f");
 }
 
 } // namespace RenderIt

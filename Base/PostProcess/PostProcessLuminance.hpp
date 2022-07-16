@@ -23,7 +23,7 @@ class PostProcessLuminance : public PostProcess
     void Draw(std::function<void(const Shader *)> func = nullptr) override;
 
     /// Compute to update luminance info
-    void Compute();
+    void Compute(float timeDelta = -1.0f);
 
     /// Get max luminance
     float GetMaxLuminance() const;
@@ -33,6 +33,9 @@ class PostProcessLuminance : public PostProcess
 
     /// Get avg luminance
     float GetAvgLuminance() const;
+
+    // Get avg smooth luminance
+    float GetAvgSmoothLuminance() const;
 
     void UI();
 
@@ -50,7 +53,7 @@ class PostProcessLuminance : public PostProcess
     void loadSSBO();
 
   private:
-    float _lumMax, _lumMin, _lumAvg;
+    float _lumMax, _lumMin, _lumAvg, _lumAvgSmooth;
     float _minLog, _maxLog, _rangeLog, _rangeLogInv;
     unsigned _numPixels;
     std::shared_ptr<Shader> _shaderFill, _shaderComp;
