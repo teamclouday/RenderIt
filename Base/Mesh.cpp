@@ -22,13 +22,14 @@ void Mesh::Draw(const Shader *shader, const RenderPass &pass) const
     if (!_vao || !_indicesCount || !drawMesh)
         return;
     auto hasCullFace = glIsEnabled(GL_CULL_FACE);
+    auto isTransparent = false;
     if (material)
     {
         // if unordered, skip all checking
         if (pass != RenderPass::AllUnOrdered)
         {
             // check render pass for transparency
-            auto isTransparent = material->valOpacity < 1.0f || material->opacity;
+            isTransparent = material->valOpacity < 1.0f || material->opacity;
             if ((pass == RenderPass::Opaque && isTransparent) || (pass == RenderPass::Transparent && !isTransparent))
                 return;
             // check render pass for refraction
@@ -44,7 +45,17 @@ void Mesh::Draw(const Shader *shader, const RenderPass &pass) const
             glEnable(GL_CULL_FACE);
     }
     _vao->Bind();
-    glDrawElements(primType, static_cast<GLsizei>(_indicesCount), GL_UNSIGNED_INT, 0);
+    if (isTransparent)
+    {
+        // for transparent meshes, render back face and then front face
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
+        glDrawElements(primType, static_cast<GLsizei>(_indicesCount), GL_UNSIGNED_INT, 0);
+        glCullFace(GL_BACK);
+        glDrawElements(primType, static_cast<GLsizei>(_indicesCount), GL_UNSIGNED_INT, 0);
+    }
+    else
+        glDrawElements(primType, static_cast<GLsizei>(_indicesCount), GL_UNSIGNED_INT, 0);
     _vao->UnBind();
     if (hasCullFace)
         glEnable(GL_CULL_FACE);

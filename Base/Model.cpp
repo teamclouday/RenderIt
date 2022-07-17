@@ -226,10 +226,6 @@ bool Model::Load(const std::string &modelSource, bool isFile, unsigned flags, bo
                     material->valHasPBR = false;
             }
 
-            // avoid cull artifacts
-            if (material->valOpacity < 1.0f)
-                material->twoSided = true;
-
             // vertex bone info
             for (auto boneIdx = 0u; boneIdx < mesh->mNumBones; ++boneIdx)
             {
