@@ -1,5 +1,6 @@
 #include "Cameras/FreeCamera.hpp"
 #include "Input.hpp"
+#include "Tools.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -23,13 +24,13 @@ void FreeCamera::PrepareFrame(unsigned clearMask)
     glClear(static_cast<GLbitfield>(clearMask));
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     // update by input
-    ProcessMouseMovements();
-    ProcessWASDKeys();
+    processMouseMovements();
+    processWASDKeys();
     if (!_updated)
         update();
 }
 
-void FreeCamera::ProcessMouseMovements()
+void FreeCamera::processMouseMovements()
 {
     auto input = InputManager::Instance();
 
@@ -59,7 +60,7 @@ void FreeCamera::ProcessMouseMovements()
     _updated = false;
 }
 
-void FreeCamera::ProcessWASDKeys()
+void FreeCamera::processWASDKeys()
 {
     auto input = InputManager::Instance();
 

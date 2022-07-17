@@ -24,14 +24,14 @@ void OrbitCamera::PrepareFrame(unsigned clearMask)
     glClear(static_cast<GLbitfield>(clearMask));
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     // update by input
-    ProcessMouseMovements();
-    ProcessMouseWheel();
-    ProcessWASDKeys();
+    processMouseMovements();
+    processMouseWheel();
+    processWASDKeys();
     if (!_updated)
         update();
 }
 
-void OrbitCamera::ProcessMouseMovements()
+void OrbitCamera::processMouseMovements()
 {
     auto input = InputManager::Instance();
 
@@ -74,7 +74,7 @@ void OrbitCamera::ProcessMouseMovements()
     _updated = false;
 }
 
-void OrbitCamera::ProcessMouseWheel()
+void OrbitCamera::processMouseWheel()
 {
     auto input = InputManager::Instance();
 
@@ -90,7 +90,7 @@ void OrbitCamera::ProcessMouseWheel()
     _updated = false;
 }
 
-void OrbitCamera::ProcessWASDKeys()
+void OrbitCamera::processWASDKeys()
 {
     auto input = InputManager::Instance();
 

@@ -39,13 +39,13 @@ class OrbitCamera : public Camera
 
   private:
     /// Process mouse click & drag
-    void ProcessMouseMovements();
+    void processMouseMovements();
 
     /// Process mouse wheel zoom in/out
-    void ProcessMouseWheel();
+    void processMouseWheel();
 
     /// Process WASD key press
-    void ProcessWASDKeys();
+    void processWASDKeys();
 
   private:
     glm::vec2 _prevMousePos;

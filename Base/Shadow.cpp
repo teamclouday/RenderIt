@@ -46,7 +46,7 @@ void ShadowManager::RecordShadows(std::function<void(const Shader *)> renderFunc
         _csmFBO->Bind();
         glClear(GL_DEPTH_BUFFER_BIT);
         _csmShader->Bind();
-        _csmSSBO->BindBase(0u);
+        _csmSSBO->BindBase(1u);
         for (auto lightIdx = 0u; lightIdx < _lights->_dirLights.size(); ++lightIdx)
         {
             const auto &light = _lights->_dirLights[lightIdx];
@@ -55,7 +55,7 @@ void ShadowManager::RecordShadows(std::function<void(const Shader *)> renderFunc
             _csmShader->UniformInt("lightIdx", static_cast<int>(lightIdx));
             renderFunc(_csmShader.get());
         }
-        _csmSSBO->UnBindBase(0u);
+        _csmSSBO->UnBindBase(1u);
         _csmShader->UnBind();
         _csmFBO->UnBind();
         glDisable(GL_POLYGON_OFFSET_FILL);
@@ -148,10 +148,28 @@ void ShadowManager::setupCSMShaders()
     std::string vertShader = R"(
         #version 450 core
         layout (location = 0) in vec3 inPos;
+        layout(location = 5) in uvec4 inBoneIDs;
+        layout(location = 6) in vec4 inBoneWeights;
         uniform mat4 mat_Model;
+        layout(std430, binding = 0) readonly buffer BoneMatrices
+        {
+            mat4 boneMats[];
+        };
         void main()
         {
-            gl_Position = mat_Model * vec4(inPos, 1.0);
+            mat4 boneTransform;
+            if ((inBoneWeights[0] + inBoneWeights[1] + inBoneWeights[2] + inBoneWeights[3]) != 0.0)
+            {
+                boneTransform = boneMats[inBoneIDs[0]] * inBoneWeights[0];
+                boneTransform += boneMats[inBoneIDs[1]] * inBoneWeights[1];
+                boneTransform += boneMats[inBoneIDs[2]] * inBoneWeights[2];
+                boneTransform += boneMats[inBoneIDs[3]] * inBoneWeights[3];
+            }
+            else
+            {
+                boneTransform = mat4(1.0);
+            }
+            gl_Position = mat_Model * boneTransform * vec4(inPos, 1.0);
         }
     )";
     std::string geomShader = R"(
@@ -160,7 +178,7 @@ void ShadowManager::setupCSMShaders()
         #define SHADOW_CSM_COUNT 4
         layout(triangles, invocations = SHADOW_CSM_COUNT) in;
         layout(triangle_strip, max_vertices = 3) out;
-        layout(std430, binding = 0) readonly buffer LightSpaceMats
+        layout(std430, binding = 1) readonly buffer LightSpaceMats
         {
             mat4 lights[SHADOW_CSM_COUNT * LIGHTS_MAX_DIR_LIGHTS];
         };
@@ -197,6 +215,9 @@ void ShadowManager::computeCSMLightMatrices()
         if (!light.castShadow)
             continue;
         auto lightDir = glm::normalize(light.dir);
+        auto lightUp = glm::vec3(0.0f, 1.0f, 0.0f);
+        if (light.dir == lightUp)
+            lightUp = glm::vec3(0.00001f, 1.0f, 0.0f);
         for (int cascadeIdx = 0; cascadeIdx < SHADOW_CSM_COUNT; ++cascadeIdx)
         {
             vmax = glm::vec3(sphereData[cascadeIdx].w);
@@ -204,10 +225,7 @@ void ShadowManager::computeCSMLightMatrices()
             vext = vmax - vmin;
             ortho = glm::ortho(vmin.x, vmax.x, vmin.y, vmax.y, -_csmNearOffset, _csmNearOffset + vext.z);
             auto center = glm::vec3(sphereData[cascadeIdx]);
-            auto up = glm::vec3(0.0f, 1.0f, 0.0f);
-            if (light.dir == up)
-                up = glm::vec3(0.00001f, 1.0f, 0.0f);
-            view = glm::lookAt(center + lightDir * _csmNearOffset, center, up);
+            view = glm::lookAt(center + lightDir * _csmNearOffset, center, lightUp);
             lightMatrix = ortho * view;
             // align with texels
             origin = lightMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -226,7 +244,7 @@ void ShadowManager::computeCSMLightMatrices()
 
 void Camera::setupCSMData()
 {
-    constexpr float lambda = 0.3f, nd = 0.01f, fd = 10.0f, ratio = fd / nd, count = float(SHADOW_CSM_COUNT);
+    constexpr float lambda = 0.3f, nd = 0.1f, fd = 2.0f, ratio = fd / nd, count = float(SHADOW_CSM_COUNT);
     _csmDistData[0].x = nd;
     float si;
     for (auto i = 1; i < SHADOW_CSM_COUNT; ++i)

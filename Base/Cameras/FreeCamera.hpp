@@ -35,10 +35,10 @@ class FreeCamera : public Camera
 
   private:
     /// Process mouse click & drag
-    void ProcessMouseMovements();
+    void processMouseMovements();
 
     /// Process WASD key press
-    void ProcessWASDKeys();
+    void processWASDKeys();
 
   private:
     glm::vec2 _prevMousePos;

@@ -127,6 +127,7 @@ int main()
     };
 
     auto recordShadows = [&](const Shader *shader) {
+        anim->BindBones(0u);
         shader->UniformMat4(shadows->ShaderModelName, model->transform.matrix);
         model->Draw(shader, RenderPass::Opaque);
     };
@@ -176,12 +177,12 @@ int main()
         shader->UniformMat4("mat_Model", model->transform.matrix);
         shader->UniformMat3("mat_ModelInv", glm::mat3(model->transform.matrixInv));
         shader->UniformMat4("mat_ProjView", mProjView);
-        shader->SsboBinding("BoneMatrices", 0);
-        anim->BindBones(0);
+        shader->SsboBinding("BoneMatrices", 0u);
+        anim->BindBones(0u);
         // fragment stage uniforms
-        shader->SsboBinding("LightsData", 1);
+        shader->SsboBinding("LightsData", 1u);
         shader->UniformVec3("vec_CameraPosWS", cam->GetPosition());
-        lights->BindLights(1);
+        lights->BindLights(1u);
         // set shadow data
         {
             int texIdx = Material::MAX_MAPS_COUNT;
@@ -193,8 +194,8 @@ int main()
         // draw
         model->Draw(shader.get(), RenderPass::AllOrdered);
         // unbind
-        lights->UnBindLights(1);
-        anim->UnBindBones(0);
+        lights->UnBindLights(1u);
+        anim->UnBindBones(0u);
         shader->UnBind();
 
         filterTone->StopRecord();

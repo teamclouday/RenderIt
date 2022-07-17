@@ -337,15 +337,21 @@ float ComputeDirShadowAtten(Surface surface, int lightIdx, float shadowStrength)
     vec4 pos = shadowDirLightData[layerIdx] * vec4(surface.fragPos + surface.normDir * 0.001, 1.0);
     pos.xyz = pos.xyz * 0.5 + 0.5;
     float shadow = 0.0;
-    for (int x = 0; x < 2; ++x)
     {
-        for (int y = 0; y < 2; ++y)
-        {
-            vec2 coord = vec2(x - 0.5, y - 0.5) * SHADOW_SIZE_INV;
-            shadow += pos.z > texture(map_DirShadow, vec3(pos.xy + coord, layerIdx)).r ? 0.0 : 1.0;
-        }
+        vec2 offset = vec2(fract(pos.x * 0.5) > 0.25, fract(pos.y * 0.5) > 0.25); // mod
+        offset.y += offset.x;                                                     // y ^= x in floating point
+        if (offset.y > 1.1)
+            offset.y = 0;
+        shadow += float(
+            pos.z <= texture(map_DirShadow, vec3(pos.xy + (offset + vec2(-1.5, 0.5)) * SHADOW_SIZE_INV, layerIdx)).r);
+        shadow += float(pos.z <=
+                        texture(map_DirShadow, vec3(pos.xy + (offset + vec2(0.5, 0.5)) * SHADOW_SIZE_INV, layerIdx)).r);
+        shadow += float(
+            pos.z <= texture(map_DirShadow, vec3(pos.xy + (offset + vec2(-1.5, -1.5)) * SHADOW_SIZE_INV, layerIdx)).r);
+        shadow += float(
+            pos.z <= texture(map_DirShadow, vec3(pos.xy + (offset + vec2(0.5, -1.5)) * SHADOW_SIZE_INV, layerIdx)).r);
     }
-    return mix(1.0, shadow, shadowStrength);
+    return mix(1.0, shadow * 0.25, shadowStrength);
 }
 
 void main()
