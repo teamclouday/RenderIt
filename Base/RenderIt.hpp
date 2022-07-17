@@ -15,6 +15,7 @@
 #include "RenderPass.hpp"
 #include "Scene.hpp"
 #include "Shader.hpp"
+#include "Shadow.hpp"
 #include "Transform.hpp"
 #include "Vertex.hpp"
 

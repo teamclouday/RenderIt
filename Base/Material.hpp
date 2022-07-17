@@ -104,6 +104,8 @@ struct Material
     bool twoSided = false;
 
 #pragma endregion material_other
+
+    inline static const int MAX_MAPS_COUNT = 17;
 };
 
 } // namespace RenderIt

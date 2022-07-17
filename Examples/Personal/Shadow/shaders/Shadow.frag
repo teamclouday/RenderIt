@@ -87,7 +87,7 @@ struct SpotLight
 #define LIGHTS_MAX_SPOT_LIGHTS 4
 
 // light data
-layout(std430, binding = 1) buffer LightsData
+layout(std430, binding = 1) readonly buffer LightsData
 {
     uint dirLightsLen;
     DirLight dirLights[LIGHTS_MAX_DIR_LIGHTS];
@@ -97,25 +97,24 @@ layout(std430, binding = 1) buffer LightsData
     SpotLight spotLights[LIGHTS_MAX_SPOT_LIGHTS];
 };
 
+// shadow data
+#define SHADOW_SIZE 512
+#define SHADOW_SIZE_INV 0.001953125
+#define SHADOW_CSM_COUNT 4
+uniform sampler2DArray map_DirShadow;
+layout(std430, binding = 2) readonly buffer ShadowDirData
+{
+    vec4 shadowDirData[SHADOW_CSM_COUNT];
+};
+layout(std430, binding = 3) readonly buffer ShadowDirLightData
+{
+    mat4 shadowDirLightData[SHADOW_CSM_COUNT * LIGHTS_MAX_DIR_LIGHTS];
+};
+
 // other uniforms
 uniform vec3 vec_CameraPosWS;
 
 #define PI 3.14159265359
-
-vec3 ComputeNormal()
-{
-    if (map_NORMALS_exists)
-    {
-        mat3 TBN = mat3(vertOut.tangentWS, vertOut.bitangentWS, vertOut.normalWS);
-        // prepare normal tangent space
-        vec3 normalTS = texture(map_NORMALS, vertOut.texCoords).xyz * 2.0 - 1.0;
-        return normalize(TBN * normalTS);
-    }
-    else
-    {
-        return normalize(vertOut.normalWS);
-    }
-}
 
 struct Surface
 {
@@ -132,6 +131,21 @@ struct Surface
     float roughness;
     float ao;
 };
+
+vec3 ComputeNormal()
+{
+    if (map_NORMALS_exists)
+    {
+        mat3 TBN = mat3(vertOut.tangentWS, vertOut.bitangentWS, vertOut.normalWS);
+        // prepare normal tangent space
+        vec3 normalTS = texture(map_NORMALS, vertOut.texCoords).xyz * 2.0 - 1.0;
+        return normalize(TBN * normalTS);
+    }
+    else
+    {
+        return normalize(vertOut.normalWS);
+    }
+}
 
 vec3 GetAmbientColor()
 {
@@ -302,6 +316,38 @@ vec3 ComputeLightPBR2(Surface surface, vec3 lightDir, vec3 lightColor)
     return (surface.colorDiffuse + brdfF * surface.colorSpecular) * lightColor * lightF;
 }
 
+float ComputeDirShadowAtten(Surface surface, int lightIdx, float shadowStrength)
+{
+    // find cascade index
+    int cascadeIdx;
+    float dist = 1.0, sphereW = 0.0;
+    for (cascadeIdx = 0; cascadeIdx < SHADOW_CSM_COUNT; ++cascadeIdx)
+    {
+        vec4 sphere = shadowDirData[cascadeIdx];
+        dist = dot(surface.fragPos - sphere.xyz, surface.fragPos - sphere.xyz);
+        sphereW = sphere.w * sphere.w;
+        if (dist < sphereW)
+            break;
+    }
+    // validate cascade index
+    if (cascadeIdx == SHADOW_CSM_COUNT)
+        return 1.0;
+    // sample shadow maps
+    int layerIdx = lightIdx * SHADOW_CSM_COUNT + cascadeIdx;
+    vec4 pos = shadowDirLightData[layerIdx] * vec4(surface.fragPos + surface.normDir * 0.001, 1.0);
+    pos.xyz = pos.xyz * 0.5 + 0.5;
+    float shadow = 0.0;
+    for (int x = 0; x < 2; ++x)
+    {
+        for (int y = 0; y < 2; ++y)
+        {
+            vec2 coord = vec2(x - 0.5, y - 0.5) * SHADOW_SIZE_INV;
+            shadow += pos.z > texture(map_DirShadow, vec3(pos.xy + coord, layerIdx)).r ? 0.0 : 1.0;
+        }
+    }
+    return mix(1.0, shadow, shadowStrength);
+}
+
 void main()
 {
     Surface surface;
@@ -343,8 +389,9 @@ void main()
             DirLight light = dirLights[i];
             vec3 lightColor = vec3(light.color[0], light.color[1], light.color[2]);
             vec3 lightDir = normalize(vec3(light.dir[0], light.dir[1], light.dir[2]));
-            // accColor += ComputeLightPBR(surface, lightDir, lightColor * light.intensity);
-            accColor += ComputeLightPBR2(surface, lightDir, lightColor * light.intensity);
+            float shadow = light.castShadow > 0.0 ? ComputeDirShadowAtten(surface, int(i), light.shadowStrength) : 1.0;
+            // accColor += ComputeLightPBR(surface, lightDir, lightColor * light.intensity) * shadow;
+            accColor += ComputeLightPBR2(surface, lightDir, lightColor * light.intensity) * shadow;
         }
 
         for (uint i = 0; i < pointLightsLen; i++)
@@ -380,8 +427,9 @@ void main()
             vec3 lightColor = vec3(light.color[0], light.color[1], light.color[2]);
             float diff, spec;
             ComputeDirLight(light, surface, diff, spec);
-            accColor += surface.colorAmbient +
-                        (surface.colorDiffuse * diff + surface.colorSpecular * spec) * light.intensity * lightColor;
+            float shadow = light.castShadow > 0.0 ? ComputeDirShadowAtten(surface, int(i), light.shadowStrength) : 1.0;
+            accColor += surface.colorAmbient + (surface.colorDiffuse * diff + surface.colorSpecular * spec) *
+                                                   light.intensity * lightColor * shadow;
         }
 
         for (uint i = 0; i < pointLightsLen; i++)

@@ -1,8 +1,13 @@
 #pragma once
 #include <glm/glm.hpp>
 
+#include <array>
 #include <memory>
 #include <string>
+
+#include "GLStructs.hpp"
+
+#define SHADOW_CSM_COUNT 4
 
 /** @file */
 
@@ -19,6 +24,8 @@ enum class CameraViewType
 /// Camera class for 3D view
 class Camera
 {
+    friend class ShadowManager;
+
   public:
     Camera();
 
@@ -82,10 +89,18 @@ class Camera
   public:
     const std::string LOGNAME = "Camera";
     glm::vec4 clearColor;
+    bool computeShadowData;
 
   protected:
     /// Internal update
     void update();
+
+  private:
+#pragma region cascaded_shadow
+    void setupCSMData();
+
+    void updateCSMData();
+#pragma endregion cascaded_shadow
 
   protected:
     glm::vec3 _posVec, _centerVec;
@@ -100,6 +115,14 @@ class Camera
     float _fov, _aspect, _viewNear, _viewFar;
 
     bool _updated;
+
+  private:
+#pragma region cascaded_shadow
+    std::array<glm::vec2, SHADOW_CSM_COUNT> _csmDistData;
+    std::array<glm::vec4, SHADOW_CSM_COUNT> _csmSphereData;
+    std::array<glm::vec3[8], SHADOW_CSM_COUNT> _csmFrustumData;
+    std::unique_ptr<SBuffer> _csmDataSSBO;
+#pragma endregion cascaded_shadow
 };
 
 } // namespace RenderIt

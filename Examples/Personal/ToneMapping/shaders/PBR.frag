@@ -56,6 +56,7 @@ struct DirLight
     float color[3];
     float intensity;
     int castShadow;
+    float shadowStrength;
 };
 
 struct PointLight
@@ -65,6 +66,7 @@ struct PointLight
     float color[3];
     float intensity;
     int castShadow;
+    float shadowStrength;
 };
 
 struct SpotLight
@@ -77,6 +79,7 @@ struct SpotLight
     float color[3];
     float intensity;
     int castShadow;
+    float shadowStrength;
 };
 
 #define LIGHTS_MAX_DIR_LIGHTS 4

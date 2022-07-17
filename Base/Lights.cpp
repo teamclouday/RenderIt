@@ -1,7 +1,6 @@
 #include "Lights.hpp"
 
 #include <cstring>
-#include <typeinfo>
 
 namespace RenderIt
 {
@@ -204,28 +203,28 @@ bool LightManager::RemoveLight(LightType type, unsigned idx)
     }
 }
 
-template <typename T> std::optional<T &> LightManager::GetLight(LightType type, unsigned idx)
+void *LightManager::GetLight(LightType type, unsigned idx)
 {
     switch (type)
     {
     case LightType::Point: {
-        if (typeid(T) == typeid(PointLight) && idx < _pointLights.size())
-            return std::optional<std::reference_wrapper<PointLight>>{_pointLights[idx]};
+        if (idx < _pointLights.size())
+            return &_pointLights[idx];
         else
-            return std::nullopt;
+            return nullptr;
     }
     case LightType::Spot: {
-        if (typeid(T) == typeid(SpotLight) && idx < _spotLights.size())
-            return std::optional<std::reference_wrapper<SpotLight>>{_spotLights[idx]};
+        if (idx < _spotLights.size())
+            return &_spotLights[idx];
         else
-            return std::nullopt;
+            return nullptr;
     }
     case LightType::Directional:
     default: {
-        if (typeid(T) == typeid(DirLight) && idx < _dirLights.size())
-            return std::optional<std::reference_wrapper<DirLight>>{_dirLights[idx]};
+        if (idx < _dirLights.size())
+            return &_dirLights[idx];
         else
-            return std::nullopt;
+            return nullptr;
     }
     }
 }

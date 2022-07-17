@@ -9,6 +9,7 @@
 #include "Mesh.hpp"
 #include "Model.hpp"
 #include "Scene.hpp"
+#include "Shadow.hpp"
 #include "Transform.hpp"
 
 #include "Cameras/FreeCamera.hpp"
@@ -525,6 +526,7 @@ bool UIEditDirLight(DirLight &light)
         light.castShadow = static_cast<int>(castShadow);
         updated = true;
     }
+    updated |= ImGui::DragFloat("Shadow Strength", &light.shadowStrength, 0.001f, 0.0f, 1.0f, "%.3f");
     return updated;
 }
 
@@ -541,6 +543,7 @@ bool UIEditPointLight(PointLight &light)
         light.castShadow = static_cast<int>(castShadow);
         updated = true;
     }
+    updated |= ImGui::DragFloat("Shadow Strength", &light.shadowStrength, 0.001f, 0.0f, 1.0f, "%.3f");
     return updated;
 }
 
@@ -560,6 +563,7 @@ bool UIEditSpotLight(SpotLight &light)
         light.castShadow = static_cast<int>(castShadow);
         updated = true;
     }
+    updated |= ImGui::DragFloat("Shadow Strength", &light.shadowStrength, 0.001f, 0.0f, 1.0f, "%.3f");
     return updated;
 }
 
@@ -667,6 +671,16 @@ void Scene::UI()
         index++;
     }
     ImGui::PopID();
+}
+
+void ShadowManager::UI()
+{
+    if (ImGui::TreeNode("Directinal (CSM)"))
+    {
+        ImGui::DragFloat("Light Matrix Offset", &_csmNearOffset, 0.01f, -1000.0f, 1000.0f, "%.2f");
+        ImGui::DragFloat2("Depth Offsets", glm::value_ptr(_csmOffsets), 0.01f);
+        ImGui::TreePop();
+    }
 }
 
 } // namespace RenderIt

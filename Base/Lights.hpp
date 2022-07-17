@@ -1,6 +1,5 @@
 #pragma once
 #include <memory>
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -24,31 +23,34 @@ namespace RenderIt
 struct DirLight
 {
     DirLight(const glm::vec3 &lDir = glm::vec3(1.0f), const glm::vec3 &lColor = glm::vec3(1.0f),
-             float lIntensity = 1.0f, bool lCastShadow = false)
+             float lIntensity = 1.0f, bool lCastShadow = false, float lShadowStrength = 1.0f)
     {
         dir = lDir;
         color = lColor;
         intensity = lIntensity;
         castShadow = static_cast<int>(lCastShadow);
+        shadowStrength = lShadowStrength;
     }
 
     glm::vec3 dir;
     glm::vec3 color;
     float intensity;
     int castShadow;
+    float shadowStrength;
 };
 
 /// Point Light
 struct PointLight
 {
     PointLight(const glm::vec3 &lPos = glm::vec3(0.0f), float lRange = 1.0f, const glm::vec3 &lColor = glm::vec3(1.0f),
-               float lIntensity = 1.0f, bool lCastShadow = false)
+               float lIntensity = 1.0f, bool lCastShadow = false, float lShadowStrength = 1.0f)
     {
         pos = lPos;
         range = lRange;
         color = lColor;
         intensity = lIntensity;
         castShadow = static_cast<int>(lCastShadow);
+        shadowStrength = lShadowStrength;
     }
 
     glm::vec3 pos;
@@ -56,6 +58,7 @@ struct PointLight
     glm::vec3 color;
     float intensity;
     int castShadow;
+    float shadowStrength;
 };
 
 /// Spot Light
@@ -63,7 +66,7 @@ struct SpotLight
 {
     SpotLight(const glm::vec3 &lPos = glm::vec3(0.0f), const glm::vec3 &lDir = glm::vec3(-1.0f), float lRange = 1.0f,
               float lCutoffIn = 0.7f, float lCutoffOut = 0.8f, const glm::vec3 &lColor = glm::vec3(1.0f),
-              float lIntensity = 1.0f, bool lCastShadow = false)
+              float lIntensity = 1.0f, bool lCastShadow = false, float lShadowStrength = 1.0f)
     {
         pos = lPos;
         dir = lDir;
@@ -73,6 +76,7 @@ struct SpotLight
         color = lColor;
         intensity = lIntensity;
         castShadow = static_cast<int>(lCastShadow);
+        shadowStrength = lShadowStrength;
     }
 
     glm::vec3 pos;
@@ -83,6 +87,7 @@ struct SpotLight
     glm::vec3 color;
     float intensity;
     int castShadow;
+    float shadowStrength;
 };
 
 /// Light type
@@ -97,7 +102,7 @@ enum class LightType
 /// Global light manager
 class LightManager
 {
-    friend class Shadow;
+    friend class ShadowManager;
 
   public:
     LightManager();
@@ -130,7 +135,7 @@ class LightManager
     // To update SSBOs, please Update(updateAllLights = true)
 
     /// Get light at index
-    template <typename T> std::optional<T &> GetLight(LightType type, unsigned idx);
+    void *GetLight(LightType type, unsigned idx);
 
     /// Get number of lights of type
     size_t GetNumLights(LightType type) const;
