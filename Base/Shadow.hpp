@@ -11,7 +11,7 @@
 #include "Lights.hpp"
 #include "Shader.hpp"
 
-#define SHADOW_SIZE 512
+#define SHADOW_SIZE 1024
 
 namespace RenderIt
 {

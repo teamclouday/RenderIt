@@ -98,8 +98,8 @@ layout(std430, binding = 1) readonly buffer LightsData
 };
 
 // shadow data
-#define SHADOW_SIZE 512
-#define SHADOW_SIZE_INV 0.001953125
+#define SHADOW_SIZE 1024
+#define SHADOW_SIZE_INV (1.0 / SHADOW_SIZE)
 #define SHADOW_CSM_COUNT 4
 uniform sampler2DArray map_DirShadow;
 layout(std430, binding = 2) readonly buffer ShadowDirData
