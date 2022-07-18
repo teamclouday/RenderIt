@@ -242,9 +242,18 @@ void ShadowManager::computeCSMLightMatrices()
     _csmSSBO->UnBind();
 }
 
-void Camera::setupCSMData()
+void Camera::setupCSMBuffer()
 {
-    constexpr float lambda = 0.3f, nd = 0.1f, fd = 2.0f, ratio = fd / nd, count = float(SHADOW_CSM_COUNT);
+    _csmDataSSBO = std::make_unique<SBuffer>(GL_SHADER_STORAGE_BUFFER);
+    _csmDataSSBO->Bind();
+    glBufferData(_csmDataSSBO->type, SHADOW_CSM_COUNT * sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
+    _csmDataSSBO->UnBind();
+}
+
+void Camera::updateCSMDists()
+{
+    constexpr float lambda = 0.3f, count = float(SHADOW_CSM_COUNT);
+    float nd = _csmNearFar.x, fd = _csmNearFar.y, ratio = fd / nd;
     _csmDistData[0].x = nd;
     float si;
     for (auto i = 1; i < SHADOW_CSM_COUNT; ++i)
@@ -254,11 +263,6 @@ void Camera::setupCSMData()
         _csmDistData[i - 1].y = _csmDistData[i].x * 1.005f;
     }
     _csmDistData[SHADOW_CSM_COUNT - 1].y = fd;
-
-    _csmDataSSBO = std::make_unique<SBuffer>(GL_SHADER_STORAGE_BUFFER);
-    _csmDataSSBO->Bind();
-    glBufferData(_csmDataSSBO->type, SHADOW_CSM_COUNT * sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
-    _csmDataSSBO->UnBind();
 }
 
 void Camera::updateCSMData()

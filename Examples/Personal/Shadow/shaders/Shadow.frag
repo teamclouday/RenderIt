@@ -132,6 +132,16 @@ struct Surface
     float ao;
 };
 
+float Random(vec2 co)
+{
+    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+vec2 RandomCoord(vec2 co, float val)
+{
+    return vec2(Random(co), Random(co.yx * val));
+}
+
 vec3 ComputeNormal()
 {
     if (map_NORMALS_exists)
@@ -331,7 +341,7 @@ float ComputeDirShadowAtten(Surface surface, int lightIdx, float shadowStrength)
     }
     // validate cascade index
     if (cascadeIdx == SHADOW_CSM_COUNT)
-        return 1.0;
+        cascadeIdx = SHADOW_CSM_COUNT - 1;
     // sample shadow maps
     int layerIdx = lightIdx * SHADOW_CSM_COUNT + cascadeIdx;
     vec4 pos = shadowDirLightData[layerIdx] * vec4(surface.fragPos + surface.normDir * 0.001, 1.0);
@@ -340,18 +350,37 @@ float ComputeDirShadowAtten(Surface surface, int lightIdx, float shadowStrength)
     {
         vec2 offset = vec2(fract(pos.x * 0.5) > 0.25, fract(pos.y * 0.5) > 0.25); // mod
         offset.y += offset.x;                                                     // y ^= x in floating point
-        if (offset.y > 1.1)
-            offset.y = 0;
-        shadow += float(
-            pos.z <= texture(map_DirShadow, vec3(pos.xy + (offset + vec2(-1.5, 0.5)) * SHADOW_SIZE_INV, layerIdx)).r);
+        offset.y *= float((offset.y <= 1.1));
         shadow += float(pos.z <=
-                        texture(map_DirShadow, vec3(pos.xy + (offset + vec2(0.5, 0.5)) * SHADOW_SIZE_INV, layerIdx)).r);
-        shadow += float(
-            pos.z <= texture(map_DirShadow, vec3(pos.xy + (offset + vec2(-1.5, -1.5)) * SHADOW_SIZE_INV, layerIdx)).r);
-        shadow += float(
-            pos.z <= texture(map_DirShadow, vec3(pos.xy + (offset + vec2(0.5, -1.5)) * SHADOW_SIZE_INV, layerIdx)).r);
+                        texture(map_DirShadow, vec3(pos.xy + (offset + vec2(-3, 1)) * SHADOW_SIZE_INV, layerIdx)).r) *
+                  0.25;
+        shadow +=
+            float(pos.z <= texture(map_DirShadow, vec3(pos.xy + (offset + vec2(1, 1)) * SHADOW_SIZE_INV, layerIdx)).r) *
+            0.25;
+        shadow += float(pos.z <=
+                        texture(map_DirShadow, vec3(pos.xy + (offset + vec2(-3, -3)) * SHADOW_SIZE_INV, layerIdx)).r) *
+                  0.25;
+        shadow += float(pos.z <=
+                        texture(map_DirShadow, vec3(pos.xy + (offset + vec2(1, -3)) * SHADOW_SIZE_INV, layerIdx)).r) *
+                  0.25;
     }
-    return mix(1.0, shadow * 0.25, shadowStrength);
+    // more sampling for soft edge shadow
+    if (shadow * (1.0 - shadow) != 0.0)
+    {
+        shadow *= 4.0;
+        for (int x = -4; x < 4; x += 2)
+        {
+            for (int y = -4; y < 4; y += 2)
+            {
+                vec2 co = vec2(x, y);
+                vec2 offset = RandomCoord(co * (shadow + 1.0), (shadow + 1.0));
+                shadow +=
+                    float(pos.z <= texture(map_DirShadow, vec3(pos.xy + (co + offset) * SHADOW_SIZE_INV, layerIdx)).r);
+            }
+        }
+        shadow *= 0.05;
+    }
+    return mix(1.0, shadow, shadowStrength);
 }
 
 void main()

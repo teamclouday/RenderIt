@@ -10,7 +10,7 @@ using namespace RenderIt;
 int main()
 {
     std::shared_ptr<AppContext> app;
-    std::shared_ptr<OrbitCamera> cam;
+    std::shared_ptr<FreeCamera> cam;
     std::shared_ptr<InputManager> input;
     std::shared_ptr<Animator> anim;
     std::shared_ptr<LightManager> lights;
@@ -19,7 +19,7 @@ int main()
     try
     {
         app = AppContext::Instance();
-        cam = OrbitCamera::Instance();
+        cam = FreeCamera::Instance();
         input = InputManager::Instance();
         anim = Animator::Instance();
         lights = LightManager::Instance();
@@ -53,6 +53,13 @@ int main()
         return -1;
     }
     model->transform.TransformToUnitOrigin(model->bounds);
+
+    auto modelPlane = std::make_shared<Model>();
+    if (modelPlane->Load(MeshShape::Plane))
+    {
+        modelPlane->transform.position = glm::vec3(0.0f, -0.5f, 0.0f);
+        modelPlane->transform.UpdateMatrix();
+    }
 
     // setup camera
     cam->SetPosition(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -94,9 +101,18 @@ int main()
                 cam->UI();
                 ImGui::EndTabItem();
             }
-            if (model && ImGui::BeginTabItem("Model"))
+            if (model && modelPlane && ImGui::BeginTabItem("Model"))
             {
-                model->UI();
+                if (ImGui::TreeNode("Model"))
+                {
+                    model->UI();
+                    ImGui::TreePop();
+                }
+                if (ImGui::TreeNode("Plane"))
+                {
+                    modelPlane->UI();
+                    ImGui::TreePop();
+                }
                 ImGui::EndTabItem();
             }
             if (lights && ImGui::BeginTabItem("Lights"))
@@ -130,6 +146,8 @@ int main()
         anim->BindBones(0u);
         shader->UniformMat4(shadows->ShaderModelName, model->transform.matrix);
         model->Draw(shader, RenderPass::Opaque);
+        shader->UniformMat4(shadows->ShaderModelName, modelPlane->transform.matrix);
+        modelPlane->Draw(shader);
     };
 
     app->Start();
@@ -193,6 +211,10 @@ int main()
         }
         // draw
         model->Draw(shader.get(), RenderPass::AllOrdered);
+
+        shader->UniformMat4("mat_Model", modelPlane->transform.matrix);
+        shader->UniformMat3("mat_ModelInv", glm::mat3(modelPlane->transform.matrixInv));
+        modelPlane->Draw(shader.get());
         // unbind
         lights->UnBindLights(1u);
         anim->UnBindBones(0u);

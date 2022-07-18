@@ -354,6 +354,10 @@ void Camera::UI()
     ImGui::Text("Aspect Ratio: %.4f", _aspect);
     ImGui::Text("Updated: %s", _updated ? "true" : "false");
 
+    ImGui::Separator();
+    if (ImGui::DragFloat2("CSM Near Far", glm::value_ptr(_csmNearFar), 0.001f, 0.001f, 1000.0f, "%.3f"))
+        updateCSMDists();
+
     ImGui::PopID();
 }
 

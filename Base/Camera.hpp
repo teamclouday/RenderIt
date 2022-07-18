@@ -97,7 +97,9 @@ class Camera
 
   private:
 #pragma region cascaded_shadow
-    void setupCSMData();
+    void setupCSMBuffer();
+
+    void updateCSMDists();
 
     void updateCSMData();
 #pragma endregion cascaded_shadow
@@ -118,6 +120,7 @@ class Camera
 
   private:
 #pragma region cascaded_shadow
+    glm::vec2 _csmNearFar;
     std::array<glm::vec2, SHADOW_CSM_COUNT> _csmDistData;
     std::array<glm::vec4, SHADOW_CSM_COUNT> _csmSphereData;
     std::array<glm::vec3[8], SHADOW_CSM_COUNT> _csmFrustumData;
