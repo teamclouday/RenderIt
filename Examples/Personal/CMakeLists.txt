@@ -50,6 +50,7 @@ set(EXAMPLES
     Transparency
     PBR
     ToneMapping
+    Shadow
 )
 
 buildExamples()
