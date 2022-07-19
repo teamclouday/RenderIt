@@ -347,8 +347,23 @@ float ComputeDirShadowAtten(Surface surface, int lightIdx, float shadowStrength)
     vec4 pos = shadowDirLightData[layerIdx] * vec4(surface.fragPos + surface.normDir * 0.001, 1.0);
     pos.xyz = pos.xyz * 0.5 + 0.5;
     float shadow = 0.0;
-    // more sampling for soft edge shadow
     {
+        for (int x = -4; x < 4; x += 4)
+        {
+            for (int y = -4; y < 4; y += 4)
+            {
+                vec2 co = vec2(x, y);
+                vec2 offset = RandomCoord(co * (shadow + pos.zx), (shadow + 1.0) * pos.y) * 3.0 - 1.0;
+                shadow +=
+                    float(pos.z <= texture(map_DirShadow, vec3(pos.xy + (co + offset) * SHADOW_SIZE_INV, layerIdx)).r) *
+                    0.25;
+            }
+        }
+    }
+    // more sampling for soft edge shadow
+    if (shadow * (1.0 - shadow) != 0.0)
+    {
+        shadow *= 4.0;
         for (int x = -4; x < 4; x += 2)
         {
             for (int y = -4; y < 4; y += 2)
@@ -359,7 +374,7 @@ float ComputeDirShadowAtten(Surface surface, int lightIdx, float shadowStrength)
                     float(pos.z <= texture(map_DirShadow, vec3(pos.xy + (co + offset) * SHADOW_SIZE_INV, layerIdx)).r);
             }
         }
-        shadow *= 0.0625;
+        shadow *= 0.05;
     }
     return mix(1.0, shadow, shadowStrength);
 }
