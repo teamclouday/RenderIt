@@ -357,6 +357,8 @@ void Camera::UI()
     ImGui::Separator();
     if (ImGui::DragFloat2("CSM Near Far", glm::value_ptr(_csmNearFar), 0.001f, 0.001f, 1000.0f, "%.3f"))
         updateCSMDists();
+    if (ImGui::DragFloat2("Omni Near Far", glm::value_ptr(_omniNearFar), 0.001f, 0.001f, 1000.0f, "%.3f"))
+        updateOmniData();
 
     ImGui::PopID();
 }
@@ -683,6 +685,11 @@ void ShadowManager::UI()
     {
         ImGui::DragFloat("Light Matrix Offset", &_csmNearOffset, 0.01f, -1000.0f, 1000.0f, "%.2f");
         ImGui::DragFloat2("Depth Offsets", glm::value_ptr(_csmOffsets), 0.01f);
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Point (Omni)"))
+    {
+        ImGui::DragFloat2("Depth Offsets", glm::value_ptr(_omniOffsets), 0.01f);
         ImGui::TreePop();
     }
 }

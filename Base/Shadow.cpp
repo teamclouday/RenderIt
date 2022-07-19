@@ -8,9 +8,10 @@
 namespace RenderIt
 {
 
-ShadowManager::ShadowManager() : _csmNearOffset(50.0f), _csmOffsets(0.0f, 150.0f)
+ShadowManager::ShadowManager() : _csmNearOffset(50.0f), _csmOffsets(0.0f, 150.0f), _omniOffsets(0.0f, 150.0f)
 {
     setupCSM();
+    setupOmni();
 }
 
 std::shared_ptr<ShadowManager> ShadowManager::Instance()
@@ -37,11 +38,11 @@ void ShadowManager::RecordShadows(std::function<void(const Shader *)> renderFunc
         return;
     }
     glViewport(0, 0, SHADOW_SIZE, SHADOW_SIZE);
+    glEnable(GL_POLYGON_OFFSET_FILL);
     glCullFace(GL_FRONT);
     // directional lights
     {
         computeCSMLightMatrices();
-        glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(_csmOffsets.x, _csmOffsets.y);
         _csmFBO->Bind();
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -58,8 +59,28 @@ void ShadowManager::RecordShadows(std::function<void(const Shader *)> renderFunc
         _csmSSBO->UnBindBase(1u);
         _csmShader->UnBind();
         _csmFBO->UnBind();
-        glDisable(GL_POLYGON_OFFSET_FILL);
     }
+    // point lights
+    {
+        computeOmniLightMatrices();
+        glPolygonOffset(_omniOffsets.x, _omniOffsets.y);
+        _omniFBO->Bind();
+        glClear(GL_DEPTH_BUFFER_BIT);
+        _omniShader->Bind();
+        _omniSSBO->BindBase(1u);
+        for (auto lightIdx = 0u; lightIdx < _lights->_pointLights.size(); ++lightIdx)
+        {
+            const auto &light = _lights->_pointLights[lightIdx];
+            if (!light.castShadow)
+                continue;
+            _omniShader->UniformInt("lightIdx", static_cast<int>(lightIdx));
+            renderFunc(_omniShader.get());
+        }
+        _omniSSBO->UnBindBase(1u);
+        _omniShader->UnBind();
+        _omniFBO->UnBind();
+    }
+    glDisable(GL_POLYGON_OFFSET_FILL);
     glCullFace(GL_BACK);
 }
 
@@ -67,6 +88,9 @@ GLuint ShadowManager::GetShadowMaps(LightType type) const
 {
     switch (type)
     {
+    case LightType::Point: {
+        return _omniShadowMaps->Get();
+    }
     case LightType::Directional:
     default: {
         return _csmShadowMaps->Get();
@@ -83,6 +107,10 @@ void ShadowManager::BindShadowData(LightType type, unsigned binding) const
     }
     switch (type)
     {
+    case LightType::Point: {
+        Tools::display_message(NAME, "point lights have no additional shadow data!", Tools::MessageType::WARN);
+        break;
+    }
     case LightType::Directional:
     default: {
         _camera->_csmDataSSBO->BindBase(binding);
@@ -100,6 +128,10 @@ void ShadowManager::BindLightSpaceData(LightType type, unsigned binding) const
     }
     switch (type)
     {
+    case LightType::Point: {
+        _omniSSBO->BindBase(binding);
+        break;
+    }
     case LightType::Directional:
     default: {
         _csmSSBO->BindBase(binding);
@@ -185,7 +217,7 @@ void ShadowManager::setupCSMShaders()
         uniform int lightIdx;
         void main()
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; ++i)
             {
                 gl_Layer = gl_InvocationID + lightIdx * SHADOW_CSM_COUNT;
                 gl_Position = lights[gl_Layer] * gl_in[i].gl_Position;
@@ -240,6 +272,137 @@ void ShadowManager::computeCSMLightMatrices()
     }
     glUnmapBuffer(_csmSSBO->type);
     _csmSSBO->UnBind();
+}
+
+void ShadowManager::setupOmni()
+{
+    setupOmniBuffers();
+    setupOmniShaders();
+}
+
+void ShadowManager::setupOmniBuffers()
+{
+    // setup omni texture cubemaps
+    _omniShadowMaps = std::make_unique<STexture>(GL_TEXTURE_CUBE_MAP_ARRAY);
+    _omniShadowMaps->Bind();
+    glTexImage3D(_omniShadowMaps->type, 0, GL_DEPTH_COMPONENT, SHADOW_SIZE, SHADOW_SIZE,
+                 6 * LIGHTS_MAX_POINT_LIGHTS, // number of layer-faces
+                 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexParameteri(_omniShadowMaps->type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(_omniShadowMaps->type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(_omniShadowMaps->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(_omniShadowMaps->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(_omniShadowMaps->type, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    _omniShadowMaps->UnBind();
+    // setup framebuffer
+    _omniFBO = std::make_unique<SFBO>();
+    _omniFBO->Bind();
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _omniShadowMaps->Get(), 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    if (!_omniFBO->Validate())
+        Tools::display_message(NAME, "failed to create framebuffer for Omni!", Tools::MessageType::WARN);
+    _omniFBO->UnBind();
+    // setup SSBO
+    _omniSSBO = std::make_unique<SBuffer>(GL_SHADER_STORAGE_BUFFER);
+    _omniSSBO->Bind();
+    glBufferData(_omniSSBO->type, 6 * LIGHTS_MAX_POINT_LIGHTS * sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
+    _omniSSBO->UnBind();
+}
+
+void ShadowManager::setupOmniShaders()
+{
+    std::string vertShader = R"(
+        #version 450 core
+        layout (location = 0) in vec3 inPos;
+        layout(location = 5) in uvec4 inBoneIDs;
+        layout(location = 6) in vec4 inBoneWeights;
+        uniform mat4 mat_Model;
+        layout(std430, binding = 0) readonly buffer BoneMatrices
+        {
+            mat4 boneMats[];
+        };
+        void main()
+        {
+            mat4 boneTransform;
+            if ((inBoneWeights[0] + inBoneWeights[1] + inBoneWeights[2] + inBoneWeights[3]) != 0.0)
+            {
+                boneTransform = boneMats[inBoneIDs[0]] * inBoneWeights[0];
+                boneTransform += boneMats[inBoneIDs[1]] * inBoneWeights[1];
+                boneTransform += boneMats[inBoneIDs[2]] * inBoneWeights[2];
+                boneTransform += boneMats[inBoneIDs[3]] * inBoneWeights[3];
+            }
+            else
+            {
+                boneTransform = mat4(1.0);
+            }
+            gl_Position = mat_Model * boneTransform * vec4(inPos, 1.0);
+        }
+    )";
+    std::string geomShader = R"(
+        #version 450 core
+        #define LIGHTS_MAX_POINT_LIGHTS 4
+        layout(triangles) in;
+        layout(triangle_strip, max_vertices = 18) out;
+        layout(std430, binding = 1) readonly buffer LightSpaceMats
+        {
+            mat4 lights[6 * LIGHTS_MAX_POINT_LIGHTS];
+        };
+        uniform int lightIdx;
+        void main()
+        {
+            for(int face = 0; face < 6; ++face)
+            {
+                gl_Layer = face + 6 * lightIdx;
+                for(int i = 0; i < 3; ++i)
+                {
+                    gl_Position = lights[gl_Layer] * gl_in[i].gl_Position;
+                    EmitVertex();
+                }
+                EndPrimitive();
+            }
+        }
+    )";
+    _omniShader = std::make_shared<Shader>();
+    _omniShader->AddSource(vertShader, GL_VERTEX_SHADER);
+    _omniShader->AddSource(geomShader, GL_GEOMETRY_SHADER);
+    _omniShader->Compile();
+}
+
+void ShadowManager::computeOmniLightMatrices()
+{
+    const auto &matProj = _camera->_omniProjMat;
+    _omniSSBO->Bind();
+    auto matPtr = reinterpret_cast<glm::mat4 *>(glMapBuffer(_omniSSBO->type, GL_WRITE_ONLY));
+    for (auto lightIdx = 0u; lightIdx < _lights->_pointLights.size(); ++lightIdx)
+    {
+        const auto &light = _lights->_pointLights[lightIdx];
+        if (!light.castShadow)
+            continue;
+        const auto &pos = light.pos;
+        // update matrices
+        *(matPtr + (lightIdx * 6 + 0)) =
+            matProj * glm::lookAt(pos, pos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+        *(matPtr + (lightIdx * 6 + 1)) =
+            matProj * glm::lookAt(pos, pos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+
+        *(matPtr + (lightIdx * 6 + 2)) =
+            matProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        *(matPtr + (lightIdx * 6 + 3)) =
+            matProj * glm::lookAt(pos, pos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+
+        *(matPtr + (lightIdx * 6 + 4)) =
+            matProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+        *(matPtr + (lightIdx * 6 + 5)) =
+            matProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+    }
+    glUnmapBuffer(_omniSSBO->type);
+    _omniSSBO->UnBind();
+}
+
+const glm::vec2 &Camera::GetOmniShadowNearFar()
+{
+    return _omniNearFar;
 }
 
 void Camera::setupCSMBuffer()
@@ -307,6 +470,11 @@ void Camera::updateCSMData()
     }
     glUnmapBuffer(_csmDataSSBO->type);
     _csmDataSSBO->UnBind();
+}
+
+void Camera::updateOmniData()
+{
+    _omniProjMat = glm::perspective(glm::radians(90.0f), 1.0f, _omniNearFar.x, _omniNearFar.y);
 }
 
 } // namespace RenderIt

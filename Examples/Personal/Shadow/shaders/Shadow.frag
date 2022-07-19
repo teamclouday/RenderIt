@@ -110,6 +110,8 @@ layout(std430, binding = 3) readonly buffer ShadowDirLightData
 {
     mat4 shadowDirLightData[SHADOW_CSM_COUNT * LIGHTS_MAX_DIR_LIGHTS];
 };
+uniform samplerCubeArray map_PointShadow;
+uniform vec2 shadowPointData;
 
 // other uniforms
 uniform vec3 vec_CameraPosWS;
@@ -140,6 +142,11 @@ float Random(vec2 co)
 vec2 RandomCoord(vec2 co, float val)
 {
     return vec2(Random(co), Random(co.yx * val));
+}
+
+vec3 RandomCoord3(vec3 co, float val)
+{
+    return vec3(Random(co.xy), Random(co.zx * val), Random(vec2(co.y, val)));
 }
 
 vec3 ComputeNormal()
@@ -340,8 +347,8 @@ float ComputeDirShadowAtten(Surface surface, int lightIdx, float shadowStrength)
             break;
     }
     // validate cascade index
-    if (cascadeIdx == SHADOW_CSM_COUNT)
-        cascadeIdx = SHADOW_CSM_COUNT - 1;
+    if (cascadeIdx == SHADOW_CSM_COUNT || shadowStrength == 0.0)
+        return 1.0;
     // sample shadow maps
     int layerIdx = lightIdx * SHADOW_CSM_COUNT + cascadeIdx;
     vec4 pos = shadowDirLightData[layerIdx] * vec4(surface.fragPos + surface.normDir * 0.001, 1.0);
@@ -376,6 +383,41 @@ float ComputeDirShadowAtten(Surface surface, int lightIdx, float shadowStrength)
         }
         shadow *= 0.05;
     }
+    return mix(1.0, shadow, shadowStrength);
+}
+
+float GetTrueDepth(float sampled, float zNear, float zFar)
+{
+    float depth = 2.0 * sampled - 1.0;
+    return 2.0 * zNear * zFar / (zFar + zNear - depth * (zFar - zNear));
+}
+
+float ComputePointShadowAtten(Surface surface, vec3 lightPos, int lightIdx, float shadowStrength)
+{
+    if (shadowStrength == 0.0)
+        return 1.0;
+    vec3 lightToSurface = surface.fragPos + 0.005 * surface.normDir - lightPos;
+    float trueDepth = length(lightToSurface);
+    trueDepth = trueDepth * trueDepth;
+    float shadow = 0.0, depth;
+    // for (int x = -2; x < 2; x += 2)
+    // {
+    //     for (int y = -2; y < 2; y += 2)
+    //     {
+    //         for (int z = -2; z < 2; z += 2)
+    //         {
+    //             vec3 co = vec3(x, y, z);
+    //             vec3 offset = RandomCoord3(co * (shadow + surface.fragPos.zxy), (shadow + 1.0) * surface.fragPos.y);
+    //             depth = GetTrueDepth(
+    //                 texture(map_PointShadow, vec4(lightToSurface + (co + offset) * SHADOW_SIZE_INV, lightIdx)).r,
+    //                 shadowPointData.x, shadowPointData.y);
+    //             shadow += float(trueDepth <= depth) * 0.125;
+    //         }
+    //     }
+    // }
+    depth =
+        GetTrueDepth(texture(map_PointShadow, vec4(lightToSurface, lightIdx)).r, shadowPointData.x, shadowPointData.y);
+    shadow += float(trueDepth <= depth);
     return mix(1.0, shadow, shadowStrength);
 }
 
@@ -429,10 +471,13 @@ void main()
         {
             PointLight light = pointLights[i];
             vec3 lightColor = vec3(light.color[0], light.color[1], light.color[2]);
-            vec3 lightDir = vec3(light.pos[0], light.pos[1], light.pos[2]) - surface.fragPos;
+            vec3 lightPos = vec3(light.pos[0], light.pos[1], light.pos[2]);
+            vec3 lightDir = lightPos - surface.fragPos;
+            float shadow =
+                light.castShadow > 0.0 ? ComputePointShadowAtten(surface, lightPos, int(i), light.shadowStrength) : 1.0;
             float atten = ComputeLightAttenuation(light.range, lightDir);
             // accColor += ComputeLightPBR(surface, normalize(lightDir), lightColor * light.intensity * atten);
-            accColor += ComputeLightPBR2(surface, normalize(lightDir), lightColor * light.intensity * atten);
+            accColor += ComputeLightPBR2(surface, normalize(lightDir), lightColor * light.intensity * atten) * shadow;
         }
 
         for (uint i = 0; i < spotLightsLen; i++)
@@ -467,10 +512,13 @@ void main()
         {
             PointLight light = pointLights[i];
             vec3 lightColor = vec3(light.color[0], light.color[1], light.color[2]);
+            vec3 lightPos = vec3(light.pos[0], light.pos[1], light.pos[2]);
+            float shadow =
+                light.castShadow > 0.0 ? ComputePointShadowAtten(surface, lightPos, int(i), light.shadowStrength) : 1.0;
             float diff, spec, atten;
             ComputePointLight(light, surface, diff, spec, atten);
             accColor += surface.colorAmbient + (surface.colorDiffuse * diff + surface.colorSpecular * spec) *
-                                                   light.intensity * lightColor * atten;
+                                                   light.intensity * lightColor * atten * shadow;
         }
 
         for (uint i = 0; i < spotLightsLen; i++)

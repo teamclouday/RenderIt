@@ -83,6 +83,8 @@ class Camera
     /// Get camera field of view
     float GetFov();
 
+    const glm::vec2 &GetOmniShadowNearFar();
+
     /// UI calls
     void UI();
 
@@ -103,6 +105,10 @@ class Camera
 
     void updateCSMData();
 #pragma endregion cascaded_shadow
+
+#pragma region omnidirectional_shadow
+    void updateOmniData();
+#pragma endregion omnidirectional_shadow
 
   protected:
     glm::vec3 _posVec, _centerVec;
@@ -126,6 +132,11 @@ class Camera
     std::array<glm::vec3[8], SHADOW_CSM_COUNT> _csmFrustumData;
     std::unique_ptr<SBuffer> _csmDataSSBO;
 #pragma endregion cascaded_shadow
+
+#pragma region omnidirectional_shadow
+    glm::vec2 _omniNearFar;
+    glm::mat4 _omniProjMat;
+#pragma endregion omnidirectional_shadow
 };
 
 } // namespace RenderIt

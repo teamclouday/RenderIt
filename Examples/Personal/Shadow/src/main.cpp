@@ -73,8 +73,11 @@ int main()
     auto mProj = cam->GetProj();
 
     // add default light
-    lights->PushLight(LightType::Directional);
-    (reinterpret_cast<DirLight *>(lights->GetLight(LightType::Directional, 0u)))->castShadow = 1.0f;
+    // lights->PushLight(LightType::Directional);
+    // (reinterpret_cast<DirLight *>(lights->GetLight(LightType::Directional, 0u)))->castShadow = 1;
+    lights->PushLight(LightType::Point);
+    (reinterpret_cast<PointLight *>(lights->GetLight(LightType::Point, 0u)))->castShadow = 1;
+    (reinterpret_cast<PointLight *>(lights->GetLight(LightType::Point, 0u)))->pos = glm::vec3(0.3f, 0.0f, 0.0f);
     lights->Update(true);
 
     // filters
@@ -208,6 +211,10 @@ int main()
             shader->TextureBinding(shadows->GetShadowMaps(LightType::Directional), static_cast<unsigned>(texIdx));
             shadows->BindShadowData(LightType::Directional, 2u);
             shadows->BindLightSpaceData(LightType::Directional, 3u);
+            texIdx++;
+            shader->UniformInt("map_PointShadow", texIdx);
+            shader->TextureBinding(shadows->GetShadowMaps(LightType::Point), static_cast<unsigned>(texIdx));
+            shader->UniformVec2("shadowPointData", cam->GetOmniShadowNearFar());
         }
         // draw
         model->Draw(shader.get(), RenderPass::AllOrdered);

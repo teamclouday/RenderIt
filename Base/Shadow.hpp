@@ -54,6 +54,18 @@ class ShadowManager
 
 #pragma endregion cascaded_shadow
 
+#pragma region omnidirectional_shadow
+
+    void setupOmni();
+
+    void setupOmniBuffers();
+
+    void setupOmniShaders();
+
+    void computeOmniLightMatrices();
+
+#pragma endregion omnidirectional_shadow
+
   private:
     std::shared_ptr<LightManager> _lights;
     std::shared_ptr<Camera> _camera;
@@ -66,6 +78,14 @@ class ShadowManager
     std::shared_ptr<Shader> _csmShader;
     std::shared_ptr<SBuffer> _csmSSBO;
 #pragma endregion cascaded_shadow
+
+#pragma region omnidirectional_shadow
+    glm::vec2 _omniOffsets;
+    std::unique_ptr<STexture> _omniShadowMaps;
+    std::shared_ptr<SFBO> _omniFBO;
+    std::shared_ptr<Shader> _omniShader;
+    std::shared_ptr<SBuffer> _omniSSBO;
+#pragma endregion omnidirectional_shadow
 };
 
 } // namespace RenderIt
