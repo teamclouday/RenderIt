@@ -321,6 +321,7 @@ void LightManager::prepareDrawData()
             float color[3];
             float intensity;
             int castShadow;
+            float shadowStrength;
         };
 
         struct PointLight
@@ -330,6 +331,7 @@ void LightManager::prepareDrawData()
             float color[3];
             float intensity;
             int castShadow;
+            float shadowStrength;
         };
 
         struct SpotLight
@@ -342,6 +344,7 @@ void LightManager::prepareDrawData()
             float color[3];
             float intensity;
             int castShadow;
+            float shadowStrength;
         };
 
         #define LIGHTS_MAX_DIR_LIGHTS 4
