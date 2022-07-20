@@ -111,7 +111,7 @@ layout(std430, binding = 3) readonly buffer ShadowDirLightData
     mat4 shadowDirLightData[SHADOW_CSM_COUNT * LIGHTS_MAX_DIR_LIGHTS];
 };
 uniform samplerCubeArray map_PointShadow;
-uniform vec2 shadowPointData;
+uniform vec3 shadowPointData;
 
 // other uniforms
 uniform vec3 vec_CameraPosWS;
@@ -386,20 +386,12 @@ float ComputeDirShadowAtten(Surface surface, int lightIdx, float shadowStrength)
     return mix(1.0, shadow, shadowStrength);
 }
 
-float GetTrueDepth(float sampled, float zNear, float zFar)
-{
-    // float depth = 2.0 * sampled - 1.0;
-    // return 2.0 * zNear * zFar / (zFar + zNear - depth * (zFar - zNear));
-    return sampled * zFar;
-}
-
 float ComputePointShadowAtten(Surface surface, vec3 lightPos, int lightIdx, float shadowStrength)
 {
     if (shadowStrength == 0.0)
         return 1.0;
-    vec3 lightToSurface = surface.fragPos + 0.005 * surface.normDir - lightPos;
-    float trueDepth = length(lightToSurface);
-    trueDepth = trueDepth * trueDepth;
+    vec3 lightToSurface = surface.fragPos + shadowPointData.z * surface.normDir - lightPos;
+    float trueDepth = dot(lightToSurface, lightToSurface);
     float shadow = 0.0, depth;
     for (int x = -2; x < 2; x += 2)
     {
@@ -409,9 +401,8 @@ float ComputePointShadowAtten(Surface surface, vec3 lightPos, int lightIdx, floa
             {
                 vec3 co = vec3(x, y, z);
                 vec3 offset = RandomCoord3(co * (shadow + surface.fragPos.zxy), (shadow + 1.0) * surface.fragPos.y);
-                depth = GetTrueDepth(
-                    texture(map_PointShadow, vec4(lightToSurface + (co + offset) * SHADOW_SIZE_INV, lightIdx)).r,
-                    shadowPointData.x, shadowPointData.y);
+                depth = texture(map_PointShadow, vec4(lightToSurface + (co + offset) * SHADOW_SIZE_INV, lightIdx)).r *
+                        shadowPointData.y;
                 shadow += float(trueDepth <= depth) * 0.125;
             }
         }

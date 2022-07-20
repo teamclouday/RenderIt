@@ -83,7 +83,7 @@ class Camera
     /// Get camera field of view
     float GetFov();
 
-    const glm::vec2 &GetOmniShadowNearFar();
+    const glm::vec3 &GetOmniShadowData();
 
     /// UI calls
     void UI();
@@ -134,7 +134,7 @@ class Camera
 #pragma endregion cascaded_shadow
 
 #pragma region omnidirectional_shadow
-    glm::vec2 _omniNearFar;
+    glm::vec3 _omniNearFarOffset;
     glm::mat4 _omniProjMat;
 #pragma endregion omnidirectional_shadow
 };

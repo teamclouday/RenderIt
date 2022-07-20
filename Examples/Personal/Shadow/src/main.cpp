@@ -213,7 +213,7 @@ int main()
             texIdx++;
             shader->UniformInt("map_PointShadow", texIdx);
             shader->TextureBinding(shadows->GetShadowMaps(LightType::Point), static_cast<unsigned>(texIdx));
-            shader->UniformVec2("shadowPointData", cam->GetOmniShadowNearFar());
+            shader->UniformVec3("shadowPointData", cam->GetOmniShadowData());
         }
         // draw
         model->Draw(shader.get(), RenderPass::AllOrdered);

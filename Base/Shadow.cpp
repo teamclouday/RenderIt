@@ -63,11 +63,11 @@ void ShadowManager::RecordShadows(std::function<void(const Shader *)> renderFunc
     // point lights
     {
         computeOmniLightMatrices();
-        glPolygonOffset(_omniOffsets.x, _omniOffsets.y);
+        glPolygonOffset(_omniOffsets.x, _omniOffsets.y); // this does not seem to have any effect
         _omniFBO->Bind();
         glClear(GL_DEPTH_BUFFER_BIT);
         _omniShader->Bind();
-        _omniShader->UniformFloat("farPlaneInv", 1.0f / _camera->_omniNearFar.y);
+        _omniShader->UniformFloat("farPlaneInv", 1.0f / _camera->_omniNearFarOffset.y);
         _omniSSBO->BindBase(1u);
         for (auto lightIdx = 0u; lightIdx < _lights->_pointLights.size(); ++lightIdx)
         {
@@ -374,7 +374,8 @@ void ShadowManager::setupOmniShaders()
         uniform float farPlaneInv;
         void main()
         {
-            gl_FragDepth = length(fragPos.xyz - lightPos) * farPlaneInv;
+            vec3 dist = fragPos.xyz - lightPos;
+            gl_FragDepth = dot(dist, dist) * farPlaneInv;
         }
     )";
     _omniShader = std::make_shared<Shader>();
@@ -415,9 +416,9 @@ void ShadowManager::computeOmniLightMatrices()
     _omniSSBO->UnBind();
 }
 
-const glm::vec2 &Camera::GetOmniShadowNearFar()
+const glm::vec3 &Camera::GetOmniShadowData()
 {
-    return _omniNearFar;
+    return _omniNearFarOffset;
 }
 
 void Camera::setupCSMBuffer()
@@ -489,7 +490,7 @@ void Camera::updateCSMData()
 
 void Camera::updateOmniData()
 {
-    _omniProjMat = glm::perspective(glm::radians(90.0f), 1.0f, _omniNearFar.x, _omniNearFar.y);
+    _omniProjMat = glm::perspective(glm::radians(90.0f), 1.0f, _omniNearFarOffset.x, _omniNearFarOffset.y);
 }
 
 } // namespace RenderIt

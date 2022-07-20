@@ -357,8 +357,9 @@ void Camera::UI()
     ImGui::Separator();
     if (ImGui::DragFloat2("CSM Near Far", glm::value_ptr(_csmNearFar), 0.001f, 0.001f, 1000.0f, "%.3f"))
         updateCSMDists();
-    if (ImGui::DragFloat2("Omni Near Far", glm::value_ptr(_omniNearFar), 0.001f, 0.001f, 1000.0f, "%.3f"))
+    if (ImGui::DragFloat2("Omni Near Far", glm::value_ptr(_omniNearFarOffset), 0.001f, 0.001f, 1000.0f, "%.3f"))
         updateOmniData();
+    ImGui::DragFloat("Omni Normal Offset", &_omniNearFarOffset.z, 0.0001f, 0.0f, 1.0f, "%.4f");
 
     ImGui::PopID();
 }
