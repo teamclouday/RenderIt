@@ -388,8 +388,9 @@ float ComputeDirShadowAtten(Surface surface, int lightIdx, float shadowStrength)
 
 float GetTrueDepth(float sampled, float zNear, float zFar)
 {
-    float depth = 2.0 * sampled - 1.0;
-    return 2.0 * zNear * zFar / (zFar + zNear - depth * (zFar - zNear));
+    // float depth = 2.0 * sampled - 1.0;
+    // return 2.0 * zNear * zFar / (zFar + zNear - depth * (zFar - zNear));
+    return sampled * zFar;
 }
 
 float ComputePointShadowAtten(Surface surface, vec3 lightPos, int lightIdx, float shadowStrength)
@@ -400,24 +401,21 @@ float ComputePointShadowAtten(Surface surface, vec3 lightPos, int lightIdx, floa
     float trueDepth = length(lightToSurface);
     trueDepth = trueDepth * trueDepth;
     float shadow = 0.0, depth;
-    // for (int x = -2; x < 2; x += 2)
-    // {
-    //     for (int y = -2; y < 2; y += 2)
-    //     {
-    //         for (int z = -2; z < 2; z += 2)
-    //         {
-    //             vec3 co = vec3(x, y, z);
-    //             vec3 offset = RandomCoord3(co * (shadow + surface.fragPos.zxy), (shadow + 1.0) * surface.fragPos.y);
-    //             depth = GetTrueDepth(
-    //                 texture(map_PointShadow, vec4(lightToSurface + (co + offset) * SHADOW_SIZE_INV, lightIdx)).r,
-    //                 shadowPointData.x, shadowPointData.y);
-    //             shadow += float(trueDepth <= depth) * 0.125;
-    //         }
-    //     }
-    // }
-    depth =
-        GetTrueDepth(texture(map_PointShadow, vec4(lightToSurface, lightIdx)).r, shadowPointData.x, shadowPointData.y);
-    shadow += float(trueDepth <= depth);
+    for (int x = -2; x < 2; x += 2)
+    {
+        for (int y = -2; y < 2; y += 2)
+        {
+            for (int z = -2; z < 2; z += 2)
+            {
+                vec3 co = vec3(x, y, z);
+                vec3 offset = RandomCoord3(co * (shadow + surface.fragPos.zxy), (shadow + 1.0) * surface.fragPos.y);
+                depth = GetTrueDepth(
+                    texture(map_PointShadow, vec4(lightToSurface + (co + offset) * SHADOW_SIZE_INV, lightIdx)).r,
+                    shadowPointData.x, shadowPointData.y);
+                shadow += float(trueDepth <= depth) * 0.125;
+            }
+        }
+    }
     return mix(1.0, shadow, shadowStrength);
 }
 

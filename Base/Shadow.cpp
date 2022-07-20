@@ -67,12 +67,14 @@ void ShadowManager::RecordShadows(std::function<void(const Shader *)> renderFunc
         _omniFBO->Bind();
         glClear(GL_DEPTH_BUFFER_BIT);
         _omniShader->Bind();
+        _omniShader->UniformFloat("farPlaneInv", 1.0f / _camera->_omniNearFar.y);
         _omniSSBO->BindBase(1u);
         for (auto lightIdx = 0u; lightIdx < _lights->_pointLights.size(); ++lightIdx)
         {
             const auto &light = _lights->_pointLights[lightIdx];
             if (!light.castShadow)
                 continue;
+            _omniShader->UniformVec3("lightPos", light.pos);
             _omniShader->UniformInt("lightIdx", static_cast<int>(lightIdx));
             renderFunc(_omniShader.get());
         }
@@ -344,6 +346,7 @@ void ShadowManager::setupOmniShaders()
         #define LIGHTS_MAX_POINT_LIGHTS 4
         layout(triangles) in;
         layout(triangle_strip, max_vertices = 18) out;
+        layout (location = 0) out vec4 fragPos;
         layout(std430, binding = 1) readonly buffer LightSpaceMats
         {
             mat4 lights[6 * LIGHTS_MAX_POINT_LIGHTS];
@@ -356,16 +359,28 @@ void ShadowManager::setupOmniShaders()
                 gl_Layer = face + 6 * lightIdx;
                 for(int i = 0; i < 3; ++i)
                 {
-                    gl_Position = lights[gl_Layer] * gl_in[i].gl_Position;
+                    fragPos = gl_in[i].gl_Position;
+                    gl_Position = lights[gl_Layer] * fragPos;
                     EmitVertex();
                 }
                 EndPrimitive();
             }
         }
     )";
+    std::string fragShader = R"(
+        #version 450 core
+        layout (location = 0) in vec4 fragPos;
+        uniform vec3 lightPos;
+        uniform float farPlaneInv;
+        void main()
+        {
+            gl_FragDepth = length(fragPos.xyz - lightPos) * farPlaneInv;
+        }
+    )";
     _omniShader = std::make_shared<Shader>();
     _omniShader->AddSource(vertShader, GL_VERTEX_SHADER);
     _omniShader->AddSource(geomShader, GL_GEOMETRY_SHADER);
+    _omniShader->AddSource(fragShader, GL_FRAGMENT_SHADER);
     _omniShader->Compile();
 }
 
