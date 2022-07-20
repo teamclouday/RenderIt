@@ -73,11 +73,10 @@ int main()
     auto mProj = cam->GetProj();
 
     // add default light
-    // lights->PushLight(LightType::Directional);
-    // (reinterpret_cast<DirLight *>(lights->GetLight(LightType::Directional, 0u)))->castShadow = 1;
+    lights->PushLight(LightType::Directional);
+    (reinterpret_cast<DirLight *>(lights->GetLight(LightType::Directional, 0u)))->castShadow = 1;
     lights->PushLight(LightType::Point);
     (reinterpret_cast<PointLight *>(lights->GetLight(LightType::Point, 0u)))->castShadow = 1;
-    (reinterpret_cast<PointLight *>(lights->GetLight(LightType::Point, 0u)))->pos = glm::vec3(0.3f, 0.0f, 0.0f);
     lights->Update(true);
 
     // filters
