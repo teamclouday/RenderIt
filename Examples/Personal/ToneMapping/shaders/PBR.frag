@@ -10,6 +10,7 @@ layout(location = 0) in VERTOUT
     vec3 bitangentWS;
     vec2 texCoords;
     vec4 fragPosWS;
+    vec4 color;
 }
 vertOut;
 
@@ -49,6 +50,7 @@ uniform sampler2D mapPBR_OCCLUSION;
 uniform bool mapPBR_OCCLUSION_exists;
 uniform float valPBR_METALLIC;
 uniform float valPBR_ROUGHNESS;
+uniform float val_ALPHACUTOFF;
 
 struct DirLight
 {
@@ -135,24 +137,27 @@ struct Surface
 
 vec3 GetAmbientColor()
 {
-    return val_AMBIENT * (map_AMBIENT_exists ? texture(map_AMBIENT, vertOut.texCoords).rgb : vec3(0.25));
+    return val_AMBIENT *
+           (map_AMBIENT_exists ? texture(map_AMBIENT, vertOut.texCoords).rgb : (0.25 * vertOut.color.rgb));
 }
 
-vec3 GetDiffuseColor()
+vec4 GetBaseColor()
 {
     if (val_HASPBR && mapPBR_COLOR_exists)
     {
-        return texture(mapPBR_COLOR, vertOut.texCoords).rgb;
+        return vertOut.color * texture(mapPBR_COLOR, vertOut.texCoords);
     }
     else
     {
-        return val_DIFFUSE * (map_DIFFUSE_exists ? texture(map_DIFFUSE, vertOut.texCoords).rgb : vec3(0.75));
+        return vec4(val_DIFFUSE *
+                        (map_DIFFUSE_exists ? texture(map_DIFFUSE, vertOut.texCoords).rgb : (0.75 * vertOut.color.rgb)),
+                    1.0);
     }
 }
 
 vec3 GetSpecularColor()
 {
-    return val_SPECULAR * (map_SPECULAR_exists ? texture(map_SPECULAR, vertOut.texCoords).rgb : vec3(1.0));
+    return val_SPECULAR * (map_SPECULAR_exists ? texture(map_SPECULAR, vertOut.texCoords).rgb : vertOut.color.rgb);
 }
 
 vec3 GetEmissiveColor()
@@ -167,7 +172,7 @@ float GetOcclusion()
 
 float GetOpacity()
 {
-    return val_OPACITY * (map_OPACITY_exists ? texture(map_OPACITY, vertOut.texCoords).r : 1.0);
+    return val_OPACITY * (map_OPACITY_exists ? texture(map_OPACITY, vertOut.texCoords).r : vertOut.color.a);
 }
 
 float GetMetallic()
@@ -318,14 +323,21 @@ void main()
 
     if (val_HASPBR)
     {
-        vec3 color = GetDiffuseColor();
-        surface.colorDiffuse = mix(color * 0.96, vec3(0.0), surface.metallic);
-        surface.colorSpecular = mix(vec3(0.04), color, surface.metallic);
+        vec4 color = GetBaseColor();
+        surface.colorDiffuse = mix(color.rgb * 0.96, vec3(0.0), surface.metallic);
+        surface.colorSpecular = mix(vec3(0.04), color.rgb, surface.metallic);
+        surface.opacity *= color.a;
     }
     else
     {
-        surface.colorDiffuse = GetDiffuseColor();
+        surface.colorDiffuse = GetBaseColor().rgb;
         surface.colorSpecular = GetSpecularColor();
+    }
+
+    // apply alpha mask
+    if (val_ALPHACUTOFF * float(surface.opacity < val_ALPHACUTOFF) != 0.0)
+    {
+        discard;
     }
 
     if (dirLightsLen + pointLightsLen + spotLightsLen == 0)

@@ -19,6 +19,8 @@ struct Vertex
 
     glm::uvec4 boneIDs;
     glm::vec4 boneWeights;
+
+    glm::vec4 color;
 };
 
 } // namespace RenderIt

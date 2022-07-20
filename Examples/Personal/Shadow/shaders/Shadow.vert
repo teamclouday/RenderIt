@@ -7,6 +7,7 @@ layout(location = 3) in vec3 inTangent;
 layout(location = 4) in vec3 inBiTangent;
 layout(location = 5) in uvec4 inBoneIDs;
 layout(location = 6) in vec4 inBoneWeights;
+layout(location = 7) in vec4 inColor;
 
 layout(location = 0) out VERTOUT
 {
@@ -15,6 +16,7 @@ layout(location = 0) out VERTOUT
     vec3 bitangentWS;
     vec2 texCoords;
     vec4 fragPosWS;
+    vec4 color;
 }
 vertOut;
 
@@ -51,5 +53,6 @@ void main()
     vertOut.bitangentWS = normalize(inBiTangent * normInvMat * mat_ModelInv);
     vertOut.texCoords = inTexCoords;
     vertOut.fragPosWS = mat_Model * boneTransform * vec4(inPos, 1.0);
+    vertOut.color = inColor;
     gl_Position = mat_ProjView * vertOut.fragPosWS;
 }

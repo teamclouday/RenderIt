@@ -154,6 +154,7 @@ void Shader::ConfigMaterialTextures(const Material *mat) const
     UniformFloat(Material::valNameValPBRMetallic, mat->valPBRMetallic);
     UniformFloat(Material::valNameValPBRRoughness, mat->valPBRRoughness);
     UniformBool(Material::valNameHasPBR, mat->valHasPBR);
+    UniformFloat(Material::valNameValAlphaCutoff, mat->valAlphaCutoff);
 }
 
 void Shader::UniformBool(const std::string &name, bool val) const

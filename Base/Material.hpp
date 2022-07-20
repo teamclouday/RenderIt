@@ -81,6 +81,12 @@ struct Material
     float valRefract = 1.0f;
     bool valHasPBR = false;
 
+    // this is only valid in gltf 2.0
+    // but since I use gltf most time, why not support it :)
+    // if cutoff == 0.0, no cutoff
+    // if cutoff in (0, 1), do cutoff
+    float valAlphaCutoff = 0.0f;
+
     inline static const std::string valNameColorAmbient = "val_AMBIENT";
     inline static const std::string valNameColorDiffuse = "val_DIFFUSE";
     inline static const std::string valNameColorSpecular = "val_SPECULAR";
@@ -90,6 +96,7 @@ struct Material
     inline static const std::string valNameValOpacity = "val_OPACITY";
     inline static const std::string valNameValRefract = "val_REFRACT";
     inline static const std::string valNameHasPBR = "val_HASPBR";
+    inline static const std::string valNameValAlphaCutoff = "val_ALPHACUTOFF";
 
     float valPBRMetallic = 0.0f;
     float valPBRRoughness = 0.0f;

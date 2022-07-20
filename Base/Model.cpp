@@ -4,6 +4,7 @@
 #include "Tools.hpp"
 #include "Vertex.hpp"
 
+#include <assimp/GltfMaterial.h>
 #include <assimp/Importer.hpp>
 #include <glm/glm.hpp>
 #include <stb_image.h>
@@ -103,6 +104,8 @@ bool Model::Load(const std::string &modelSource, bool isFile, unsigned flags, bo
                                      : glm::vec3(0.0f);
                 auto defaultBoneID = glm::uvec4(0);
                 auto defaultBoneWeights = glm::vec4(0.0f);
+                auto vertexColor =
+                    mesh->HasVertexColors(0) ? Tools::convertAssimpColor(mesh->mColors[0][vertexIdx]) : glm::vec4(1.0f);
 
                 // transform mesh if no bone attached
                 if (!mesh->mNumBones)
@@ -127,7 +130,7 @@ bool Model::Load(const std::string &modelSource, bool isFile, unsigned flags, bo
                 }
 
                 vertices.push_back(
-                    {position, normal, texcoords, tangent, bitangent, defaultBoneID, defaultBoneWeights});
+                    {position, normal, texcoords, tangent, bitangent, defaultBoneID, defaultBoneWeights, vertexColor});
             }
 
             // indices data
@@ -192,6 +195,7 @@ bool Model::Load(const std::string &modelSource, bool isFile, unsigned flags, bo
             aiColor3D color;
             float fval{0.0f};
             int ival{0};
+            aiString sval;
             if (mat->Get(AI_MATKEY_COLOR_AMBIENT, color) == AI_SUCCESS)
                 material->colorAmbient = Tools::convertAssimpColor(color);
             if (mat->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS)
@@ -224,6 +228,17 @@ bool Model::Load(const std::string &modelSource, bool isFile, unsigned flags, bo
                     material->valHasPBR = true;
                 else
                     material->valHasPBR = false;
+            }
+
+            if (mat->Get(AI_MATKEY_GLTF_ALPHACUTOFF, fval) == AI_SUCCESS)
+            {
+                if (mat->Get(AI_MATKEY_GLTF_ALPHAMODE, sval) == AI_SUCCESS)
+                {
+                    if (!std::string(sval.C_Str()).compare("MASK"))
+                        material->valAlphaCutoff = fval;
+                }
+                else
+                    material->valAlphaCutoff = fval;
             }
 
             // vertex bone info
