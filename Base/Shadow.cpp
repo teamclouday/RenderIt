@@ -181,9 +181,11 @@ void ShadowManager::setupCSMShaders()
 {
     std::string vertShader = R"(
         #version 450 core
-        layout (location = 0) in vec3 inPos;
+        layout(location = 0) in vec3 inPos;
+        layout(location = 2) in vec2 inTex;
         layout(location = 5) in uvec4 inBoneIDs;
         layout(location = 6) in vec4 inBoneWeights;
+        layout(location = 0) out vec2 vertBaseUV;
         uniform mat4 mat_Model;
         layout(std430, binding = 0) readonly buffer BoneMatrices
         {
@@ -203,6 +205,7 @@ void ShadowManager::setupCSMShaders()
             {
                 boneTransform = mat4(1.0);
             }
+            vertBaseUV = inTex;
             gl_Position = mat_Model * boneTransform * vec4(inPos, 1.0);
         }
     )";
@@ -212,6 +215,8 @@ void ShadowManager::setupCSMShaders()
         #define SHADOW_CSM_COUNT 4
         layout(triangles, invocations = SHADOW_CSM_COUNT) in;
         layout(triangle_strip, max_vertices = 3) out;
+        layout(location = 0) in vec2 vertBaseUV[];
+        layout(location = 0) out vec2 baseUV;
         layout(std430, binding = 1) readonly buffer LightSpaceMats
         {
             mat4 lights[SHADOW_CSM_COUNT * LIGHTS_MAX_DIR_LIGHTS];
@@ -223,14 +228,30 @@ void ShadowManager::setupCSMShaders()
             {
                 gl_Layer = gl_InvocationID + lightIdx * SHADOW_CSM_COUNT;
                 gl_Position = lights[gl_Layer] * gl_in[i].gl_Position;
+                baseUV = vertBaseUV[i];
                 EmitVertex();
             }
             EndPrimitive();
         }
     )";
+    std::string fragShader = R"(
+        #version 450 core
+        layout(location = 0) in vec2 baseUV;
+        uniform bool val_HASPBR;
+        uniform float val_ALPHACUTOFF;
+        uniform sampler2D mapPBR_COLOR;
+        uniform bool mapPBR_COLOR_exists;
+        void main()
+        {
+            if(val_HASPBR && mapPBR_COLOR_exists &&
+                (val_ALPHACUTOFF * float(texture(mapPBR_COLOR, baseUV).a < val_ALPHACUTOFF) != 0.0))
+                discard;
+        }
+    )";
     _csmShader = std::make_shared<Shader>();
     _csmShader->AddSource(vertShader, GL_VERTEX_SHADER);
     _csmShader->AddSource(geomShader, GL_GEOMETRY_SHADER);
+    _csmShader->AddSource(fragShader, GL_FRAGMENT_SHADER);
     _csmShader->Compile();
 }
 
@@ -316,9 +337,11 @@ void ShadowManager::setupOmniShaders()
 {
     std::string vertShader = R"(
         #version 450 core
-        layout (location = 0) in vec3 inPos;
+        layout(location = 0) in vec3 inPos;
+        layout(location = 2) in vec2 inTex;
         layout(location = 5) in uvec4 inBoneIDs;
         layout(location = 6) in vec4 inBoneWeights;
+        layout(location = 0) out vec2 vertBaseUV;
         uniform mat4 mat_Model;
         layout(std430, binding = 0) readonly buffer BoneMatrices
         {
@@ -338,6 +361,7 @@ void ShadowManager::setupOmniShaders()
             {
                 boneTransform = mat4(1.0);
             }
+            vertBaseUV = inTex;
             gl_Position = mat_Model * boneTransform * vec4(inPos, 1.0);
         }
     )";
@@ -346,7 +370,9 @@ void ShadowManager::setupOmniShaders()
         #define LIGHTS_MAX_POINT_LIGHTS 4
         layout(triangles) in;
         layout(triangle_strip, max_vertices = 18) out;
-        layout (location = 0) out vec4 fragPos;
+        layout(location = 0) in vec2 vertBaseUV[];
+        layout(location = 0) out vec2 baseUV;
+        layout(location = 1) out vec4 fragPos;
         layout(std430, binding = 1) readonly buffer LightSpaceMats
         {
             mat4 lights[6 * LIGHTS_MAX_POINT_LIGHTS];
@@ -361,6 +387,7 @@ void ShadowManager::setupOmniShaders()
                 {
                     fragPos = gl_in[i].gl_Position;
                     gl_Position = lights[gl_Layer] * fragPos;
+                    baseUV = vertBaseUV[i];
                     EmitVertex();
                 }
                 EndPrimitive();
@@ -369,11 +396,19 @@ void ShadowManager::setupOmniShaders()
     )";
     std::string fragShader = R"(
         #version 450 core
-        layout (location = 0) in vec4 fragPos;
+        layout(location = 0) in vec2 baseUV;
+        layout (location = 1) in vec4 fragPos;
         uniform vec3 lightPos;
         uniform float farPlaneInv;
+        uniform bool val_HASPBR;
+        uniform float val_ALPHACUTOFF;
+        uniform sampler2D mapPBR_COLOR;
+        uniform bool mapPBR_COLOR_exists;
         void main()
         {
+            if(val_HASPBR && mapPBR_COLOR_exists &&
+                (val_ALPHACUTOFF * float(texture(mapPBR_COLOR, baseUV).a < val_ALPHACUTOFF) != 0.0))
+                discard;
             vec3 dist = fragPos.xyz - lightPos;
             gl_FragDepth = dot(dist, dist) * farPlaneInv;
         }
