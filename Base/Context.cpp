@@ -136,6 +136,9 @@ void AppContext::initializeLocal()
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK)
         throw std::runtime_error("Failed to init GLEW!");
+    _vendorInfo = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+    _rendererInfo = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();

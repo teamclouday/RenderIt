@@ -85,6 +85,8 @@ class AppContext
   private:
     int _winW, _winH;
     std::string _winTitle;
+    std::string _vendorInfo;
+    std::string _rendererInfo;
     GLFWwindow *_window;
     float _tPrev, _tDelta;
 };

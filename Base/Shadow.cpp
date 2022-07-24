@@ -8,10 +8,12 @@
 namespace RenderIt
 {
 
-ShadowManager::ShadowManager() : _csmNearOffset(50.0f), _csmOffsets(0.0f, 150.0f), _omniOffsets(0.0f, 150.0f)
+ShadowManager::ShadowManager()
+    : _csmNearOffset(50.0f), _csmOffsets(0.0f, 150.0f), _omniOffsets(0.0f, 1.0f), _spotOffsets(0.0f, 150.0f)
 {
     setupCSM();
     setupOmni();
+    setupSpot();
 }
 
 std::shared_ptr<ShadowManager> ShadowManager::Instance()
@@ -449,6 +451,121 @@ void ShadowManager::computeOmniLightMatrices()
     }
     glUnmapBuffer(_omniSSBO->type);
     _omniSSBO->UnBind();
+}
+
+void ShadowManager::setupSpot()
+{
+    setupSpotBuffers();
+    setupSpotShaders();
+}
+
+void ShadowManager::setupSpotBuffers()
+{
+    // setup spot light shadow textures
+    _spotShadowMaps = std::make_unique<STexture>(GL_TEXTURE_2D_ARRAY);
+    _spotShadowMaps->Bind();
+    glTexImage3D(_spotShadowMaps->type, 0, GL_DEPTH_COMPONENT, SHADOW_SIZE, SHADOW_SIZE, LIGHTS_MAX_SPOT_LIGHTS, 0,
+                 GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexParameteri(_spotShadowMaps->type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(_spotShadowMaps->type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(_spotShadowMaps->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(_spotShadowMaps->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    _spotShadowMaps->UnBind();
+    // setup framebuffer
+    _spotFBO = std::make_unique<SFBO>();
+    _spotFBO->Bind();
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _spotShadowMaps->Get(), 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    if (!_spotFBO->Validate())
+        Tools::display_message(NAME, "failed to create framebuffer for Spotlights!", Tools::MessageType::WARN);
+    _spotFBO->UnBind();
+    // setup SSBO
+    _spotSSBO = std::make_unique<SBuffer>(GL_SHADER_STORAGE_BUFFER);
+    _spotSSBO->Bind();
+    glBufferData(_spotSSBO->type, LIGHTS_MAX_SPOT_LIGHTS * sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
+    _spotSSBO->UnBind();
+}
+
+void ShadowManager::setupSpotShaders()
+{
+    std::string vertShader = R"(
+        #version 450 core
+        layout(location = 0) in vec3 inPos;
+        layout(location = 2) in vec2 inTex;
+        layout(location = 5) in uvec4 inBoneIDs;
+        layout(location = 6) in vec4 inBoneWeights;
+        layout(location = 0) out vec2 vertBaseUV;
+        uniform mat4 mat_Model;
+        layout(std430, binding = 0) readonly buffer BoneMatrices
+        {
+            mat4 boneMats[];
+        };
+        void main()
+        {
+            mat4 boneTransform;
+            if ((inBoneWeights[0] + inBoneWeights[1] + inBoneWeights[2] + inBoneWeights[3]) != 0.0)
+            {
+                boneTransform = boneMats[inBoneIDs[0]] * inBoneWeights[0];
+                boneTransform += boneMats[inBoneIDs[1]] * inBoneWeights[1];
+                boneTransform += boneMats[inBoneIDs[2]] * inBoneWeights[2];
+                boneTransform += boneMats[inBoneIDs[3]] * inBoneWeights[3];
+            }
+            else
+            {
+                boneTransform = mat4(1.0);
+            }
+            vertBaseUV = inTex;
+            gl_Position = mat_Model * boneTransform * vec4(inPos, 1.0);
+        }
+    )";
+    std::string geomShader = R"(
+        #version 450 core
+        #define LIGHTS_MAX_SPOT_LIGHTS 4
+        layout(triangles) in;
+        layout(triangle_strip, max_vertices = 3) out;
+        layout(location = 0) in vec2 vertBaseUV[];
+        layout(location = 0) out vec2 baseUV;
+        layout(std430, binding = 1) readonly buffer LightSpaceMats
+        {
+            mat4 lights[LIGHTS_MAX_SPOT_LIGHTS];
+        };
+        uniform int lightIdx;
+        void main()
+        {
+            for (int i = 0; i < 3; ++i)
+            {
+                gl_Layer = lightIdx;
+                gl_Position = lights[gl_Layer] * gl_in[i].gl_Position;
+                baseUV = vertBaseUV[i];
+                EmitVertex();
+            }
+            EndPrimitive();
+        }
+    )";
+    std::string fragShader = R"(
+        #version 450 core
+        layout(location = 0) in vec2 baseUV;
+        uniform bool val_HASPBR;
+        uniform float val_ALPHACUTOFF;
+        uniform sampler2D mapPBR_COLOR;
+        uniform bool mapPBR_COLOR_exists;
+        void main()
+        {
+            if(val_HASPBR && mapPBR_COLOR_exists &&
+                (val_ALPHACUTOFF * float(texture(mapPBR_COLOR, baseUV).a < val_ALPHACUTOFF) != 0.0))
+                discard;
+        }
+    )";
+    _spotShader = std::make_shared<Shader>();
+    _spotShader->AddSource(vertShader, GL_VERTEX_SHADER);
+    _spotShader->AddSource(geomShader, GL_GEOMETRY_SHADER);
+    _spotShader->AddSource(fragShader, GL_FRAGMENT_SHADER);
+    _spotShader->Compile();
+}
+
+void ShadowManager::computeSpotLightMatrices()
+{
 }
 
 const glm::vec3 &Camera::GetOmniShadowData()

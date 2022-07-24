@@ -66,6 +66,18 @@ class ShadowManager
 
 #pragma endregion omnidirectional_shadow
 
+#pragma region spot_shadow
+
+    void setupSpot();
+
+    void setupSpotBuffers();
+
+    void setupSpotShaders();
+
+    void computeSpotLightMatrices();
+
+#pragma endregion spot_shadow
+
   private:
     std::shared_ptr<LightManager> _lights;
     std::shared_ptr<Camera> _camera;
@@ -86,6 +98,14 @@ class ShadowManager
     std::shared_ptr<Shader> _omniShader;
     std::shared_ptr<SBuffer> _omniSSBO;
 #pragma endregion omnidirectional_shadow
+
+#pragma region spot_shadow
+    glm::vec2 _spotOffsets;
+    std::unique_ptr<STexture> _spotShadowMaps;
+    std::shared_ptr<SFBO> _spotFBO;
+    std::shared_ptr<Shader> _spotShader;
+    std::shared_ptr<SBuffer> _spotSSBO;
+#pragma endregion spot_shadow
 };
 
 } // namespace RenderIt

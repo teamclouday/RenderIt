@@ -370,24 +370,21 @@ void LightManager::prepareDrawData()
             vec4 pos = vec4(vLightScale * inPos, 1.0);
             if (vLightType == LIGHT_TYPE_DIR)
             {
-                pos.xyz += vCameraPos + vec3(dirLights[gl_InstanceID].dir[0], dirLights[gl_InstanceID].dir[1],
-                                            dirLights[gl_InstanceID].dir[2]);
-                vertColor = vec3(dirLights[gl_InstanceID].color[0], dirLights[gl_InstanceID].color[1],
-                                dirLights[gl_InstanceID].color[2]);
+                DirLight light = dirLights[gl_InstanceID];
+                pos.xyz += vCameraPos + vec3(light.dir[0], light.dir[1], light.dir[2]);
+                vertColor = vec3(light.color[0], light.color[1], light.color[2]) * light.intensity;
             }
             else if (vLightType == LIGHT_TYPE_POINT)
             {
-                pos.xyz += vec3(pointLights[gl_InstanceID].pos[0], pointLights[gl_InstanceID].pos[1],
-                                pointLights[gl_InstanceID].pos[2]);
-                vertColor = vec3(pointLights[gl_InstanceID].color[0], pointLights[gl_InstanceID].color[1],
-                                pointLights[gl_InstanceID].color[2]);
+                PointLight light = pointLights[gl_InstanceID];
+                pos.xyz += vec3(light.pos[0], light.pos[1], light.pos[2]);
+                vertColor = vec3(light.color[0], light.color[1], light.color[2]) * light.intensity;
             }
             else
             {
-                pos.xyz +=
-                    vec3(spotLights[gl_InstanceID].pos[0], spotLights[gl_InstanceID].pos[1], spotLights[gl_InstanceID].pos[2]);
-                vertColor = vec3(spotLights[gl_InstanceID].color[0], spotLights[gl_InstanceID].color[1],
-                                spotLights[gl_InstanceID].color[2]);
+                SpotLight light = spotLights[gl_InstanceID];
+                pos.xyz += vec3(light.pos[0], light.pos[1], light.pos[2]);
+                vertColor = vec3(light.color[0], light.color[1], light.color[2]) * light.intensity;
             }
             gl_Position = mProjView * pos;
         }

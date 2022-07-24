@@ -18,6 +18,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 
+#include <array>
 #include <memory>
 #include <string>
 
@@ -274,11 +275,34 @@ void UIShowAnimNode(const Animation::Node &node)
 
 void AppContext::UI()
 {
+#define FPS_SIZE 100
+#define FPS_BUFFER_SIZE 200 // > FPS_SIZE
+    static std::array<float, FPS_BUFFER_SIZE> fpsData;
+    static int iter = 0, size = 0;
+    auto fps = ImGui::GetIO().Framerate;
+    if ((size + iter) < FPS_BUFFER_SIZE)
+    {
+        fpsData[iter + size] = fps;
+        if (size >= FPS_SIZE)
+            iter++;
+        else
+            size++;
+    }
+    else
+    {
+        for (auto i = 0; i < FPS_SIZE; ++i)
+            fpsData[i] = fpsData[i + iter];
+        iter = 0;
+    }
+
     ImGui::PushID(LOGNAME.c_str());
 
     ImGui::Text("App [%s]", _winTitle.c_str());
     ImGui::Text("Window Size: (%dx%d)", _winW, _winH);
-    ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
+    ImGui::Text("GPU Vendor: %s", _vendorInfo.c_str());
+    ImGui::Text("GPU Renderer: %s", _rendererInfo.c_str());
+    ImGui::Text("Current FPS: %.4f", fps);
+    ImGui::PlotHistogram("FPS", fpsData.data(), FPS_SIZE, iter, nullptr, 0.0f, 100.0f, ImVec2(250.0f, 50.0f));
     ImGui::Text("Author: ");
     ImGui::SameLine();
     ImGui::TextColored(ImVec4(0.25f, 1.0f, 0.7f, 1.0f), "teamclouday");
