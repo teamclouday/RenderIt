@@ -21,6 +21,7 @@ void Mesh::Draw(const Shader *shader, const RenderPass &pass) const
 {
     if (!_vao || !_indicesCount || !drawMesh)
         return;
+    auto hasBlend = glIsEnabled(GL_BLEND);
     auto hasCullFace = glIsEnabled(GL_CULL_FACE);
     auto isTransparent = false;
     if (material)
@@ -55,12 +56,17 @@ void Mesh::Draw(const Shader *shader, const RenderPass &pass) const
         glDrawElements(primType, static_cast<GLsizei>(_indicesCount), GL_UNSIGNED_INT, 0);
     }
     else
+    {
+        glDisable(GL_BLEND);
         glDrawElements(primType, static_cast<GLsizei>(_indicesCount), GL_UNSIGNED_INT, 0);
+    }
     _vao->UnBind();
     if (hasCullFace)
         glEnable(GL_CULL_FACE);
     else
         glDisable(GL_CULL_FACE);
+    if (hasBlend)
+        glEnable(GL_BLEND);
 }
 
 void Mesh::Load(const std::vector<Vertex> &vertices, const std::vector<unsigned> &indices,
