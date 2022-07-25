@@ -161,6 +161,13 @@ void UIEditMaterial(std::shared_ptr<Material> &mat)
         ImGui::DragFloat(Material::valNameValPBRRoughness.c_str(), &mat->valPBRRoughness, 0.001f, 0.0f, 1.0f, "%.3f");
         ImGui::Checkbox("PBR Mode", &mat->valHasPBR);
         ImGui::Checkbox("Two Sided", &mat->twoSided);
+        if (ImGui::TreeNode("Alpha Mode"))
+        {
+            ImGui::RadioButton("OPAQUE", &mat->alphaMode, 0);
+            ImGui::RadioButton("BLEND", &mat->alphaMode, 1);
+            ImGui::RadioButton("MASK", &mat->alphaMode, 2);
+            ImGui::TreePop();
+        }
         ImGui::TreePop();
     }
 }

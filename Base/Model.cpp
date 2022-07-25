@@ -230,16 +230,17 @@ bool Model::Load(const std::string &modelSource, bool isFile, unsigned flags, bo
                     material->valHasPBR = false;
             }
 
-            if (mat->Get(AI_MATKEY_GLTF_ALPHACUTOFF, fval) == AI_SUCCESS)
+            if (mat->Get(AI_MATKEY_GLTF_ALPHAMODE, sval) == AI_SUCCESS)
             {
-                if (mat->Get(AI_MATKEY_GLTF_ALPHAMODE, sval) == AI_SUCCESS)
-                {
-                    if (!std::string(sval.C_Str()).compare("MASK"))
-                        material->valAlphaCutoff = fval;
-                }
-                else
-                    material->valAlphaCutoff = fval;
+                if (!std::string(sval.C_Str()).compare("BLEND"))
+                    material->alphaMode = 1;
+                else if (!std::string(sval.C_Str()).compare("MASK"))
+                    material->alphaMode = 2;
+                else // OPAQUE
+                    material->alphaMode = 0;
             }
+            if (mat->Get(AI_MATKEY_GLTF_ALPHACUTOFF, fval) == AI_SUCCESS && material->alphaMode == 2)
+                material->valAlphaCutoff = fval;
 
             // vertex bone info
             for (auto boneIdx = 0u; boneIdx < mesh->mNumBones; ++boneIdx)

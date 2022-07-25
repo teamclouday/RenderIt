@@ -29,12 +29,12 @@ void Mesh::Draw(const Shader *shader, const RenderPass &pass) const
         if (pass != RenderPass::AllUnOrdered)
         {
             // check render pass for transparency
-            isTransparent = material->valOpacity < 1.0f || material->opacity;
-            if ((pass == RenderPass::Opaque && isTransparent) || (pass == RenderPass::Transparent && !isTransparent))
+            isTransparent = material->valOpacity < 1.0f || material->opacity || material->alphaMode == 1;
+            if ((pass == RenderPass::Transparent) != isTransparent)
                 return;
             // check render pass for refraction
             auto isRefract = material->valRefract != 1.0f;
-            if ((pass == RenderPass::Transmissive && !isRefract) || (pass != RenderPass::Transmissive && isRefract))
+            if ((pass == RenderPass::Transmissive) != isRefract)
                 return;
         }
         // configure material

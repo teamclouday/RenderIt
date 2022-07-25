@@ -109,6 +109,7 @@ struct Material
 #pragma region material_other
 
     bool twoSided = false;
+    int alphaMode = 0; // 0 opaque, 1 alpha blending, 2 alpha mask
 
 #pragma endregion material_other
 
