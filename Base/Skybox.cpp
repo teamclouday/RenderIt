@@ -200,8 +200,7 @@ void Skybox::ClearBackground(const glm::mat4 &mProj, const glm::mat4 &mView) con
         return;
     }
     auto hasDepth = glIsEnabled(GL_DEPTH_TEST);
-    if (hasDepth)
-        glDisable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST);
     auto mProjView = mProj * glm::mat4(glm::mat3(mView));
     _drawShader->Bind();
     _drawShader->UniformMat4("mProjView", mProjView);
