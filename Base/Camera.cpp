@@ -11,8 +11,9 @@ namespace RenderIt
 Camera::Camera()
     : clearColor(0.0f, 0.0f, 0.0f, 1.0f), computeShadowData(false), _posVec(0.0f, 0.0f, -1.0f), _centerVec(0.0f),
       _upVec(0.0f), _frontVec(0.0f), _rightVec(0.0f), _worldUpVec(0.0f, 1.0f, 0.0f), _dist(0.0f), _projMat(1.0f),
-      _viewMat(1.0f), _viewType(CameraViewType::Persp), _fov(45.0f), _aspect(1.0f), _viewNear(0.1f), _viewFar(1000.0f),
-      _updated(false), _csmNearFar(0.01f, 2.0f), _omniNearFarOffset(0.1f, 25.0f, 0.005f)
+      _viewMat(1.0f), _projMatInv(1.0f), _viewMatInv(1.0f), _viewType(CameraViewType::Persp), _fov(45.0f),
+      _aspect(1.0f), _viewNear(0.1f), _viewFar(1000.0f), _updated(false), _csmNearFar(0.01f, 2.0f),
+      _omniNearFarOffset(0.1f, 25.0f, 0.005f)
 {
     setupCSMBuffer();
     updateCSMDists();
@@ -41,6 +42,16 @@ const glm::mat4 &Camera::GetView()
 const glm::mat4 &Camera::GetProj()
 {
     return _projMat;
+}
+
+const glm::mat4 &Camera::GetViewInv()
+{
+    return _viewMatInv;
+}
+
+const glm::mat4 &Camera::GetProjInv()
+{
+    return _projMatInv;
 }
 
 void Camera::SetPosition(const glm::vec3 &pos)
@@ -132,6 +143,7 @@ void Camera::update()
     _upVec = glm::normalize(glm::cross(_rightVec, _frontVec));
 
     _viewMat = glm::lookAt(_posVec, _posVec + _frontVec, _upVec);
+    _viewMatInv = glm::inverse(_viewMat);
     switch (_viewType)
     {
     case CameraViewType::Ortho: {
@@ -141,11 +153,13 @@ void Camera::update()
         _projMat = glm::ortho(-size_x, size_x, -size_y, size_y, 0.0f, 2.0f * _dist);
         break;
     }
-    case CameraViewType::Persp: {
+    case CameraViewType::Persp:
+    default: {
         _projMat = glm::perspective(glm::radians(_fov), _aspect, _viewNear, _viewFar);
         break;
     }
     }
+    _projMatInv = glm::inverse(_projMat);
     if (computeShadowData)
         updateCSMData();
     _updated = true;

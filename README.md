@@ -21,5 +21,5 @@ See `Examples` folder for demos
 
 ------
 
-[Latest Work](Examples/GPUGems/Chapter7)\
-![latest](Examples/GPUGems/Chapter7/misc/screenshot.png)
+[Latest Work](Examples/Personal/Skybox)\
+![latest](Examples/Personal/Skybox/misc/screenshot1.png)

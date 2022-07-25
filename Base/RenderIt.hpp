@@ -16,6 +16,7 @@
 #include "Scene.hpp"
 #include "Shader.hpp"
 #include "Shadow.hpp"
+#include "Skybox.hpp"
 #include "Transform.hpp"
 #include "Vertex.hpp"
 

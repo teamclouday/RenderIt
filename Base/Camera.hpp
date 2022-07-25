@@ -41,6 +41,12 @@ class Camera
     /// Get projection matrix
     const glm::mat4 &GetProj();
 
+    /// Get inverse view matrix
+    const glm::mat4 &GetViewInv();
+
+    /// Get inverse projection matrix
+    const glm::mat4 &GetProjInv();
+
     /// Set camera position (world space)
     void SetPosition(const glm::vec3 &pos);
 
@@ -118,6 +124,7 @@ class Camera
     float _dist;
 
     glm::mat4 _projMat, _viewMat;
+    glm::mat4 _projMatInv, _viewMatInv;
 
     CameraViewType _viewType;
     float _fov, _aspect, _viewNear, _viewFar;

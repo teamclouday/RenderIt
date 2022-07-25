@@ -51,6 +51,7 @@ set(EXAMPLES
     PBR
     ToneMapping
     Shadow
+    Skybox
 )
 
 buildExamples()
