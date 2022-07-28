@@ -43,6 +43,7 @@ set(EXAMPLES
     Chapter2
     Chapter5
     Chapter7
+    Chapter8
 )
 
 buildExamples()
