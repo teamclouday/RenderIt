@@ -19,3 +19,6 @@
 [submodule "External/stb"]
 	path = External/stb
 	url = https://github.com/nothings/stb.git
+[submodule "External/optick"]
+	path = External/optick
+	url = https://github.com/bombomby/optick.git

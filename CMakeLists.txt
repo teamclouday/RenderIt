@@ -45,6 +45,9 @@ OPTION(ASSIMP_BUILD_ZLIB
 )
 add_subdirectory(${CMAKE_SOURCE_DIR}/External/assimp EXCLUDE_FROM_ALL)
 
+option(OPTICK_INSTALL_TARGETS "Should optick be installed? Set to OFF if you use add_subdirectory to include Optick." OFF)
+add_subdirectory(${CMAKE_SOURCE_DIR}/External/optick)
+
 file(GLOB IMGUI_SRC
     ${CMAKE_SOURCE_DIR}/External/imgui/*.cpp
     ${CMAKE_SOURCE_DIR}/External/imgui/*.h
@@ -72,6 +75,7 @@ set(RENDERIT_HEADERS
     ${CMAKE_SOURCE_DIR}/External/assimp/include
     ${CMAKE_SOURCE_DIR}/External/termcolor/include
     ${CMAKE_SOURCE_DIR}/External/stb
+    ${CMAKE_SOURCE_DIR}/External/optick/src
     ${CMAKE_SOURCE_DIR}/Base
 )
 
@@ -80,6 +84,7 @@ set(RENDERIT_LIBS
     glfw
     assimp
     ImGui
+    OptickCore
     OpenGL::GL
     Threads::Threads
     RenderItLib
