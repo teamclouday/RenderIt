@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <stb_image.h>
 
+#include <algorithm>
 #include <filesystem>
 #include <queue>
 #include <tuple>
@@ -323,6 +324,11 @@ bool Model::Load(const std::string &modelSource, bool isFile, unsigned flags, bo
         updateDynamicBounds(scene);
 
     bounds.Validate();
+
+    // sort mesh by num indices (decreasing order)
+    std::sort(_meshes.begin(), _meshes.end(), [](const std::shared_ptr<Mesh> &v1, const std::shared_ptr<Mesh> &v2) {
+        return v1->GetNumIndices() > v2->GetNumIndices();
+    });
 
     return true;
 }
