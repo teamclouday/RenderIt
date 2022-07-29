@@ -15,7 +15,6 @@ target_include_directories(RenderItLib PRIVATE
     ${CMAKE_SOURCE_DIR}/External/assimp/include
     ${CMAKE_SOURCE_DIR}/External/termcolor/include
     ${CMAKE_SOURCE_DIR}/External/stb
-    ${CMAKE_SOURCE_DIR}/External/optick/src
     ${CMAKE_SOURCE_DIR}/Base
 )
 
@@ -24,13 +23,16 @@ target_link_libraries(RenderItLib PRIVATE
     glfw
     assimp
     ImGui
-    OptickCore
     OpenGL::GL
     Threads::Threads
 )
 
 if(WIN32)
-    target_link_libraries(RenderItLib PRIVATE
-        comdlg32
-    )
+target_link_libraries(RenderItLib PRIVATE
+    comdlg32
+    OptickCore
+)
+target_link_directories(RenderItLib PRIVATE
+    ${CMAKE_SOURCE_DIR}/External/optick/src
+)
 endif()

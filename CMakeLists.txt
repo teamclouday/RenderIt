@@ -75,7 +75,6 @@ set(RENDERIT_HEADERS
     ${CMAKE_SOURCE_DIR}/External/assimp/include
     ${CMAKE_SOURCE_DIR}/External/termcolor/include
     ${CMAKE_SOURCE_DIR}/External/stb
-    ${CMAKE_SOURCE_DIR}/External/optick/src
     ${CMAKE_SOURCE_DIR}/Base
 )
 
@@ -84,11 +83,21 @@ set(RENDERIT_LIBS
     glfw
     assimp
     ImGui
-    OptickCore
     OpenGL::GL
     Threads::Threads
     RenderItLib
 )
+
+if(WIN32)
+set(RENDERIT_LIBS
+    ${RENDERIT_LIBS}
+    OptickCore
+)
+set(RENDERIT_HEADERS
+    ${RENDERIT_HEADERS}
+    ${CMAKE_SOURCE_DIR}/External/optick/src
+)
+endif()
 
 if(RENDERIT_EXAMPLES_PERSONAL)
 add_subdirectory(Examples/Personal)
