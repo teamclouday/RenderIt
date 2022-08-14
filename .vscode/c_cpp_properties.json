@@ -14,10 +14,27 @@
                 "${workspaceFolder}/External/stb"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/gcc",
             "cStandard": "c17",
             "cppStandard": "c++20",
             "intelliSenseMode": "linux-gcc-x64"
+        },
+        {
+            "name": "Windows",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/External/assimp/include",
+                "${workspaceFolder}/External/glew-cmake/include",
+                "${workspaceFolder}/External/glfw/include",
+                "${workspaceFolder}/External/glm",
+                "${workspaceFolder}/External/imgui",
+                "${workspaceFolder}/External/imgui/backends",
+                "${workspaceFolder}/External/termcolor/include",
+                "${workspaceFolder}/External/stb"
+            ],
+            "compilerPath": "",
+            "cStandard": "c17",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "windows-msvc-x64"
         }
     ],
     "version": 4
