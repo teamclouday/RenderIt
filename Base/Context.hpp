@@ -87,6 +87,7 @@ class AppContext
     std::string _winTitle;
     std::string _vendorInfo;
     std::string _rendererInfo;
+    std::string _imguiFilePath;
     GLFWwindow *_window;
     float _tPrev, _tDelta;
 };

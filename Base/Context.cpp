@@ -8,6 +8,9 @@
 
 #include <algorithm>
 #include <stdexcept>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 namespace RenderIt
 {
@@ -142,7 +145,9 @@ void AppContext::initializeLocal()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
-    io.IniFilename = "RenderItApp.ini";
+
+    _imguiFilePath = (fs::current_path() / fs::path("RenderItApp.ini")).string();
+    io.IniFilename = _imguiFilePath.c_str();
     ImGui::StyleColorsDark();
 
     ImGui_ImplGlfw_InitForOpenGL(_window, true);
