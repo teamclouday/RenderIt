@@ -23,6 +23,8 @@ namespace fs = std::filesystem;
 namespace RenderIt
 {
 
+const char *LOGNAME = "Tools";
+
 void Tools::display_message(const std::string &title, const std::string &message, MessageType type)
 {
     switch (type)
@@ -47,7 +49,10 @@ void Tools::display_message(const std::string &title, const std::string &message
 std::string Tools::read_file_content(const std::string &path)
 {
     if (!fs::is_regular_file(path))
+    {
+        display_message(LOGNAME, "Path " + path + " is not a file", MessageType::WARN);
         return "";
+    }
     std::ifstream f(path);
     std::stringstream sstr;
     sstr << f.rdbuf();
@@ -56,7 +61,6 @@ std::string Tools::read_file_content(const std::string &path)
 
 std::string Tools::select_file_in_explorer(const std::string &title)
 {
-    const char *LOGNAME = "Tools";
     char filepath[1024];
     memset(filepath, sizeof(filepath), 0);
 #if defined(WIN32) || defined(_WIN32)
@@ -68,7 +72,7 @@ std::string Tools::select_file_in_explorer(const std::string &title)
     f.lpstrFilter = "All Files\0*.*\0\0";
     f.lpstrTitle = title.c_str();
     f.nMaxFile = sizeof(filepath);
-    f.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
+    f.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
     if (!GetOpenFileNameA(&f))
     {
         display_message(LOGNAME, "No file selected", MessageType::WARN);
